@@ -1,0 +1,493 @@
+{
+  "logs": [
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:3000/favicon.ico"
+      }
+    },
+    {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "location": {
+        "url": "http://localhost:3000/favicon.ico"
+      }
+    }
+  ],
+  "nets": [
+    {
+      "type": "request",
+      "url": "http://localhost:3000/inspeccion.html",
+      "method": "GET",
+      "headers": {
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/inspeccion.html",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "2697",
+        "content-type": "text/html; charset=UTF-8",
+        "date": "Thu, 16 Oct 2025 12:07:32 GMT",
+        "etag": "W/\"a89-199eca99df1\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:56:03 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/styles.css",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/inspeccion.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/inspeccion.js",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/inspeccion.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/styles.css",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "36594",
+        "content-type": "text/css; charset=UTF-8",
+        "date": "Thu, 16 Oct 2025 12:07:32 GMT",
+        "etag": "W/\"8ef2-199eca99d8c\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:56:02 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/inspeccion.js",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "27129",
+        "content-type": "application/javascript; charset=UTF-8",
+        "date": "Thu, 16 Oct 2025 12:07:32 GMT",
+        "etag": "W/\"69f9-199ecc12c10\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 11:21:46 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/favicon.ico",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/inspeccion.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/favicon.ico",
+      "status": 404,
+      "headers": {
+        "access-control-allow-origin": "*",
+        "connection": "keep-alive",
+        "content-length": "150",
+        "content-security-policy": "default-src 'none'",
+        "content-type": "text/html; charset=utf-8",
+        "date": "Thu, 16 Oct 2025 12:07:32 GMT",
+        "keep-alive": "timeout=5",
+        "x-content-type-options": "nosniff",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/dashboard.html",
+      "method": "GET",
+      "headers": {
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/dashboard.html",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "3996",
+        "content-type": "text/html; charset=UTF-8",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"f9c-199eca4d18f\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:50:48 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/styles.css",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "https://cdn.jsdelivr.net/npm/chart.js",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/charts/state_done.png",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/charts/state_in_progress.png",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/charts/state_not_started.png",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/dashboard.js",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/styles.css",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "content-length": "36594",
+        "content-type": "text/css; charset=UTF-8",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"8ef2-199eca99d8c\"",
+        "last-modified": "Thu, 16 Oct 2025 10:56:02 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/charts/state_done.png",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "6900",
+        "content-type": "image/png",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"1af4-199eca0036c\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:45:33 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/charts/state_in_progress.png",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "8747",
+        "content-type": "image/png",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"222b-199eca00422\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:45:33 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/charts/state_not_started.png",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "8545",
+        "content-type": "image/png",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"2161-199eca004a6\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:45:33 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/dashboard.js",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "content-length": "12895",
+        "content-type": "application/javascript; charset=UTF-8",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"325f-199eca4d1d5\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:50:48 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "https://cdn.jsdelivr.net/npm/chart.js",
+      "status": 200,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "*",
+        "age": "31256",
+        "alt-svc": "h3=\":443\";ma=86400,h3-29=\":443\";ma=86400,h3-27=\":443\";ma=86400",
+        "cache-control": "public, max-age=604800, s-maxage=43200",
+        "content-encoding": "br",
+        "content-length": "71722",
+        "content-type": "application/javascript; charset=utf-8",
+        "cross-origin-resource-policy": "cross-origin",
+        "date": "Thu, 16 Oct 2025 12:07:32 GMT",
+        "etag": "W/\"32e8a-y1VYFBBM+4v4jk0bIQM7SVw8Wnc\"",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "timing-allow-origin": "*",
+        "vary": "Accept-Encoding",
+        "x-cache": "HIT, HIT",
+        "x-content-type-options": "nosniff",
+        "x-jsd-version": "4.5.1",
+        "x-jsd-version-type": "version",
+        "x-served-by": "cache-fra-etou8220052-FRA, cache-mia-kfll1870023-MIA"
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/api/stats",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/api/tasks",
+      "method": "GET",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/api/stats",
+      "status": 200,
+      "headers": {
+        "access-control-allow-origin": "*",
+        "connection": "keep-alive",
+        "content-length": "72",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"48-xoiE9HMEWdS7qXnVvBu9pGAFXZY\"",
+        "keep-alive": "timeout=5",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/api/tasks",
+      "status": 200,
+      "headers": {
+        "access-control-allow-origin": "*",
+        "connection": "keep-alive",
+        "content-length": "96313",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"17839-+YWn/w8EBhllRq36D//Irqy3lbE\"",
+        "keep-alive": "timeout=5",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/charts/state_done.png",
+      "method": "HEAD",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/charts/state_in_progress.png",
+      "method": "HEAD",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "request",
+      "url": "http://localhost:3000/charts/state_not_started.png",
+      "method": "HEAD",
+      "headers": {
+        "sec-ch-ua": "\"Not=A?Brand\";v=\"99\", \"Chromium\";v=\"118\"",
+        "referer": "http://localhost:3000/dashboard.html",
+        "sec-ch-ua-mobile": "?0",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/118.0.0.0 Safari/537.36",
+        "sec-ch-ua-platform": "\"Windows\""
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/charts/state_done.png",
+      "status": 304,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"1af4-199eca0036c\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:45:33 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/charts/state_in_progress.png",
+      "status": 304,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"222b-199eca00422\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:45:33 GMT",
+        "x-powered-by": "Express"
+      }
+    },
+    {
+      "type": "response",
+      "url": "http://localhost:3000/charts/state_not_started.png",
+      "status": 304,
+      "headers": {
+        "accept-ranges": "bytes",
+        "access-control-allow-origin": "*",
+        "cache-control": "public, max-age=0",
+        "connection": "keep-alive",
+        "date": "Thu, 16 Oct 2025 12:07:33 GMT",
+        "etag": "W/\"2161-199eca004a6\"",
+        "keep-alive": "timeout=5",
+        "last-modified": "Thu, 16 Oct 2025 10:45:33 GMT",
+        "x-powered-by": "Express"
+      }
+    }
+  ]
+}

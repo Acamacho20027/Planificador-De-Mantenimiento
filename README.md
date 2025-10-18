@@ -1,4 +1,65 @@
 # Planificador de Mantenimiento
+## Autenticación (lista para DB SQL Server)
+
+Este proyecto incluye autenticación basada en sesión con:
+- Inicio de sesión (`POST /auth/login`) con bloqueo tras 5 intentos fallidos (15 min)
+- Cierre de sesión (`POST /auth/logout`)
+- Usuario actual (`GET /auth/me`)
+- Solicitud de restablecimiento de contraseña (`POST /auth/request-password-reset`)
+- Restablecimiento de contraseña (`POST /auth/reset-password`)
+
+Se usa un almacén en memoria para usuarios y tokens, listo para ser reemplazado por Microsoft SQL Server.
+
+### Variables de entorno
+
+Defínelas en el entorno antes de arrancar:
+
+```
+SESSION_SECRET=coloca_un_secreto_seguro
+RESET_TOKEN_SECRET=coloca_un_secreto_hmac_seguro
+NODE_ENV=development
+PORT=3000
+```
+
+Para futura base de datos SQL Server (no usadas aún):
+
+```
+MSSQL_SERVER=localhost
+MSSQL_DATABASE=Planificador
+MSSQL_USER=usuario
+MSSQL_PASSWORD=contraseña
+MSSQL_ENCRYPT=true
+```
+
+### Usuario demo
+
+Al iniciar el servidor se crea automáticamente:
+
+```
+Email: demo@empresa.com
+Password: Demo1234!
+```
+
+### Flujo de uso
+
+1. Abrir `http://localhost:3000/` y pulsar "Iniciar Sesión".
+2. Iniciar sesión con el usuario demo.
+3. Desde la página de login, usar "¿Olvidaste tu contraseña?" para generar un enlace (en modo demo el enlace aparece en la consola del servidor) y completar el cambio en `reset.html`.
+
+### Seguridad
+
+- Cookies de sesión HttpOnly y SameSite=Lax.
+- CSRF (`/auth/csrf`) para operaciones de estado.
+- Rate limiting en login y reset.
+- Hash de contraseñas con Argon2id.
+
+### Sustitución por SQL Server
+
+Los puntos a reemplazar:
+- `users` (Map en memoria) por tabla `dbo.Users`.
+- `passwordResetTokens` (Map) por tabla `dbo.PasswordResetTokens`.
+- Operaciones de lectura/escritura en `server.js` deben traducirse a consultas SQL usando `mssql` o un ORM.
+
 
 Sistema web para la planificación y gestión de mantenimiento de equipos e instalaciones.
 
