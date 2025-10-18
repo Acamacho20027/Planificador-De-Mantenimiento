@@ -54,12 +54,12 @@ const resetLimiter = rateLimit({
     max: 5
 });
 
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname)));
+// Servir archivos estáticos (desde la raíz del proyecto)
+app.use(express.static(path.join(__dirname, '..')));
 
 // Ruta principal
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'Vistas', 'index.html'));
 });
 
 // API endpoints
@@ -245,7 +245,7 @@ app.post('/auth/request-password-reset', resetLimiter, csrfProtection, (req, res
             created_at: nowUtc().toISOString()
         });
         // In production, send email. For dev, log the link.
-        const link = `${req.protocol}://${req.get('host')}/reset.html?token=${rawToken}&email=${encodeURIComponent(user.email)}&id=${tokenId}`;
+        const link = `${req.protocol}://${req.get('host')}/Vistas/reset.html?token=${rawToken}&email=${encodeURIComponent(user.email)}&id=${tokenId}`;
         console.log('🔐 Enlace de restablecimiento (dev):', link);
     }
 

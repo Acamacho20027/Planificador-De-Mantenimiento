@@ -35,7 +35,7 @@ async function onSubmitLogin(e){
     const msg = document.getElementById('msg');
     if(res.ok){
         msg.textContent = 'Autenticado';
-        window.location.href = 'dashboard.html';
+        window.location.href = '/Vistas/dashboard.html';
     } else {
         msg.textContent = (data && data.error) || 'Error de autenticación';
     }

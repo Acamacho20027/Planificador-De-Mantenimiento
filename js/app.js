@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnLogin = document.getElementById('btn-login');
     if (btnLogin) {
         btnLogin.addEventListener('click', function() {
-            window.location.href = 'login.html';
+            window.location.href = '/Vistas/login.html';
         });
     }
 

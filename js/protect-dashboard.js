@@ -3,16 +3,16 @@
         const res = await fetch('/auth/me', { credentials: 'include' });
         const data = await res.json();
         if(!data.authenticated){
-            window.location.href = 'login.html';
+            window.location.href = '/Vistas/login.html';
             return;
         }
     }catch(e){
-        window.location.href = 'login.html';
+        window.location.href = '/Vistas/login.html';
         return;
     }
     // only load the dashboard script when authenticated
     const s = document.createElement('script');
-    s.src = 'dashboard.js';
+    s.src = '../js/dashboard.js';
     document.body.appendChild(s);
 })();
 

@@ -5,7 +5,7 @@
       back.addEventListener('click', async function(){
         // Ping /auth/me to ensure the session cookie is fresh (helps with strict environments)
         try{ await fetch('/auth/me', { credentials: 'include' }); }catch(e){}
-        window.location.href = 'dashboard.html';
+        window.location.href = '/Vistas/dashboard.html';
       });
     }
   }

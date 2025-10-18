@@ -22,8 +22,8 @@
 
 #### **Opción B: Desde Línea de Comandos**
 ```cmd
-sqlcmd -S localhost -E -i database_schema_sqlserver.sql
-sqlcmd -S localhost -E -i sample_data_sqlserver.sql
+sqlcmd -S localhost -E -i BaseDeDatos\database_schema_sqlserver.sql
+sqlcmd -S localhost -E -i BaseDeDatos\sample_data_sqlserver.sql
 ```
 
 ### 3. **Verificación de Instalación**

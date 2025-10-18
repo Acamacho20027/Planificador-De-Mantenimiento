@@ -1,160 +1,90 @@
-# Planificador de Mantenimiento
-## Autenticación (lista para DB SQL Server)
+# 📋 Planificador de Mantenimiento
 
-Este proyecto incluye autenticación basada en sesión con:
-- Inicio de sesión (`POST /auth/login`) con bloqueo tras 5 intentos fallidos (15 min)
-- Cierre de sesión (`POST /auth/logout`)
-- Usuario actual (`GET /auth/me`)
-- Solicitud de restablecimiento de contraseña (`POST /auth/request-password-reset`)
-- Restablecimiento de contraseña (`POST /auth/reset-password`)
+Sistema completo de planificación y gestión de mantenimiento con Node.js, JavaScript y SQL Server.
 
-Se usa un almacén en memoria para usuarios y tokens, listo para ser reemplazado por Microsoft SQL Server.
+---
 
-### Variables de entorno
+## 📚 Documentación Completa
 
-Defínelas en el entorno antes de arrancar:
+Toda la documentación del proyecto está organizada en la carpeta **[`Readme/`](Readme/)**.
 
-```
-SESSION_SECRET=coloca_un_secreto_seguro
-RESET_TOKEN_SECRET=coloca_un_secreto_hmac_seguro
-NODE_ENV=development
-PORT=3000
-```
+### 🚀 Inicio Rápido
 
-Para futura base de datos SQL Server (no usadas aún):
+Para comenzar con el proyecto, consulta:
 
-```
-MSSQL_SERVER=localhost
-MSSQL_DATABASE=Planificador
-MSSQL_USER=usuario
-MSSQL_PASSWORD=contraseña
-MSSQL_ENCRYPT=true
-```
+1. **[📖 Documentación Principal](Readme/README.md)** - Visión general y características
+2. **[📁 Estructura del Proyecto](Readme/ESTRUCTURA_PROYECTO.md)** - Organización de archivos
+3. **[🗄️ Base de Datos](Readme/DATABASE_INSTRUCTIONS_SQLSERVER.md)** - Instalación de SQL Server
+4. **[🔗 Integración](Readme/INSTRUCCIONES_INTEGRACION.md)** - Conectar con Node.js
 
-### Usuario demo
+### 📑 Índice de Documentos
 
-Al iniciar el servidor se crea automáticamente:
+Consulta el **[Índice Completo](Readme/INDEX.md)** para ver todos los documentos disponibles.
 
-```
-Email: demo@empresa.com
-Password: Demo1234!
-```
+---
 
-### Flujo de uso
+## ⚡ Instalación Rápida
 
-1. Abrir `http://localhost:3000/` y pulsar "Iniciar Sesión".
-2. Iniciar sesión con el usuario demo.
-3. Desde la página de login, usar "¿Olvidaste tu contraseña?" para generar un enlace (en modo demo el enlace aparece en la consola del servidor) y completar el cambio en `reset.html`.
-
-### Seguridad
-
-- Cookies de sesión HttpOnly y SameSite=Lax.
-- CSRF (`/auth/csrf`) para operaciones de estado.
-- Rate limiting en login y reset.
-- Hash de contraseñas con Argon2id.
-
-### Sustitución por SQL Server
-
-Los puntos a reemplazar:
-- `users` (Map en memoria) por tabla `dbo.Users`.
-- `passwordResetTokens` (Map) por tabla `dbo.PasswordResetTokens`.
-- Operaciones de lectura/escritura en `server.js` deben traducirse a consultas SQL usando `mssql` o un ORM.
-
-
-Sistema web para la planificación y gestión de mantenimiento de equipos e instalaciones.
-
-## Tecnologías
-
-- **Node.js** - Servidor backend
-- **JavaScript** - Funcionalidad frontend
-- **Python** - Análisis y procesamiento (próximamente)
-- **HTML/CSS** - Interfaz de usuario
-
-## Estructura del Proyecto
-
-```
-Planificador_De_Mantenimiento/
-├── index.html          # Página principal
-├── styles.css          # Estilos CSS
-├── app.js              # JavaScript del cliente
-├── server.js           # Servidor Node.js
-├── package.json        # Dependencias de Node.js
-└── README.md           # Este archivo
-```
-
-## Instalación
-
-1. Asegúrate de tener Node.js instalado en tu sistema
-
-2. Instala las dependencias:
 ```bash
+# 1. Instalar dependencias
 npm install
-```
 
-## Uso
+# 2. Configurar base de datos (ver Readme/DATABASE_INSTRUCTIONS_SQLSERVER.md)
+# Ejecutar: BaseDeDatos/PlanificadorMantenimiento_BaseDeDatos_Completa.sql
 
-### Modo Desarrollo
-
-Para iniciar el servidor en modo desarrollo con recarga automática:
-
-```bash
-npm run dev
-```
-
-### Modo Producción
-
-Para iniciar el servidor:
-
-```bash
+# 3. Iniciar servidor
 npm start
+
+# 4. Acceder
+# http://localhost:3000
 ```
 
-El servidor estará disponible en: `http://localhost:3000`
+---
 
-## Características
+## 📂 Estructura del Proyecto
 
-- ✅ Interfaz de usuario moderna y responsive
-- ✅ Sistema de navegación fluida
-- ✅ Formulario de contacto
-- ✅ Servidor Node.js con Express
-- ✅ API REST básica
-- 🔄 Gestión de equipos (próximamente)
-- 🔄 Programación de mantenimiento (próximamente)
-- 🔄 Reportes y análisis (próximamente)
-
-## API Endpoints
-
-### GET /api/status
-Verifica el estado del servidor
-
-### POST /api/contact
-Envía un mensaje de contacto
-
-**Body:**
-```json
-{
-  "nombre": "Tu nombre",
-  "email": "tu@email.com",
-  "telefono": "+34 123 456 789",
-  "mensaje": "Tu mensaje"
-}
+```
+Planificador-De-Mantenimiento/
+├── Readme/              # 📚 Toda la documentación
+├── Vistas/              # 🌐 Archivos HTML
+├── js/                  # ⚙️ Archivos JavaScript
+├── Styles/              # 🎨 Archivos CSS
+├── BaseDeDatos/         # 🗄️ Scripts SQL
+├── charts/              # 📊 Gráficos
+└── scripts/             # 🔧 Scripts auxiliares
 ```
 
-## Próximos Pasos
+---
 
-1. Integración con base de datos
-2. Sistema de autenticación de usuarios
-3. Panel de administración
-4. Módulo de gestión de equipos
-5. Sistema de programación de mantenimiento
-6. Generación de reportes
-7. Integración con Python para análisis predictivo
+## 🎯 Características Principales
 
-## Licencia
+- ✅ Sistema de inspecciones con wizard de 7 pasos
+- ✅ Gestión de tareas de mantenimiento
+- ✅ Dashboard con estadísticas y gráficos
+- ✅ Sistema de autenticación seguro
+- ✅ Base de datos SQL Server completa
+- ✅ Almacenamiento de imágenes
+- ✅ Historial y auditoría
 
-ISC
+---
 
-## Autor
+## 🛠️ Tecnologías
 
-Desarrollado para la gestión eficiente de mantenimiento
+- **Backend:** Node.js, Express
+- **Frontend:** HTML, CSS, JavaScript
+- **Base de Datos:** SQL Server
+- **Otros:** Python (gráficos), Puppeteer (tests)
+
+---
+
+## 📖 Más Información
+
+Para información detallada sobre:
+- 🏗️ Arquitectura → [Readme/ESTRUCTURA_PROYECTO.md](Readme/ESTRUCTURA_PROYECTO.md)
+- 🗄️ Base de Datos → [Readme/BaseDeDatos_README.md](Readme/BaseDeDatos_README.md)
+- 🔄 Cambios Recientes → [Readme/RESUMEN_ORGANIZACION.md](Readme/RESUMEN_ORGANIZACION.md)
+
+---
+
+**📚 Consulta la carpeta [`Readme/`](Readme/) para acceder a toda la documentación del proyecto.**
 
