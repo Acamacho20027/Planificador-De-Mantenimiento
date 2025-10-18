@@ -125,5 +125,92 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 4000);
     }
+    
+    // Open dashboard in a new tab when the login button is clicked
+    const btnLogin = document.getElementById('btn-login');
+    if (btnLogin) {
+        btnLogin.addEventListener('click', function() {
+            window.location.href = 'login.html';
+        });
+    }
+
+    // Charts (fetch data from /api/stats)
+    let chartsInitialized = false;
+    async function loadStatsAndCharts() {
+        if (chartsInitialized) return;
+        chartsInitialized = true;
+
+        try {
+            const res = await fetch('/api/stats');
+            if (!res.ok) throw new Error('Failed to load stats');
+            const json = await res.json();
+
+            const { labels = ['Lun','Mar','Mié','Jue','Vie'], done = [], in_progress = [], not_started = [] } = json;
+
+            function createBar(ctxId, label, data, color) {
+                const ctx = document.getElementById(ctxId);
+                if (!ctx) return;
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ label, data, backgroundColor: color }] },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            createBar('chart-done', 'Completadas', done, 'rgba(76,175,80,0.8)');
+            createBar('chart-progress', 'En progreso', in_progress, 'rgba(33,150,243,0.8)');
+            createBar('chart-notstarted', 'No iniciadas', not_started, 'rgba(255,152,0,0.85)');
+        } catch (err) {
+            console.error('Error loading stats:', err);
+            showNotification('No se pudieron cargar las estadísticas', 'error');
+        }
+    }
+
+    // Tasks list
+    async function loadTasksList() {
+        const container = document.getElementById('view-tasks');
+        if (!container) return;
+        try {
+            const res = await fetch('/api/tasks');
+            if (!res.ok) throw new Error('Failed to load tasks');
+            const data = await res.json();
+
+            // render a simple table
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:8px">ID</th>
+                        <th style="text-align:left; padding:8px">Título</th>
+                        <th style="text-align:left; padding:8px">Estado</th>
+                        <th style="text-align:left; padding:8px">Asignado</th>
+                        <th style="text-align:left; padding:8px">Fecha</th>
+                    </tr>
+                </thead>
+            `;
+            const tbody = document.createElement('tbody');
+            data.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="padding:8px">${t.id}</td>
+                    <td style="padding:8px">${t.title}</td>
+                    <td style="padding:8px">${t.status}</td>
+                    <td style="padding:8px">${t.assignedTo}</td>
+                    <td style="padding:8px">${t.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+
+            // remove old content and append table
+            container.querySelectorAll('p, table').forEach(n => n.remove());
+            container.appendChild(table);
+        } catch (err) {
+            console.error('Error loading tasks:', err);
+            showNotification('No se pudieron cargar las tareas', 'error');
+        }
+    }
 });
 

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Inspección - Mantenimiento</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="inspeccion-page">
+  <div class="container">
+    <header>
+      <h1>Inspección — Formulario</h1>
+      <div>
+        <button class="ghost small" id="back-dashboard">Volver al Dashboard</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="step-indicator" id="step-indicator">Paso 1 / 7</div>
+
+      <!-- Wizard: cada step agrupa varias secciones -->
+      <div id="wizard-container">
+        <!-- Los pasos serán generados por js -->
+      </div>
+
+      <noscript>
+        <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #e6e6e6;">
+          <h3>Formulario (modo no-JS)</h3>
+          <label>Nombre de la tarea<br/><input type="text" name="ubicacion__task_name" placeholder="Nombre breve" /></label><br/>
+          <label>Edificio<br/><input type="text" name="ubicacion__edificio" /></label><br/>
+          <label>Piso<br/><select name="ubicacion__piso"><option>PB</option><option>1</option><option>2</option><option>3</option></select></label><br/>
+          <label>Oficina<br/><input type="text" name="ubicacion__oficina" /></label>
+        </div>
+      </noscript>
+
+      <div class="controls" style="margin-top:1rem;">
+        <div class="left">
+          <button id="prev-step" class="ghost">Anterior</button>
+        </div>
+        <div class="right">
+          <button id="next-step">Siguiente</button>
+        </div>
+      </div>
+
+      <hr style="margin:1rem 0"/>
+
+      <h3>Previsualización de la tarea</h3>
+      <div id="task-preview"></div>
+
+      <div style="display:flex;gap:.5rem;margin-top:.6rem;align-items:center;">
+        <input id="inspection-images" type="file" accept="image/*" multiple capture="environment" style="display:none;" />
+        <button id="add-photo" class="small ghost">Agregar foto</button>
+        <button id="clear-photos" class="small ghost">Borrar fotos</button>
+        <button id="send-task" class="small">Enviar tarea</button>
+      </div>
+      <div id="images-preview" style="margin-top:0.6rem;display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
+    </main>
+  </div>
+
+  <script src="inspeccion.js"></script>
+  <script src="js/inspeccion-nav.js"></script>
+</body>
+</html>

@@ -8,6 +8,39 @@ body {
     margin: 0
 }
 
+/* Ensure auth inputs text is visible */
+#email, #password, input[type="email"], input[type="password"], input, textarea {
+    color: #000;
+}
+
+/* Badges for task status select */
+.badge-done { background-color: rgb(0, 200, 83) !important; color: #ffffff !important; border: 1px solid rgb(0, 150, 62) !important; }
+.badge-progress { background-color: rgb(255, 214, 0) !important; color: #000000 !important; border: 1px solid rgb(230, 193, 0) !important; }
+.badge-notstarted { background-color: rgb(213, 0, 0) !important; color: #ffffff !important; border: 1px solid rgb(170, 0, 0) !important; }
+
+/* Improve select appearance so background color is visible */
+select.badge-done, select.badge-progress, select.badge-notstarted {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.user-chip {
+    background: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #90caf9;
+    border-radius: 14px;
+    padding: 6px 10px;
+    margin: 4px 0;
+    cursor: grab;
+    user-select: none;
+}
+.user-chip:active { cursor: grabbing; }
+.assign-drop { transition: background 0.2s ease; }
+
 article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary {
     display: block
 }
@@ -289,6 +322,7 @@ figure {
     margin: 0 0 10px
 }
 
+/* Reset lists */
 ul,ol {
     margin-top: 0;
     margin-bottom: 10px;
@@ -567,6 +601,189 @@ label {
 
 .background-color-secondary {
     background-color: #D0D0D0
+}
+
+/* Dashboard specific background and status badges */
+.dashboard-wrapper {
+    background-color: #D0D0D0; /* same gray as .background-color-secondary */
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* Dashboard navigation: simple, light, and professional */
+
+.dashboard-nav {
+    width: 100%;
+    background: #e6e6e6; /* slightly lighter gray for top bar */
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.dashboard-nav h3 {
+    color: #222;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.dashboard-nav nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* mobile: hide the nav links behind the toggle */
+@media (max-width: 720px) {
+    .dashboard-nav nav ul {
+        display: none;
+        flex-direction: column;
+        background: #e6e6e6;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 48px;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        z-index: 80;
+    }
+    .dashboard-nav.open nav ul { display: flex; }
+    #nav-toggle { display: inline-block; }
+}
+
+@media (min-width: 721px) {
+    #nav-toggle { display: none; }
+}
+
+.dashboard-link {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    color: #222;
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s;
+}
+
+.dashboard-link:hover {
+    background: rgba(47,111,214,0.08);
+    color: #222;
+}
+
+.dashboard-link.active {
+    background: #2f6fd6; /* blue */
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(47,111,214,0.12);
+}
+
+/* Accent for details/links */
+.accent-orange {
+    color: #ff7a18;
+}
+
+/* Ensure dashboard layout is flexible */
+.dashboard-wrapper {
+    display: block;
+}
+
+.dashboard-content {
+    padding: 1rem;
+}
+
+/* Add orange accent for small detail text or badges */
+.detail-accent { color: #ff7a18; font-weight: 600 }
+
+/* Make chart grid adapt well */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+/* Make dashboard content use dark text for contrast on light gray */
+.dashboard-wrapper, .dashboard-wrapper * {
+    color: #222 !important;
+}
+
+.dashboard-wrapper .chart-card {
+    background: #f7f7f7;
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+
+/* Force canvases hidden — use python-generated images only */
+.dashboard-wrapper .chart-card canvas {
+    display: none !important;
+}
+
+.dashboard-wrapper .chart-card img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.dashboard-wrapper table {
+    color: #222;
+}
+
+.dashboard-wrapper input[type="text"],
+.dashboard-wrapper input[type="email"],
+.dashboard-wrapper input[type="tel"],
+.dashboard-wrapper input[type="search"],
+.dashboard-wrapper select {
+    background: #fff;
+    color: #222;
+    border: 1px solid rgba(0,0,0,0.12);
+    padding: 6px 8px;
+    border-radius: 4px;
+}
+
+.dashboard-wrapper button.small {
+    background-color: #2f6fd6; /* stronger blue for contrast */
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dashboard-wrapper button.small:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.badge-done {
+    background-color: rgba(76,175,80,0.12);
+    color: #4caf50;
+    border: 1px solid rgba(76,175,80,0.25);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.badge-progress {
+    background-color: rgba(255,193,7,0.12);
+    color: #ffc107;
+    border: 1px solid rgba(255,193,7,0.25);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.badge-notstarted {
+    background-color: rgba(244,67,54,0.12);
+    color: #f44336;
+    border: 1px solid rgba(244,67,54,0.25);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Make the tasks table rows clearer on dark/light backgrounds */
+table tr td, table tr th {
+    border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
 .button-component {
@@ -980,6 +1197,202 @@ label {
     justify-content: space-between;
     display: flex
 }
+
+/* Dashboard styles */
+.dashboard-wrapper {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+.dashboard-nav {
+    width: 220px;
+    background-color: #e6e6e6; /* light gray for menu */
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: #222;
+}
+.dashboard-nav ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+.dashboard-nav li { margin-bottom: 0.5rem }
+.dashboard-link { color: #222; display:block; padding: .5rem .75rem; border-radius: .25rem }
+.dashboard-link:hover { background: rgba(47,111,214,0.06); color: #222 }
+.dashboard-content { flex: 1 }
+.dashboard-header { margin-bottom: 1rem }
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+.chart-card { background: #ffffff; padding: 1rem; border-radius: .5rem; height: 220px; border: 1px solid rgba(0,0,0,0.06); color: #222 }
+.chart-card canvas { width: 100% !important; height: 100% !important; }
+
+/* Status badges for tasks/inspections */
+.status-badge { display:inline-block; padding:0.25rem 0.5rem; border-radius:0.4rem; color:#fff; font-weight:600; font-size:0.85rem }
+.badge-done { background:#4CAF50 } /* green */
+.badge-progress { background:#FFC107; color:#111 } /* yellow */
+.badge-notstarted { background:#F44336 } /* red */
+
+/* Scoped styles for inspeccion.html */
+.inspeccion-page { 
+    /* Container background uses a gray token from the design system and dark text for readability */
+    background-color: var(--base-color-neutral--gray-8);
+    color: var(--base-color-neutral--black-1);
+    padding: 1.25rem 0.5rem;
+}
+
+.inspeccion-page .container{
+    max-width: 960px;
+    margin: 1rem auto;
+    padding: 1.25rem;
+    background: var(--base-color-neutral--gray-8);
+    color: var(--base-color-neutral--black-1);
+    border-radius: 10px;
+}
+
+.inspeccion-page header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.inspeccion-page header h1{
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--base-color-neutral--black-1);
+}
+
+.inspeccion-page .wizard-step{
+    display: block;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #f6f7f8; /* light panel to contrast with gray page */
+    color: var(--base-color-neutral--black-1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.inspeccion-page .wizard-step:not(.active){ display:none }
+.inspeccion-page .wizard-step.active{ display:block }
+
+.inspeccion-page fieldset{
+    border: 1px solid #d1d5d9;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--base-color-neutral--black-1);
+}
+
+.inspeccion-page legend{
+    font-weight: 600;
+    padding: 0 0.4rem;
+    color: var(--base-color-neutral--black-1);
+}
+
+.inspeccion-page .form-row{
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin: 0.6rem 0;
+    flex-wrap: wrap;
+}
+
+.inspeccion-page .form-row label{
+    min-width: 180px;
+    font-size: 0.95rem;
+    color: var(--base-color-neutral--black-1);
+}
+
+.inspeccion-page select,
+.inspeccion-page input[type="text"],
+.inspeccion-page input[type="number"],
+.inspeccion-page textarea{
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #c8cdd1;
+    min-width: 220px;
+    background: #ffffff;
+    color: var(--base-color-neutral--black-1);
+}
+
+/* Force selects to be usable (avoid custom reset hiding arrows) */
+.inspeccion-page select {
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+    appearance: auto;
+    z-index: 3;
+}
+
+/* Make fieldsets and labels clearly visible */
+.inspeccion-page fieldset { position: relative; z-index: 1 }
+.inspeccion-page label { color: var(--base-color-neutral--black-1) }
+
+.inspeccion-page .controls{
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.9rem;
+}
+
+.inspeccion-page .controls .left, .inspeccion-page .controls .right{ display:flex; gap:0.5rem }
+
+.inspeccion-page button{
+    padding: 0.55rem 0.85rem;
+    border-radius: 6px;
+    border: 0;
+    background: #0b74de;
+    color: #fff;
+    cursor: pointer;
+}
+
+.inspeccion-page button.ghost{
+    background: #e6e6e6;
+    color: #111;
+}
+
+.inspeccion-page .small{ padding: 0.35rem 0.5rem; font-size: 0.95rem }
+
+/* Preview card for inspection tasks */
+.inspeccion-page .preview-card{
+    background: linear-gradient(180deg,#ffffff,#fbfbfb);
+    color: var(--base-color-neutral--black-1);
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    border: 1px solid #e6e9ec;
+}
+.inspeccion-page .preview-card h4{ margin:0 0 0.35rem 0; font-size:1.05rem }
+.inspeccion-page .preview-meta{ color:#555; margin-bottom:0.5rem }
+.inspeccion-page .preview-section{ margin-bottom:0.6rem }
+.inspeccion-page .preview-section h5{ margin:0 0 0.25rem 0; font-size:0.95rem }
+.inspeccion-page .preview-section ul{ margin:0; padding-left:1rem }
+.inspeccion-page .preview-section li{ margin-bottom:0.25rem; color:#222 }
+
+.inspeccion-page #images-preview .img-box img{ border-radius:6px }
+.inspeccion-page #images-preview .img-box button{ width:100%; }
+.inspeccion-page #task-preview{white-space:pre-wrap;background:#0f1720;color:#d1d5db;padding:1rem;border-radius:6px;max-height:260px;overflow:auto}
+.inspeccion-page .step-indicator{font-size:0.9rem;color:#555;margin-bottom:0.6rem}
+@media (max-width:640px){
+    .inspeccion-page .form-row label{min-width:120px}
+    .inspeccion-page select,.inspeccion-page input[type="text"]{min-width:140px}
+}
+
+/* Status badges used in tasks lists */
+.status-badge { display:inline-block; padding:6px 10px; border-radius:999px; color:#061016; font-weight:600; font-size:0.875rem }
+.badge-done { background: #4caf50; color: white }
+.badge-progress { background: #ffeb3b; color: #111 }
+.badge-notstarted { background: #f44336; color: white }
+
+/* Status badges */
+.status-badge { padding: .25rem .5rem; border-radius: .5rem; color: #fff; font-weight:600; font-size: .85rem }
+.badge-done { background: #4CAF50 } /* green */
+.badge-progress { background: #FFC107; color: #222 } /* yellow */
+.badge-notstarted { background: #F44336 } /* red */
 
 .footer_navigation-grid {
     grid-column-gap: 4rem;
