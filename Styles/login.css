@@ -1,0 +1,500 @@
+/* login.css - Estilos específicos para la página de login */
+
+/* Reset y configuración base para login */
+.login-page {
+    min-height: 100vh;
+    background-color: #808080; /* Fondo gris como el resto del sitio */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 2rem 0 2rem;
+    font-family: Arial, sans-serif;
+}
+
+/* Contenedor principal del login */
+.login-container {
+    width: 100%;
+    max-width: 900px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Header azul con patrón */
+.login-header {
+    background: linear-gradient(135deg, #2f6fd6 0%, #1e4a8c 100%);
+    padding: 4rem 3rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Patrón de cuadrícula sutil */
+.login-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.3;
+}
+
+.login-header-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Icono del login */
+.login-icon {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.login-icon::before {
+    content: '🔧';
+    font-size: 3rem;
+}
+
+/* Título principal */
+.login-title {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Subtítulo */
+.login-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Sección del formulario */
+.login-form-section {
+    padding: 3.5rem 3rem;
+    background: white;
+}
+
+/* Grupos de campos */
+.form-group {
+    margin-bottom: 2rem;
+}
+
+/* Labels */
+.form-label {
+    display: block;
+    color: #555;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+}
+
+/* Campos de entrada */
+.form-input {
+    width: 100%;
+    padding: 1.25rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    background-color: #f8f9fa;
+    color: #333;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #2f6fd6;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(47, 111, 214, 0.1);
+}
+
+.form-input::placeholder {
+    color: #999;
+}
+
+/* Checkbox personalizado */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.checkbox-input {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.75rem;
+    accent-color: #2f6fd6;
+}
+
+.checkbox-label {
+    color: #555;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Botón de login */
+.login-button {
+    width: 100%;
+    background: linear-gradient(135deg, #2f6fd6 0%, #1e4a8c 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(47, 111, 214, 0.3);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.login-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Mensajes de error */
+.error-message {
+    background-color: #fee;
+    color: #c33;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    border-left: 4px solid #c33;
+}
+
+/* Mensajes de éxito */
+.success-message {
+    background-color: #efe;
+    color: #363;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    border-left: 4px solid #363;
+}
+
+/* Loading state */
+.login-button.loading {
+    pointer-events: none;
+}
+
+.login-button.loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .login-page {
+        padding: 1rem;
+    }
+    
+    .login-container {
+        max-width: 100%;
+    }
+    
+    .login-header {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .login-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .login-icon::before {
+        font-size: 2rem;
+    }
+    
+    .login-title {
+        font-size: 1.5rem;
+    }
+    
+    .login-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .login-form-section {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* Animaciones de entrada */
+.login-container {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efecto de hover en el contenedor */
+.login-container:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Sección de contacto */
+.contact-section {
+    background: white;
+    padding: 2rem 2rem 3rem 2rem;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: none;
+    margin: 4rem 0 0 0;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+}
+
+.contact-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 3rem;
+    margin-bottom: 2rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 2rem;
+}
+
+/* Información del proyecto */
+.project-info {
+    flex: 1;
+    text-align: center;
+    padding-top: 4.5rem;
+}
+
+.project-logo {
+    width: 180px;
+    height: 100px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.project-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.project-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
+
+.project-motto {
+    font-size: 1rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.4;
+    font-style: italic;
+}
+
+/* Información de contacto */
+.contact-info {
+    flex: 1;
+}
+
+.contact-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 1.5rem 0;
+}
+
+.contact-card {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e1e5e9;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.contact-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.contact-icon.facebook {
+    background: #1877f2;
+}
+
+.contact-icon.phone {
+    background: #2f6fd6;
+}
+
+.contact-icon.email {
+    background: #ff7a18;
+}
+
+.contact-icon i {
+    color: white;
+    font-size: 1.1rem;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.contact-value {
+    font-size: 0.9rem;
+    color: #2f6fd6;
+    font-weight: 500;
+}
+
+/* Copyright */
+.copyright {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e1e5e9;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.copyright p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #999;
+}
+
+/* Responsive para la sección de contacto */
+@media (max-width: 768px) {
+    .contact-content {
+        flex-direction: column;
+        gap: 2rem;
+        padding: 0 1rem;
+    }
+    
+    .project-info {
+        text-align: center;
+        padding-top: 0;
+    }
+    
+    .contact-section {
+        padding: 2rem 0;
+        margin: 3rem 0 0 0;
+    }
+    
+    .copyright {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-section {
+        padding: 1.5rem 1rem;
+    }
+    
+    .contact-card {
+        padding: 0.75rem;
+    }
+    
+    .contact-icon {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .contact-icon i {
+        font-size: 1rem;
+    }
+    
+    .project-logo {
+        width: 150px;
+        height: 85px;
+    }
+}

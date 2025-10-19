@@ -211,7 +211,7 @@ html {
 
 body {
     color: #333;
-    background-color: #fff;
+    background-color: #808080; /* Gris de fondo como solicitado */
     min-height: 100%;
     margin: 0;
     font-family: Arial,sans-serif;
@@ -256,7 +256,7 @@ html.w-mod-touch * {
     color: #fff;
     line-height: inherit;
     cursor: pointer;
-    background-color: #3898ec;
+    background-color: #ff7a18; /* Naranja para botones */
     border: 0;
     border-radius: 0;
     padding: 9px 15px;
@@ -369,8 +369,8 @@ ul,ol {
 }
 
 body {
-    background-color: var(--background-color--background-primary);
-    color: var(--text-color--text-primary);
+    background-color: #808080; /* Gris de fondo como solicitado */
+    color: #ffffff; /* Texto blanco para contraste */
     font-family: Arial, sans-serif;
     font-size: 1rem;
     font-weight: 400;
@@ -605,16 +605,17 @@ label {
 
 /* Dashboard specific background and status badges */
 .dashboard-wrapper {
-    background-color: #D0D0D0; /* same gray as .background-color-secondary */
+    background-color: #ffffff; /* Fondo blanco para contraste con gris */
     padding: 1rem;
     border-radius: 8px;
+    border: 2px solid #2f6fd6; /* Borde azul */
 }
 
 /* Dashboard navigation: simple, light, and professional */
 
 .dashboard-nav {
     width: 100%;
-    background: #e6e6e6; /* slightly lighter gray for top bar */
+    background: #2f6fd6; /* Azul para navegación */
     padding: 0.5rem 1rem;
     border-bottom: 1px solid rgba(0,0,0,0.06);
     display: flex;
@@ -624,7 +625,7 @@ label {
 }
 
 .dashboard-nav h3 {
-    color: #222;
+    color: #ffffff; /* Texto blanco sobre fondo azul */
     margin: 0;
     font-size: 1rem;
 }
@@ -664,21 +665,21 @@ label {
     display: inline-block;
     padding: 0.5rem 0.75rem;
     border-radius: 6px;
-    color: #222;
+    color: #ffffff; /* Texto blanco sobre fondo azul */
     text-decoration: none;
     background: transparent;
     transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s;
 }
 
 .dashboard-link:hover {
-    background: rgba(47,111,214,0.08);
-    color: #222;
+    background: rgba(255,255,255,0.2); /* Fondo blanco semitransparente */
+    color: #ffffff;
 }
 
 .dashboard-link.active {
-    background: #2f6fd6; /* blue */
+    background: #ff7a18; /* Naranja para elemento activo */
     color: #fff !important;
-    box-shadow: 0 4px 12px rgba(47,111,214,0.12);
+    box-shadow: 0 4px 12px rgba(255,122,24,0.3);
 }
 
 /* Accent for details/links */
@@ -744,7 +745,7 @@ label {
 }
 
 .dashboard-wrapper button.small {
-    background-color: #2f6fd6; /* stronger blue for contrast */
+    background-color: #ff7a18; /* Naranja para botones */
     color: #fff;
     border: none;
     padding: 6px 10px;
@@ -1206,11 +1207,11 @@ table tr td, table tr th {
 }
 .dashboard-nav {
     width: 220px;
-    background-color: #e6e6e6; /* light gray for menu */
+    background-color: #2f6fd6; /* Azul para menú */
     border: 1px solid rgba(0,0,0,0.06);
     padding: 1rem;
     border-radius: 0.5rem;
-    color: #222;
+    color: #ffffff;
 }
 .dashboard-nav ul {
     list-style: none;
@@ -1218,8 +1219,8 @@ table tr td, table tr th {
     margin: 0;
 }
 .dashboard-nav li { margin-bottom: 0.5rem }
-.dashboard-link { color: #222; display:block; padding: .5rem .75rem; border-radius: .25rem }
-.dashboard-link:hover { background: rgba(47,111,214,0.06); color: #222 }
+.dashboard-link { color: #ffffff; display:block; padding: .5rem .75rem; border-radius: .25rem }
+.dashboard-link:hover { background: rgba(255,255,255,0.2); color: #ffffff }
 .dashboard-content { flex: 1 }
 .dashboard-header { margin-bottom: 1rem }
 .charts-grid {
@@ -1227,7 +1228,7 @@ table tr td, table tr th {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
 }
-.chart-card { background: #ffffff; padding: 1rem; border-radius: .5rem; height: 220px; border: 1px solid rgba(0,0,0,0.06); color: #222 }
+.chart-card { background: #ffffff; padding: 1rem; border-radius: .5rem; height: 220px; border: 2px solid #2f6fd6; color: #333 }
 .chart-card canvas { width: 100% !important; height: 100% !important; }
 
 /* Status badges for tasks/inspections */
@@ -1345,14 +1346,14 @@ table tr td, table tr th {
     padding: 0.55rem 0.85rem;
     border-radius: 6px;
     border: 0;
-    background: #0b74de;
+    background: #ff7a18; /* Naranja para botones */
     color: #fff;
     cursor: pointer;
 }
 
 .inspeccion-page button.ghost{
-    background: #e6e6e6;
-    color: #111;
+    background: #2f6fd6; /* Azul para botones secundarios */
+    color: #ffffff;
 }
 
 .inspeccion-page .small{ padding: 0.35rem 0.5rem; font-size: 0.95rem }

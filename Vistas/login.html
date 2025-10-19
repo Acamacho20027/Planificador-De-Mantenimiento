@@ -3,33 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión</title>
-    <link rel="stylesheet" href="../Styles/styles.css">
+    <title>Planificador de Mantenimiento - Iniciar Sesión</title>
+    <link rel="stylesheet" href="../Styles/login.css">
     <link rel="preload" href="../js/login.js" as="script">
-    </head>
-<body>
-    <div class="auth-container">
-        <h2>Iniciar sesión</h2>
-        <form id="login-form">
-            <div class="auth-field">
-                <label for="email">Email</label>
-                <input id="email" type="email" required placeholder="tu@email.com" />
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <!-- Header azul con icono y título -->
+        <div class="login-header">
+            <div class="login-icon"></div>
+            <h1 class="login-title">Iniciar Sesión</h1>
+            <p class="login-subtitle">Accede a tu cuenta del Planificador de Mantenimiento</p>
+        </div>
+        
+        <!-- Formulario blanco -->
+        <div class="login-form-section">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email" class="form-label">Correo Electrónico</label>
+                    <input id="email" type="email" class="form-input" required placeholder="admin@empresa.com" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input id="password" type="password" class="form-input" required placeholder="Tu contraseña" />
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" class="checkbox-input">
+                    <label for="remember" class="checkbox-label">¿Recordar cuenta?</label>
+                </div>
+                
+                <button type="submit" class="login-button">
+                    Iniciar sesión
+                </button>
+                
+                <div id="msg" style="margin-top: 1rem;"></div>
+            </form>
+            
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button type="button" class="link" id="request-reset" style="color: #2f6fd6; text-decoration: none; font-size: 0.9rem;">
+                    ¿Olvidaste tu contraseña?
+                </button>
             </div>
-            <div class="auth-field">
-                <label for="password">Contraseña</label>
-                <div class="password-row">
-                    <input id="password" type="password" required placeholder="Tu contraseña" style="flex:1" />
-                    <button type="button" class="toggle-btn" id="toggle-password"><span id="toggle-text">Mostrar</span></button>
+            
+            <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    <strong>Credenciales de prueba:</strong><br>
+                    📧 Email: admin@empresa.com<br>
+                    🔐 Password: Admin123
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección de contacto -->
+    <div class="contact-section">
+        <div class="contact-content">
+            <!-- Información del proyecto -->
+            <div class="project-info">
+                <div class="project-logo">
+                    <img src="../imagenes/logo_MantenimientoyConstruccion.jpg" alt="Logo Planificador de Mantenimiento" />
+                </div>
+                <h3 class="project-name">Planificador de Mantenimiento</h3>
+                <p class="project-motto">Optimizando la gestión de mantenimiento industrial con tecnología avanzada</p>
+            </div>
+            
+            <!-- Información de contacto -->
+            <div class="contact-info">
+                <h4 class="contact-title">Contáctanos</h4>
+                
+                <div class="contact-card">
+                    <div class="contact-icon facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <div class="contact-details">
+                        <span class="contact-label">Facebook</span>
+                        <span class="contact-value">@PlanificadorMantenimiento</span>
+                    </div>
+                </div>
+                
+                <div class="contact-card">
+                    <div class="contact-icon phone">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-details">
+                        <span class="contact-label">Teléfono</span>
+                        <span class="contact-value">+506 2102 8716</span>
+                    </div>
+                </div>
+                
+                <div class="contact-card">
+                    <div class="contact-icon email">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <span class="contact-label">Email</span>
+                        <span class="contact-value">admin@empresa.com</span>
+                    </div>
                 </div>
             </div>
-            <div class="auth-actions">
-                <button class="button_top" type="submit">Entrar</button>
-                <button type="button" class="link" id="request-reset">¿Olvidaste tu contraseña?</button>
-            </div>
-            <div id="msg" style="margin-top:8px;color:#f44336"></div>
-        </form>
-        <p style="margin-top:16px; color:#555">Usuario demo: demo@empresa.com / Demo1234!</n>
+        </div>
+        
+        <!-- Copyright -->
+        <div class="copyright">
+            <p>© 2025 Planificador de Mantenimiento. Todos los derechos reservados.</p>
+        </div>
     </div>
+    
     <script src="../js/login.js"></script>
 </body>
 </html>
