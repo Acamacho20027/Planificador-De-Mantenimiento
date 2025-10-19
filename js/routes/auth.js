@@ -144,6 +144,7 @@ router.get('/usuarios', requireAuth, async (req, res) => {
                 u.id_usuario AS user_id,
                 u.nombre,
                 u.email,
+                u.numero_telefono,
                 r.nombre_rol AS rol,
                 u.activo
             FROM usuarios u
@@ -162,7 +163,7 @@ router.get('/usuarios', requireAuth, async (req, res) => {
 // POST /api/usuarios - Crear nuevo usuario (solo admin)
 router.post('/usuarios', requireAuth, requireAdmin, async (req, res) => {
     try {
-        const { email, nombre, rol } = req.body;
+        const { email, nombre, telefono, rol } = req.body;
         
         if (!email || !email.trim()) {
             return res.status(400).json({ error: 'Email es requerido' });
@@ -200,12 +201,13 @@ router.post('/usuarios', requireAuth, requireAdmin, async (req, res) => {
         const result = await pool.request()
             .input('nombre', nombre || null)
             .input('email', email.toLowerCase().trim())
+            .input('numero_telefono', telefono || null)
             .input('password_hash', passwordHash)
             .input('id_rol', id_rol)
             .query(`
-                INSERT INTO usuarios (nombre, email, password_hash, id_rol, activo)
-                OUTPUT INSERTED.id_usuario, INSERTED.nombre, INSERTED.email
-                VALUES (@nombre, @email, @password_hash, @id_rol, 1)
+                INSERT INTO usuarios (nombre, email, numero_telefono, password_hash, id_rol, activo)
+                OUTPUT INSERTED.id_usuario, INSERTED.nombre, INSERTED.email, INSERTED.numero_telefono
+                VALUES (@nombre, @email, @numero_telefono, @password_hash, @id_rol, 1)
             `);
         
         const newUser = result.recordset[0];
@@ -214,6 +216,7 @@ router.post('/usuarios', requireAuth, requireAdmin, async (req, res) => {
             user_id: newUser.id_usuario,
             nombre: newUser.nombre,
             email: newUser.email,
+            numero_telefono: newUser.numero_telefono,
             rol: rol || 'Usuario',
             message: 'Usuario creado exitosamente'
         });
@@ -238,21 +241,22 @@ router.delete('/usuarios/:id', requireAuth, requireAdmin, async (req, res) => {
             return res.status(400).json({ error: 'No puedes eliminar tu propia cuenta' });
         }
         
-        // Desactivar usuario en lugar de eliminar
+        // Eliminar usuario físicamente de la base de datos
         const pool = await db.getConnection();
         const result = await pool.request()
             .input('id_usuario', userId)
             .query(`
-                UPDATE usuarios 
-                SET activo = 0, fecha_actualizacion = GETDATE()
+                DELETE FROM usuarios 
                 WHERE id_usuario = @id_usuario
             `);
+        
+        console.log('🔍 Usuario eliminado físicamente:', userId, 'Filas afectadas:', result.rowsAffected[0]);
         
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
         
-        res.json({ success: true, message: 'Usuario desactivado exitosamente' });
+        res.json({ success: true, message: 'Usuario eliminado exitosamente' });
         
     } catch (error) {
         console.error('Error eliminando usuario:', error);

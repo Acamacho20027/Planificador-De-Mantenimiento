@@ -265,20 +265,46 @@ function initDashboard(){
     }
 
     function setupAdminForm(){
-        const form = document.getElementById('admin-form');
+        const form = document.getElementById('form-crear-usuario');
         if(!form) return;
-        form.addEventListener('submit', async (e)=>{
+        
+        // Remover event listeners existentes para evitar duplicados
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+        
+        newForm.addEventListener('submit', async (e)=>{
             e.preventDefault();
             const email = document.getElementById('nuevo-email').value.trim();
             const nombre = document.getElementById('nuevo-nombre').value.trim();
+            const telefono = document.getElementById('nuevo-telefono').value.trim();
             const rol = document.getElementById('nuevo-rol').value;
+            
+            console.log('🔍 Creando usuario:', { email, nombre, telefono, rol });
+            
             try{
-                const res = await fetch('/api/usuarios', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ email, nombre, rol }) });
-                if(!res.ok){ const j = await res.json().catch(()=>({})); throw new Error(j.error||'Error al crear'); }
+                const res = await fetch('/api/usuarios', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    credentials:'include', 
+                    body: JSON.stringify({ email, nombre, telefono, rol }) 
+                });
+                
+                if(!res.ok){ 
+                    const errorData = await res.json().catch(()=>({})); 
+                    console.error('❌ Error del servidor:', errorData);
+                    throw new Error(errorData.error || 'Error al crear usuario'); 
+                }
+                
+                const result = await res.json();
+                console.log('✅ Usuario creado:', result);
+                
                 await loadUsersAdmin();
-                form.reset();
-                alert('Usuario creado');
-            }catch(err){ alert(err.message || 'Error'); }
+                newForm.reset();
+                alert('Usuario creado exitosamente');
+            }catch(err){ 
+                console.error('❌ Error:', err);
+                alert(err.message || 'Error al crear usuario'); 
+            }
         });
     }
 
@@ -288,19 +314,91 @@ function initDashboard(){
         const res = await fetch('/api/usuarios', { credentials:'include' });
         const list = res.ok ? await res.json() : [];
         adminList.innerHTML = '';
+        
+        // Crear tabla para mostrar usuarios
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.marginTop = '16px';
+        
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headerRow.style.backgroundColor = '#f5f5f5';
+        headerRow.innerHTML = `
+            <th style="text-align:left;padding:8px">Nombre</th>
+            <th style="text-align:left;padding:8px">Email</th>
+            <th style="text-align:left;padding:8px">Teléfono</th>
+            <th style="text-align:left;padding:8px">Rol</th>
+            <th style="text-align:left;padding:8px">Acciones</th>
+        `;
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        
+        const tbody = document.createElement('tbody');
         list.forEach(u=>{
-            const row = document.createElement('div');
-            row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px'; row.style.margin = '4px 0';
-            const span = document.createElement('span'); span.textContent = u.nombre ? `${u.nombre} (${u.email})` : u.email; row.appendChild(span);
-            const del = document.createElement('button'); del.textContent = 'Eliminar'; del.className='small ghost';
-            del.addEventListener('click', async ()=>{
+            const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid #ddd';
+            
+            const nombreTd = document.createElement('td');
+            nombreTd.style.padding = '8px';
+            nombreTd.textContent = u.nombre || 'Sin nombre';
+            row.appendChild(nombreTd);
+            
+            const emailTd = document.createElement('td');
+            emailTd.style.padding = '8px';
+            emailTd.textContent = u.email;
+            row.appendChild(emailTd);
+            
+            const telefonoTd = document.createElement('td');
+            telefonoTd.style.padding = '8px';
+            telefonoTd.textContent = u.numero_telefono || 'Sin teléfono';
+            row.appendChild(telefonoTd);
+            
+            const rolTd = document.createElement('td');
+            rolTd.style.padding = '8px';
+            rolTd.textContent = u.rol || 'Usuario';
+            row.appendChild(rolTd);
+            
+            const accionesTd = document.createElement('td');
+            accionesTd.style.padding = '8px';
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Eliminar';
+            delBtn.className = 'small ghost';
+            delBtn.addEventListener('click', async ()=>{
                 if(!confirm('¿Eliminar usuario?')) return;
-                const r = await fetch(`/api/usuarios/${u.user_id}`, { method:'DELETE', credentials:'include' });
-                if(r.ok){ await loadUsersAdmin(); } else { alert('No se pudo eliminar'); }
+                
+                console.log('🔍 Eliminando usuario:', u.user_id, u.nombre);
+                
+                try {
+                    const r = await fetch(`/api/usuarios/${u.user_id}`, { 
+                        method:'DELETE', 
+                        credentials:'include' 
+                    });
+                    
+                    console.log('📡 Status de eliminación:', r.status);
+                    
+                    if(r.ok){ 
+                        const result = await r.json();
+                        console.log('✅ Usuario eliminado:', result);
+                        await loadUsersAdmin(); 
+                    } else { 
+                        const error = await r.json().catch(() => ({}));
+                        console.error('❌ Error al eliminar:', error);
+                        alert('No se pudo eliminar: ' + (error.error || 'Error desconocido')); 
+                    }
+                } catch (error) {
+                    console.error('❌ Error en fetch:', error);
+                    alert('Error de conexión');
+                }
             });
-            row.appendChild(del);
-            adminList.appendChild(row);
+            accionesTd.appendChild(delBtn);
+            row.appendChild(accionesTd);
+            
+            tbody.appendChild(row);
         });
+        
+        table.appendChild(tbody);
+        adminList.appendChild(table);
     }
 }
 
