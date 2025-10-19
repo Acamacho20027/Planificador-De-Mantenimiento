@@ -18,6 +18,7 @@ const db = require('../config/database');
 // Importar rutas
 const authRoutes = require('./routes/auth');
 const tasksRoutes = require('./routes/tasks');
+const inspectionsRoutes = require('./routes/inspections');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -102,6 +103,12 @@ app.get('/auth/csrf', csrfProtection, (req, res) => {
 
 // Usar rutas de autenticación (sin aplicar middlewares aquí, se aplican dentro)
 app.use('/auth', authRoutes);
+
+// Usar rutas de usuarios (protegidas)
+app.use('/api', authRoutes);
+
+// Usar rutas de inspecciones (protegidas)
+app.use('/api/inspections', authRoutes.requireAuth, inspectionsRoutes);
 
 // Usar rutas de tareas (protegidas)
 app.use('/api/tasks', authRoutes.requireAuth, tasksRoutes);

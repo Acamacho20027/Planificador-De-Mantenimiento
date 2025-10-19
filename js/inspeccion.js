@@ -453,29 +453,34 @@ async function sendTask(){
       console.error('Error reading images', e);
     }
   }
-  // Build a compatible task payload
+  // Build payload for inspection
   const oficina = (inspection.location && inspection.location.oficina) ? inspection.location.oficina : '';
   const edificio = (inspection.location && inspection.location.edificio) ? inspection.location.edificio : '';
   // Prefer explicit task name if provided
   const explicitName = inspection.task_name || inspection.sections?.ubicacion?.task_name || '';
   const title = explicitName || `Inspección - ${edificio}${oficina ? ' / ' + oficina : ''}`;
-  // Inspections are created in 'not_started' by default; status changes happen in the Tareas view
-  let status = 'not_started';
+  
   const payload = {
     title,
-    status,
     assignedTo: '',
     date: new Date().toISOString().split('T')[0],
     inspection
   };
 
   try {
-    const res = await fetch('/api/tasks', {
-      method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload)
+    const res = await fetch('/api/inspections', {
+      method:'POST', 
+      headers:{ 'Content-Type':'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload)
     });
-    if(!res.ok) throw new Error('Error: ' + res.status);
+    if(!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Error: ' + res.status);
+    }
     const data = await res.json();
-    alert('Tarea enviada. ID: ' + (data.id || '(sin id)'));
+    alert(`✅ Inspección guardada exitosamente!\n\nID Inspección: ${data.id_inspeccion}\nID Tarea: ${data.id_tarea}`);
+    window.location.href = '/Vistas/dashboard.html';
   } catch(e){
     console.error(e);
     alert('Error al enviar la tarea. Revisa la consola.');

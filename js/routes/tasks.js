@@ -6,14 +6,28 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../config/database');
 
+// Mapeo de estados: BD (español) <-> Frontend (inglés)
+const estadoToStatus = {
+    'No Iniciado': 'not_started',
+    'En Proceso': 'in_progress',
+    'Finalizado': 'done'
+};
+
+const statusToEstado = {
+    'not_started': 'No Iniciado',
+    'in_progress': 'En Proceso',
+    'done': 'Finalizado'
+};
+
 // GET /api/tasks - Obtener todas las tareas
 router.get('/', async (req, res) => {
     try {
-        const result = await db.query(`
+        const pool = await db.getConnection();
+        const result = await pool.request().query(`
             SELECT 
                 t.id_tarea AS id,
                 t.titulo AS title,
-                t.estado AS status,
+                t.estado,
                 t.asignado_a AS assignedTo,
                 CONVERT(VARCHAR(10), t.fecha, 120) AS date,
                 t.prioridad AS priority,
@@ -24,7 +38,13 @@ router.get('/', async (req, res) => {
             ORDER BY t.fecha_creacion DESC
         `);
         
-        res.json(result.recordset);
+        // Mapear estados de español a inglés
+        const tasks = result.recordset.map(task => ({
+            ...task,
+            status: estadoToStatus[task.estado] || 'not_started'
+        }));
+        
+        res.json(tasks);
     } catch (error) {
         console.error('Error obteniendo tareas:', error);
         res.status(500).json({ error: 'Error al obtener tareas' });
@@ -42,33 +62,35 @@ router.post('/', async (req, res) => {
         }
         
         const taskTitle = title.trim();
-        const taskStatus = status || 'No Iniciado';
+        // Convertir status de inglés a español
+        const taskStatus = statusToEstado[status] || 'No Iniciado';
         const taskAssignedTo = assignedTo || null;
         const taskDate = date || new Date().toISOString().split('T')[0];
         const taskPriority = priority || 'Media';
         const taskDescription = description || null;
         
         // Insertar tarea
-        const result = await db.query(`
-            INSERT INTO tareas (titulo, estado, asignado_a, fecha, prioridad, descripcion)
-            OUTPUT INSERTED.id_tarea, INSERTED.titulo, INSERTED.estado, INSERTED.asignado_a, 
-                   CONVERT(VARCHAR(10), INSERTED.fecha, 120) AS fecha, INSERTED.prioridad
-            VALUES (@titulo, @estado, @asignado_a, @fecha, @prioridad, @descripcion)
-        `, {
-            titulo: taskTitle,
-            estado: taskStatus,
-            asignado_a: taskAssignedTo,
-            fecha: taskDate,
-            prioridad: taskPriority,
-            descripcion: taskDescription
-        });
+        const pool = await db.getConnection();
+        const result = await pool.request()
+            .input('titulo', taskTitle)
+            .input('estado', taskStatus)
+            .input('asignado_a', taskAssignedTo)
+            .input('fecha', taskDate)
+            .input('prioridad', taskPriority)
+            .input('descripcion', taskDescription)
+            .query(`
+                INSERT INTO tareas (titulo, estado, asignado_a, fecha, prioridad, descripcion)
+                OUTPUT INSERTED.id_tarea, INSERTED.titulo, INSERTED.estado, INSERTED.asignado_a, 
+                       CONVERT(VARCHAR(10), INSERTED.fecha, 120) AS fecha, INSERTED.prioridad
+                VALUES (@titulo, @estado, @asignado_a, @fecha, @prioridad, @descripcion)
+            `);
         
         const newTask = result.recordset[0];
         
         res.status(201).json({
             id: newTask.id_tarea,
             title: newTask.titulo,
-            status: newTask.estado,
+            status: estadoToStatus[newTask.estado] || 'not_started',
             assignedTo: newTask.asignado_a,
             date: newTask.fecha,
             priority: newTask.prioridad
@@ -95,7 +117,8 @@ router.put('/:id', async (req, res) => {
         
         if (status !== undefined) {
             updates.push('estado = @estado');
-            params.estado = status;
+            // Convertir status de inglés a español
+            params.estado = statusToEstado[status] || status;
         }
         if (assignedTo !== undefined) {
             updates.push('asignado_a = @asignado_a');
@@ -124,24 +147,52 @@ router.put('/:id', async (req, res) => {
         
         updates.push('fecha_actualizacion = GETDATE()');
         
-        const result = await db.query(`
+        // Usar la función query correctamente
+        const pool = await db.getConnection();
+        const request = pool.request();
+        
+        // Agregar parámetros
+        for (const [key, value] of Object.entries(params)) {
+            request.input(key, value);
+        }
+        
+        // Ejecutar UPDATE simple
+        const updateQuery = `
             UPDATE tareas
             SET ${updates.join(', ')}
-            OUTPUT INSERTED.id_tarea, INSERTED.titulo, INSERTED.estado, INSERTED.asignado_a,
-                   CONVERT(VARCHAR(10), INSERTED.fecha, 120) AS fecha, INSERTED.prioridad
             WHERE id_tarea = @id_tarea
-        `, params);
+        `;
         
-        if (result.recordset.length === 0) {
+        console.log('🔍 Query UPDATE:', updateQuery);
+        console.log('🔍 Parámetros:', params);
+        
+        const updateResult = await request.query(updateQuery);
+        
+        if (updateResult.rowsAffected[0] === 0) {
             return res.status(404).json({ error: 'Tarea no encontrada' });
         }
         
-        const updatedTask = result.recordset[0];
+        // Obtener la tarea actualizada
+        const getResult = await pool.request()
+            .input('id_tarea', taskId)
+            .query(`
+                SELECT 
+                    id_tarea,
+                    titulo,
+                    estado,
+                    asignado_a,
+                    CONVERT(VARCHAR(10), fecha, 120) AS fecha,
+                    prioridad
+                FROM tareas
+                WHERE id_tarea = @id_tarea
+            `);
+        
+        const updatedTask = getResult.recordset[0];
         
         res.json({
             id: updatedTask.id_tarea,
             title: updatedTask.titulo,
-            status: updatedTask.estado,
+            status: estadoToStatus[updatedTask.estado] || 'not_started',
             assignedTo: updatedTask.asignado_a,
             date: updatedTask.fecha,
             priority: updatedTask.prioridad
@@ -161,12 +212,13 @@ router.delete('/:id', async (req, res) => {
             return res.status(400).json({ error: 'ID de tarea inválido' });
         }
         
-        const result = await db.query(`
-            DELETE FROM tareas
-            WHERE id_tarea = @id_tarea
-        `, {
-            id_tarea: taskId
-        });
+        const pool = await db.getConnection();
+        const result = await pool.request()
+            .input('id_tarea', taskId)
+            .query(`
+                DELETE FROM tareas
+                WHERE id_tarea = @id_tarea
+            `);
         
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ error: 'Tarea no encontrada' });
@@ -176,45 +228,6 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error('Error eliminando tarea:', error);
         res.status(500).json({ error: 'Error al eliminar tarea' });
-    }
-});
-
-// GET /api/stats - Estadísticas de tareas
-router.get('/stats', async (req, res) => {
-    try {
-        const result = await db.query(`
-            SELECT 
-                estado,
-                COUNT(*) AS count
-            FROM tareas
-            GROUP BY estado
-        `);
-        
-        // Mapear a formato del frontend
-        const stats = {
-            'No Iniciado': 0,
-            'En Proceso': 0,
-            'Finalizado': 0
-        };
-        
-        result.recordset.forEach(row => {
-            if (stats.hasOwnProperty(row.estado)) {
-                stats[row.estado] = row.count;
-            }
-        });
-        
-        // Formato para el frontend
-        const labels = ['Completadas', 'En progreso', 'No iniciadas'];
-        const counts = [
-            stats['Finalizado'],
-            stats['En Proceso'],
-            stats['No Iniciado']
-        ];
-        
-        res.json({ labels, counts });
-    } catch (error) {
-        console.error('Error obteniendo estadísticas:', error);
-        res.status(500).json({ error: 'Error al obtener estadísticas' });
     }
 });
 
