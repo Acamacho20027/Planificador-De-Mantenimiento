@@ -1,0 +1,84 @@
+/* Custom index styles to match provided design (scoped to index page selectors) */
+
+/* Header */
+.header-component {
+  background: #ffffff;
+  padding: 18px 0 8px;
+  box-shadow: none;
+}
+.content_header { display:flex; align-items:center; justify-content:space-between; }
+.header-left .site-logo { height: 84px; object-fit:contain; margin-left: 18px; }
+.header-right { margin-right: 18px; }
+
+/* Keep login button styles intact but visually match design */
+#btn-login.button_top {
+  background: transparent;
+  color: #0e4e8a; /* azul oscuro */
+  border: 2px solid #0e4e8a;
+  padding: 10px 18px;
+  border-radius: 26px;
+  font-weight:700;
+  font-size: 0.95rem;
+}
+
+/* Hero tweaks */
+.section_hero { background: #ffffff; padding: 64px 0 48px; }
+.hero_heading {
+  color: #1f4f8a;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 56px;
+  line-height: 1.02;
+  font-weight:800;
+  margin: 12px 0 18px;
+}
+
+/* Services cards styling similar to provided image */
+.content_services { display:flex; gap: 28px; justify-content: space-between; align-items:stretch; }
+.services_card {
+  background: #ffffff;
+  color: #2b4f86;
+  border-radius: 18px;
+  padding: 0; /* we'll visually separate image and content */
+  width: 32%;
+  box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+  overflow: hidden;
+  display:flex;
+  flex-direction:column;
+}
+.services_card .icon-emoji-component { background:#f0f0f0; padding:0; }
+.services_card .icon-emoji_top { height: 160px; display:flex; align-items:center; justify-content:center; background-size:cover; background-position:center; }
+.services_card .about_card, .services_card .icon-emoji-component { border-radius: 0; }
+.services_card .services_heading, .services_card .heading-style-h3 { font-size:18px; margin:12px 18px 8px; color:#234a78; }
+.services_card .services_description, .services_card p { color:#6b6b6b; margin: 0 18px 18px; font-size:14px; }
+.services_card .card-footer { margin-top:auto; padding:12px 18px; border-top:1px solid rgba(0,0,0,0.04); }
+
+/* Contact call-to-action band in orange */
+.section_contacts .container-large { padding: 48px 0; }
+.section_contacts { background: #ffffff; }
+
+/* Large CTA center */
+.heading-style-h1 { color:#1f4f8a; font-size:42px; text-align:center; letter-spacing: -0.5px; }
+.text-size-large { text-align:center; color:#6b6b6b; }
+
+/* Orange footer */
+.background-color-secondary { background: #f7931e; }
+footer.background-color-secondary { background:#f7931e; color:#fff; }
+.footer_bottom .text-color-secondary { color: rgba(255,255,255,0.95); }
+
+/* Footer contact buttons */
+.footer .button_top { background: #fff; color:#f7931e; border-radius:24px; padding:8px 18px; font-weight:700; }
+
+/* Big footer contact layout like the reference */
+.padding-section-footer.background-color-secondary { padding: 36px 0; }
+.footer_contact-row { text-align:center; margin-top:8px; }
+.footer_contact-row .contact-pill { display:inline-block; background:#fff; color:#f7931e; padding:8px 18px; border-radius:24px; margin:8px 10px; font-weight:700; }
+
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .content_services { flex-direction: column; }
+  .services_card { width: 100%; }
+  .hero_heading { font-size: 32px; text-align:center; }
+  .content_header { padding: 0 12px; }
+  .header-left .site-logo { height: 56px; }
+}

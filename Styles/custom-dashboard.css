@@ -1,0 +1,33 @@
+/* Custom visual styles for dashboard to match provided design */
+
+/* Layout */
+.dashboard-wrapper { display:flex; gap:28px; align-items:flex-start; }
+.dashboard-nav { width: 240px; background: #ffffff; border-radius: 12px; padding: 22px; box-shadow: 0 12px 30px rgba(15,23,42,0.06); }
+.dashboard-content { flex: 1; }
+.heading-style-h1 { color: #1f4f8a; font-size: 36px; margin: 0 0 14px 0; font-weight:800; }
+
+/* Charts grid */
+.charts-grid { display:flex; gap:22px; }
+.chart-card { background: linear-gradient(180deg,#ffffff,#fbfdff); border-radius: 16px; padding: 18px; width: 33%; box-shadow: 0 14px 36px rgba(15,23,42,0.06); border:1px solid rgba(15,23,42,0.04); }
+.chart-card h4 { margin: 0; color: #234a78; font-size: 18px; font-weight:700; }
+.chart-visual { min-height: 160px; display:flex; align-items:center; justify-content:center; }
+.chart-meta { margin-top: 12px; color: #6b7280; font-size:14px; }
+.detail-accent { color: #0e4e8a; font-weight:800; font-size:16px; }
+
+/* Tasks table tweaks to look modern */
+#tasks-container table tr:nth-child(even) { background: #ffffff; }
+#tasks-container table th { background: transparent; color: #6b7280; font-weight:700; padding:12px; text-align:left; }
+#tasks-container table td { border-bottom: 1px solid #f1f5f9; padding:12px; }
+#tasks-container .small { padding: 8px 12px; border-radius:8px; background:#0e4e8a; color:#fff; border:none; cursor:pointer; font-weight:700; }
+#tasks-container .small.ghost { background:transparent; color:#0e4e8a; border:1px solid #0e4e8a; }
+
+/* Footer / CTA band similar to image: orange bar */
+footer.padding-section-footer.background-color-secondary { background: #f7931e; color: #fff; padding:34px 0; }
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .dashboard-wrapper { flex-direction:column; }
+  .dashboard-nav { width: 100%; margin-bottom: 12px; }
+  .charts-grid { flex-direction:column; }
+  .chart-card { width:100%; }
+}
