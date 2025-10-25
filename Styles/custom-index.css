@@ -10,6 +10,11 @@
 .header-left .site-logo { height: 84px; object-fit:contain; margin-left: 18px; }
 .header-right { margin-right: 18px; }
 
+/* Secondary brand mark on the right */
+.header-right-brand { display:flex; align-items:center; gap:12px; margin-right: 12px; }
+.site-logo-small { height: 56px; object-fit:contain; }
+.brand-tagline { color:#6b6b6b; font-size:14px; font-weight:600; }
+
 /* Keep login button styles intact but visually match design */
 #btn-login.button_top {
   background: transparent;
