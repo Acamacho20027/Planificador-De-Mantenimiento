@@ -19,6 +19,7 @@ const db = require('../config/database');
 const authRoutes = require('./routes/auth');
 const tasksRoutes = require('./routes/tasks');
 const inspectionsRoutes = require('./routes/inspections');
+const instructionsRoutes = require('./routes/instructions');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -112,6 +113,9 @@ app.use('/api/inspections', authRoutes.requireAuth, inspectionsRoutes);
 
 // Usar rutas de tareas (protegidas)
 app.use('/api/tasks', authRoutes.requireAuth, tasksRoutes);
+
+// Usar rutas de instrucciones (protegidas)
+app.use('/api/instructions', authRoutes.requireAuth, instructionsRoutes);
 
 // Obtener estadísticas (endpoint especial fuera de tasks)
 app.get('/api/stats', authRoutes.requireAuth, async (req, res) => {

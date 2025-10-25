@@ -33,15 +33,34 @@ router.get('/', async (req, res) => {
                 t.prioridad AS priority,
                 t.descripcion AS description,
                 t.fecha_creacion AS createdAt,
-                t.fecha_actualizacion AS updatedAt
+                t.fecha_actualizacion AS updatedAt,
+                -- Información de instrucción
+                t.id_instruccion,
+                inst.titulo AS instruccion_titulo,
+                inst.descripcion AS instruccion_descripcion,
+                inst.categoria AS instruccion_categoria
             FROM tareas t
+            LEFT JOIN instrucciones inst ON t.id_instruccion = inst.id_instruccion
             ORDER BY t.fecha_creacion DESC
         `);
         
-        // Mapear estados de español a inglés
+        // Mapear estados de español a inglés y estructurar instrucciones
         const tasks = result.recordset.map(task => ({
-            ...task,
-            status: estadoToStatus[task.estado] || 'not_started'
+            id: task.id,
+            title: task.title,
+            status: estadoToStatus[task.estado] || 'not_started',
+            assignedTo: task.assignedTo,
+            date: task.date,
+            priority: task.priority,
+            description: task.description,
+            createdAt: task.createdAt,
+            updatedAt: task.updatedAt,
+            instruction: task.id_instruccion ? {
+                id: task.id_instruccion,
+                title: task.instruccion_titulo,
+                description: task.instruccion_descripcion,
+                category: task.instruccion_categoria
+            } : null
         }));
         
         res.json(tasks);
@@ -54,7 +73,7 @@ router.get('/', async (req, res) => {
 // POST /api/tasks - Crear nueva tarea
 router.post('/', async (req, res) => {
     try {
-        const { title, status, assignedTo, date, priority, description, inspection } = req.body;
+        const { title, status, assignedTo, date, priority, description, inspection, instructionId } = req.body;
         
         // Validaciones
         if (!title || !title.trim()) {
@@ -68,6 +87,7 @@ router.post('/', async (req, res) => {
         const taskDate = date || new Date().toISOString().split('T')[0];
         const taskPriority = priority || 'Media';
         const taskDescription = description || null;
+        const taskInstructionId = instructionId || null;
         
         // Insertar tarea
         const pool = await db.getConnection();
@@ -78,11 +98,12 @@ router.post('/', async (req, res) => {
             .input('fecha', taskDate)
             .input('prioridad', taskPriority)
             .input('descripcion', taskDescription)
+            .input('id_instruccion', taskInstructionId)
             .query(`
-                INSERT INTO tareas (titulo, estado, asignado_a, fecha, prioridad, descripcion)
+                INSERT INTO tareas (titulo, estado, asignado_a, fecha, prioridad, descripcion, id_instruccion)
                 OUTPUT INSERTED.id_tarea, INSERTED.titulo, INSERTED.estado, INSERTED.asignado_a, 
-                       CONVERT(VARCHAR(10), INSERTED.fecha, 120) AS fecha, INSERTED.prioridad
-                VALUES (@titulo, @estado, @asignado_a, @fecha, @prioridad, @descripcion)
+                       CONVERT(VARCHAR(10), INSERTED.fecha, 120) AS fecha, INSERTED.prioridad, INSERTED.id_instruccion
+                VALUES (@titulo, @estado, @asignado_a, @fecha, @prioridad, @descripcion, @id_instruccion)
             `);
         
         const newTask = result.recordset[0];
@@ -93,7 +114,8 @@ router.post('/', async (req, res) => {
             status: estadoToStatus[newTask.estado] || 'not_started',
             assignedTo: newTask.asignado_a,
             date: newTask.fecha,
-            priority: newTask.prioridad
+            priority: newTask.prioridad,
+            instructionId: newTask.id_instruccion
         });
     } catch (error) {
         console.error('Error creando tarea:', error);
@@ -200,6 +222,135 @@ router.put('/:id', async (req, res) => {
     } catch (error) {
         console.error('Error actualizando tarea:', error);
         res.status(500).json({ error: 'Error al actualizar tarea' });
+    }
+});
+
+// PUT /api/tasks/:id/instruction - Asignar instrucción a tarea
+router.put('/:id/instruction', async (req, res) => {
+    try {
+        const taskId = parseInt(req.params.id);
+        const { instructionId } = req.body;
+        
+        if (isNaN(taskId)) {
+            return res.status(400).json({ error: 'ID de tarea inválido' });
+        }
+        
+        const pool = await db.getConnection();
+        const result = await pool.request()
+            .input('id_tarea', taskId)
+            .input('id_instruccion', instructionId)
+            .query(`
+                UPDATE tareas
+                SET id_instruccion = @id_instruccion, fecha_actualizacion = GETDATE()
+                WHERE id_tarea = @id_tarea
+            `);
+        
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Tarea no encontrada' });
+        }
+        
+        // Obtener la tarea actualizada con la instrucción
+        const getResult = await pool.request()
+            .input('id_tarea', taskId)
+            .query(`
+                SELECT 
+                    t.id_tarea,
+                    t.titulo,
+                    t.estado,
+                    t.asignado_a,
+                    CONVERT(VARCHAR(10), t.fecha, 120) AS fecha,
+                    t.prioridad,
+                    t.descripcion,
+                    t.id_instruccion,
+                    inst.titulo AS instruccion_titulo,
+                    inst.descripcion AS instruccion_descripcion,
+                    inst.categoria AS instruccion_categoria
+                FROM tareas t
+                LEFT JOIN instrucciones inst ON t.id_instruccion = inst.id_instruccion
+                WHERE t.id_tarea = @id_tarea
+            `);
+        
+        const updatedTask = getResult.recordset[0];
+        
+        res.json({
+            id: updatedTask.id_tarea,
+            title: updatedTask.titulo,
+            status: estadoToStatus[updatedTask.estado] || 'not_started',
+            assignedTo: updatedTask.asignado_a,
+            date: updatedTask.fecha,
+            priority: updatedTask.prioridad,
+            description: updatedTask.descripcion,
+            instruction: updatedTask.id_instruccion ? {
+                id: updatedTask.id_instruccion,
+                title: updatedTask.instruccion_titulo,
+                description: updatedTask.instruccion_descripcion,
+                category: updatedTask.instruccion_categoria
+            } : null
+        });
+    } catch (error) {
+        console.error('Error asignando instrucción:', error);
+        res.status(500).json({ error: 'Error al asignar instrucción' });
+    }
+});
+
+// GET /api/tasks/:id/inspection - Obtener información de inspección de una tarea específica
+router.get('/:id/inspection', async (req, res) => {
+    try {
+        const taskId = parseInt(req.params.id);
+        
+        if (isNaN(taskId)) {
+            return res.status(400).json({ error: 'ID de tarea inválido' });
+        }
+        
+        const pool = await db.getConnection();
+        const result = await pool.request()
+            .input('id_tarea', taskId)
+            .query(`
+                SELECT 
+                    t.id_tarea,
+                    t.titulo AS task_title,
+                    t.descripcion AS task_description,
+                    i.id_inspeccion,
+                    i.nombre_inspeccion,
+                    i.tipo_inspeccion,
+                    i.edificio,
+                    i.piso,
+                    i.ubicacion,
+                    i.observaciones,
+                    i.recomendaciones,
+                    i.fecha_creacion AS inspection_date
+                FROM tareas t
+                LEFT JOIN inspecciones i ON t.id_inspeccion = i.id_inspeccion
+                WHERE t.id_tarea = @id_tarea
+            `);
+        
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ error: 'Tarea no encontrada' });
+        }
+        
+        const taskInspection = result.recordset[0];
+        
+        res.json({
+            task: {
+                id: taskInspection.id_tarea,
+                title: taskInspection.task_title,
+                description: taskInspection.task_description
+            },
+            inspection: taskInspection.id_inspeccion ? {
+                id: taskInspection.id_inspeccion,
+                name: taskInspection.nombre_inspeccion,
+                type: taskInspection.tipo_inspeccion,
+                building: taskInspection.edificio,
+                floor: taskInspection.piso,
+                location: taskInspection.ubicacion,
+                observations: taskInspection.observaciones,
+                recommendations: taskInspection.recomendaciones,
+                date: taskInspection.inspection_date
+            } : null
+        });
+    } catch (error) {
+        console.error('Error obteniendo inspección de tarea:', error);
+        res.status(500).json({ error: 'Error al obtener información de inspección' });
     }
 });
 

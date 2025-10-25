@@ -81,6 +81,7 @@ function renderTasks(tasks, usuarios) {
         <th style="text-align:left;padding:8px">Título</th>
         <th style="text-align:left;padding:8px">Estado</th>
         <th style="text-align:left;padding:8px">Asignado</th>
+        <th style="text-align:left;padding:8px">Instrucción</th>
         <th style="text-align:left;padding:8px">Fecha</th>
         <th style="text-align:left;padding:8px">Acciones</th>
     `;
@@ -120,6 +121,30 @@ function renderTasks(tasks, usuarios) {
         }
         assignTd.appendChild(selUser);
 
+        // Columna de instrucción
+        const instructionTd = document.createElement('td'); 
+        instructionTd.style.padding = '8px';
+        
+        const instructionBtn = document.createElement('button');
+        instructionBtn.textContent = t.instruction ? 'Ver Instrucción' : 'Asignar Instrucción';
+        instructionBtn.className = 'small';
+        instructionBtn.style.backgroundColor = t.instruction ? '#28a745' : '#007bff';
+        instructionBtn.style.color = 'white';
+        instructionBtn.style.border = 'none';
+        instructionBtn.style.padding = '4px 8px';
+        instructionBtn.style.borderRadius = '4px';
+        instructionBtn.style.cursor = 'pointer';
+        
+        instructionBtn.addEventListener('click', () => {
+            if (t.instruction) {
+                showInstructionModal(t.instruction, t.id);
+            } else {
+                showTaskInstructionModal(t.id);
+            }
+        });
+        
+        instructionTd.appendChild(instructionBtn);
+
         const actionsTd = document.createElement('td'); actionsTd.style.padding='8px';
         const saveBtn = document.createElement('button'); saveBtn.textContent = 'Guardar'; saveBtn.className='small';
         saveBtn.addEventListener('click', async ()=>{
@@ -151,6 +176,7 @@ function renderTasks(tasks, usuarios) {
         tr.appendChild(titleTd);
         tr.appendChild(statusTd);
         tr.appendChild(assignTd);
+        tr.appendChild(instructionTd);
         tr.appendChild(dateTd);
         tr.appendChild(actionsTd);
         tbody.appendChild(tr);
@@ -158,7 +184,7 @@ function renderTasks(tasks, usuarios) {
         // details row (hidden) with inspection summary
         const detailsTr = document.createElement('tr');
         const detailsTd = document.createElement('td');
-        detailsTd.colSpan = 6;
+        detailsTd.colSpan = 7;
         detailsTd.style.padding = '8px';
         detailsTd.style.display = 'none';
         detailsTd.className = 'task-details-cell';
@@ -399,6 +425,297 @@ function initDashboard(){
         
         table.appendChild(tbody);
         adminList.appendChild(table);
+    }
+}
+
+// =====================================================
+// FUNCIONES PARA MANEJAR INSTRUCCIONES
+// =====================================================
+
+// Mostrar modal con detalles de la instrucción y la inspección de la tarea
+async function showInstructionModal(instruction, taskId) {
+    try {
+        // Obtener información de la tarea y su inspección
+        const response = await fetch(`/api/tasks/${taskId}/inspection`);
+        if (!response.ok) throw new Error('Error al cargar información de la tarea');
+        
+        const data = await response.json();
+        const { task, inspection } = data;
+        
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+        
+        modalContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-bottom: 25px;">
+                <h2 style="margin: 0; color: #333; font-size: 24px; font-weight: 600;">Ver Instrucción</h2>
+                <button id="closeModal" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px;">✕</button>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="margin: 0 0 15px 0; color: #007bff; font-size: 18px; font-weight: 600; border-left: 4px solid #007bff; padding-left: 10px;">INSPECCIÓN DE LA TAREA</h3>
+                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h4 style="margin: 0 0 15px 0; color: #000; font-size: 16px;">Tarea: ${task.title}</h4>
+                    ${task.description ? `<p style="margin: 0 0 15px 0; color: #000; line-height: 1.5;"><strong>Descripción:</strong> ${task.description}</p>` : ''}
+                    ${inspection ? `
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                            <p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Inspección:</strong> ${inspection.name}</p>
+                            <p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Tipo:</strong> ${inspection.type}</p>
+                            ${inspection.building ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Edificio:</strong> ${inspection.building}</p>` : ''}
+                            ${inspection.floor ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Piso:</strong> ${inspection.floor}</p>` : ''}
+                            ${inspection.location ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Ubicación:</strong> ${inspection.location}</p>` : ''}
+                            ${inspection.observations ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Observaciones:</strong> ${inspection.observations}</p>` : ''}
+                            ${inspection.recommendations ? `<p style="margin: 0; color: #000; line-height: 1.5;"><strong>Recomendaciones:</strong> ${inspection.recommendations}</p>` : ''}
+                        </div>
+                    ` : '<p style="margin: 0; color: #000; font-style: italic;">No hay inspección asociada a esta tarea</p>'}
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="margin: 0 0 15px 0; color: #28a745; font-size: 18px; font-weight: 600; border-left: 4px solid #28a745; padding-left: 10px;">INSTRUCCIÓN ASIGNADA</h3>
+                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h4 style="margin: 0 0 15px 0; color: #000; font-size: 18px;">${instruction.title}</h4>
+                    <p style="margin: 0 0 10px 0; color: #000; line-height: 1.5;"><strong>Categoría:</strong> ${instruction.category}</p>
+                    <p style="margin: 0; color: #000; line-height: 1.5;"><strong>Descripción:</strong> ${instruction.description}</p>
+                </div>
+            </div>
+        `;
+        
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+        
+        // Cerrar modal
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error cargando información de tarea:', error);
+        alert('Error al cargar la información de la tarea');
+    }
+}
+
+// Mostrar modal para crear instrucción específica para una tarea
+async function showTaskInstructionModal(taskId) {
+    try {
+        // Obtener información de la tarea y su inspección
+        const response = await fetch(`/api/tasks/${taskId}/inspection`);
+        if (!response.ok) throw new Error('Error al cargar información de la tarea');
+        
+        const data = await response.json();
+        const { task, inspection } = data;
+        
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+        
+        modalContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-bottom: 25px;">
+                <h2 style="margin: 0; color: #333; font-size: 24px; font-weight: 600;">Asignar Instrucción</h2>
+                <button id="closeTaskModal" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px;">✕</button>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="margin: 0 0 15px 0; color: #007bff; font-size: 18px; font-weight: 600; border-left: 4px solid #007bff; padding-left: 10px;">INSPECCIÓN DE LA TAREA</h3>
+                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h4 style="margin: 0 0 15px 0; color: #333; font-size: 16px;">Tarea: ${task.title}</h4>
+                    ${task.description ? `<p style="margin: 0 0 15px 0; color: #555; line-height: 1.5;"><strong>Descripción:</strong> ${task.description}</p>` : ''}
+                    ${inspection ? `
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                            <p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Inspección:</strong> ${inspection.name}</p>
+                            <p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Tipo:</strong> ${inspection.type}</p>
+                            ${inspection.building ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Edificio:</strong> ${inspection.building}</p>` : ''}
+                            ${inspection.floor ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Piso:</strong> ${inspection.floor}</p>` : ''}
+                            ${inspection.location ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Ubicación:</strong> ${inspection.location}</p>` : ''}
+                            ${inspection.observations ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Observaciones:</strong> ${inspection.observations}</p>` : ''}
+                            ${inspection.recommendations ? `<p style="margin: 0; color: #333; line-height: 1.5;"><strong>Recomendaciones:</strong> ${inspection.recommendations}</p>` : ''}
+                        </div>
+                    ` : '<p style="margin: 0; color: #666; font-style: italic;">No hay inspección asociada a esta tarea</p>'}
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="margin: 0 0 15px 0; color: #28a745; font-size: 18px; font-weight: 600; border-left: 4px solid #28a745; padding-left: 10px;">CREAR INSTRUCCIÓN PARA ESTA TAREA</h3>
+                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #000;">Título:</label>
+                        <input type="text" id="instructionTitle" placeholder="Ej: Reparar sistema eléctrico" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; color: #000;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #000;">Categoría:</label>
+                        <select id="instructionCategory" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; color: #000;">
+                            <option value="">Seleccionar categoría</option>
+                            <option value="Electricidad">Electricidad</option>
+                            <option value="Plomería">Plomería</option>
+                            <option value="Pintura">Pintura</option>
+                            <option value="Carpintería">Carpintería</option>
+                            <option value="Aire Acondicionado">Aire Acondicionado</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #000;">Descripción:</label>
+                        <textarea id="instructionDescription" placeholder="Describe los pasos específicos para esta tarea..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; height: 120px; resize: vertical; font-size: 14px; transition: border-color 0.3s; color: #000;"></textarea>
+                    </div>
+                    <button id="createInstructionBtn" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Crear Instrucción</button>
+                </div>
+            </div>
+            
+            <div id="instructionPreview" style="display: none;">
+                <h3 style="margin: 0 0 15px 0; color: #6f42c1; font-size: 18px; font-weight: 600; border-left: 4px solid #6f42c1; padding-left: 10px;">PREVIEW DE LA INSTRUCCIÓN CREADA</h3>
+                <div id="previewContent" style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: #000;">
+                    <!-- Contenido de preview se llenará dinámicamente -->
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button id="assignInstructionBtn" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-right: 10px; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Asignar a Tarea</button>
+                    <button id="cancelBtn" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Cancelar</button>
+                </div>
+            </div>
+        `;
+        
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+        
+        let createdInstruction = null;
+        
+        // Event listeners
+        document.getElementById('closeTaskModal').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        document.getElementById('createInstructionBtn').addEventListener('click', async () => {
+            const title = document.getElementById('instructionTitle').value.trim();
+            const category = document.getElementById('instructionCategory').value;
+            const description = document.getElementById('instructionDescription').value.trim();
+            
+            if (!title || !category || !description) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/instructions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, category, description })
+                });
+                
+                if (!response.ok) throw new Error('Error al crear instrucción');
+                
+                createdInstruction = await response.json();
+                
+                // Mostrar preview
+                document.getElementById('previewContent').innerHTML = `
+                    <h4 style="margin: 0 0 10px 0;">${createdInstruction.title}</h4>
+                    <p style="margin: 0 0 10px 0;"><strong>Categoría:</strong> ${createdInstruction.category}</p>
+                    <p style="margin: 0;"><strong>Descripción:</strong> ${createdInstruction.description}</p>
+                `;
+                
+                document.getElementById('instructionPreview').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error creando instrucción:', error);
+                alert('Error al crear la instrucción');
+            }
+        });
+        
+        document.getElementById('assignInstructionBtn').addEventListener('click', async () => {
+            if (!createdInstruction) {
+                alert('Primero debes crear una instrucción');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/tasks/${taskId}/instruction`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ instructionId: createdInstruction.id })
+                });
+                
+                if (!response.ok) throw new Error('Error al asignar instrucción');
+                
+                // Cerrar modal
+                document.body.removeChild(modal);
+                
+                // Recargar datos
+                await loadAndRender();
+                
+                alert(`Instrucción "${createdInstruction.title}" asignada correctamente a la tarea`);
+                
+            } catch (error) {
+                console.error('Error asignando instrucción:', error);
+                alert('Error al asignar la instrucción');
+            }
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error cargando información de tarea:', error);
+        alert('Error al cargar la información de la tarea');
     }
 }
 
