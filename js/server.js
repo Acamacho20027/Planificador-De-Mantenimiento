@@ -30,7 +30,18 @@ const RESET_TOKEN_SECRET = process.env.RESET_TOKEN_SECRET || 'dev-reset-secret-c
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 // Middleware
-app.use(helmet());
+// Apply helmet in production. In development, enable a relaxed helmet config
+// to avoid strict headers that interfere with local LAN testing (HSTS/COOP).
+if (IS_PROD) {
+    app.use(helmet());
+} else {
+    app.use(helmet({
+        contentSecurityPolicy: false,
+        crossOriginOpenerPolicy: false,
+        crossOriginEmbedderPolicy: false,
+        hsts: false
+    }));
+}
 app.use(cors({
     origin: true,
     credentials: true
@@ -99,6 +110,8 @@ app.get('/api/status', async (req, res) => {
 
 // CSRF token endpoint (sin rate limit)
 app.get('/auth/csrf', csrfProtection, (req, res) => {
+    // Prevent caching of the CSRF token response
+    res.set('Cache-Control', 'no-store');
     res.json({ csrfToken: req.csrfToken() });
 });
 
@@ -179,8 +192,11 @@ async function startServer() {
         // Probar conexión a base de datos
         await db.getConnection();
         
-        // Iniciar servidor HTTP
-        app.listen(PORT, () => {
+    // Iniciar servidor HTTP. Bind to 0.0.0.0 so the app accepts LAN connections
+    // (not only localhost). This is useful for testing from other devices on
+    // the same network. In production you may still want to front with a TLS
+    // reverse proxy.
+    app.listen(PORT, '0.0.0.0', () => {
             console.log('');
             console.log('═══════════════════════════════════════════════════════');
             console.log('  🚀 SERVIDOR INICIADO EXITOSAMENTE');

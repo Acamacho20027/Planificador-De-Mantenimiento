@@ -101,9 +101,12 @@ router.post('/logout', csrfProtection, (req, res) => {
             if (err) {
                 return res.status(500).json({ error: 'Error al cerrar sesión' });
             }
+            // Prevent caching of logout responses
+            res.set('Cache-Control', 'no-store');
             res.json({ success: true, message: 'Sesión cerrada correctamente' });
         });
     } else {
+        res.set('Cache-Control', 'no-store');
         res.json({ success: true });
     }
 });

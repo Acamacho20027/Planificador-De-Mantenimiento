@@ -1,0 +1,9 @@
+﻿{
+    "images":  [
+                   {
+                       "name":  "e2e-test.png",
+                       "data":  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2NgYGD4DwABBAEAf0lPgQAAAABJRU5ErkJggg==",
+                       "type":  "image/png"
+                   }
+               ]
+}

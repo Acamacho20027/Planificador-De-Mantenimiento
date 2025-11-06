@@ -1,0 +1,310 @@
+/* Canonicalized single-file Canva styles (base + index specific rules)
+   Base variables and utilities (merged from canva-base.css) */
+:root{
+  --canva-blue: #345995;
+  --canva-orange: #f7931e;
+  --canva-white: #f9fafa;
+  --canva-gray-dark: #707070;
+  --canva-gray-light: #979cad;
+  --canva-radius: 14px;
+  --max-width: 1100px;
+  --base-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* Base reset for the canva look */
+html,body{
+  height:100%;
+}
+body{
+  margin:0;
+  font-family: var(--base-font);
+  background: var(--canva-white);
+  color: var(--canva-gray-dark);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Headings */
+h1,h2,h3{ color: var(--canva-blue); font-weight:700; margin:0 0 0.6rem 0 }
+h1{ font-size:2.4rem }
+h2{ font-size:1.6rem }
+
+a{ color: inherit }
+
+/* Utility containers */
+.canva-container{ max-width:var(--max-width); margin:0 auto; padding:0 1rem }
+.center{text-align:center}
+
+/* Buttons (pill style) */
+.canva-pill{ display:inline-block; background:#fff; color:var(--canva-blue); border-radius:20px; padding:8px 18px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 2px 6px rgba(0,0,0,0.04); }
+
+@media (max-width:820px){
+  h1{ font-size:1.8rem }
+}
+
+/* Specific index styles to match the Canva mockup */
+
+/* Header area: place logos to left and right with generous spacing */
+.header-component .content_header{ padding:1.4rem 1rem; position:relative }
+/* Use a two-column layout for header; logo is shown centered in the hero instead */
+.content_menu{ display:grid; grid-template-columns: 1fr auto; align-items:center; }
+/* hide header-left since logo is displayed centered in the hero */
+.header-left { display:none !important; }
+.header-right{ grid-column:2; justify-self:end; display:flex; align-items:center; gap:1rem; position:absolute; right:24px; top:18px }
+/* ensure small header logo (secondary) keeps proper sizing */
+.header-right-brand .site-logo-small{ max-height:56px; opacity:0.95 }
+.header-right-brand{ display:flex; align-items:center; gap:1rem }
+.header-right-brand .site-logo-small{ max-height:56px; opacity:0.95 }
+.brand-tagline{ color:var(--canva-gray-dark); font-size:0.95rem }
+
+/* Hero spacing (we'll use existing hero section but restyle) */
+.section_hero{ padding:1.6rem 0 0 0 }
+.content_hero{ padding-top:1.2rem; padding-bottom:1.6rem }
+
+.hero_heading{ color:var(--canva-blue); font-size:2rem; font-weight:700; margin-bottom:1.2rem }
+
+/* Remove partner pill buttons from hero to match mockup */
+.hero_partners-wrapper{ display:none !important; }
+
+/* Remove central hero CTA buttons (black rectangles) to match Canva visual */
+.section_hero .button-group { display: none !important; }
+
+/* Services grid */
+.content_services{ margin-top:2rem }
+.services-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:1.8rem; align-items:start }
+.services_card{ background:var(--canva-gray-light); color:#fff; border-radius:var(--canva-radius); padding:1.2rem; box-shadow: 0 8px 24px rgba(0,0,0,0.06); overflow:hidden }
+.services_card .icon-emoji-top{ margin-bottom:0.8rem }
+.services_card h4{ color:#fff; margin-bottom:0.4rem }
+.services_card p{ color: rgba(255,255,255,0.92); font-size:0.95rem; line-height:1.4 }
+
+/* Alternate card color for first card (gray) */
+.services_card.gray{ background:#707070 }
+.services_card.blue{ background: var(--canva-blue) }
+.services_card.blue-light{ background: #2e4d88 }
+
+/* Cards images inside rounded box */
+.service-media{ width:100%; height:140px; border-radius:10px; overflow:hidden; margin-bottom:12px; background:#ddd }
+.service-media img{ width:100%; height:100%; object-fit:cover; display:block }
+
+/* Big CTA area before footer */
+.canva-cta{ text-align:center; padding:3rem 1rem }
+.canva-cta h2{ font-size:2rem; color:var(--canva-blue); margin-bottom:0.5rem }
+.canva-cta p{ color:var(--canva-gray-dark); margin-bottom:1.4rem }
+
+/* Orange footer band */
+.canva-footer-band{ background:var(--canva-orange); color:#fff; padding:3rem 1rem }
+.canva-footer-band .contact-pill{ background:#fff; color:var(--canva-blue); display:inline-block; padding:8px 16px; border-radius:20px; margin-bottom:12px; }
+.canva-footer-band .contact-info{ margin-top:10px; color:#fff; opacity:0.95 }
+
+/* Centered logo in hero to match mockup */
+.hero-logo-center{ display:flex; justify-content:center; align-items:center; margin-bottom:1.2rem }
+.hero-logo-img{ max-width:2772px; width:100%; height:auto; display:block }
+
+/* Cap the logo on smaller screens so it doesn't overflow visually */
+@media (max-width:1400px){
+  .hero-logo-img{ width:85%; max-width:1200px }
+}
+@media (max-width:920px){
+  .hero-logo-img{ width:75%; max-width:800px }
+}
+
+/* Hero centered two-column (logo + divider + tagline) */
+.hero-center-wrapper{ display:flex; align-items:center; justify-content:center; gap:2rem; margin-bottom:1.2rem; }
+.hero-logo-left{ flex:0 0 48%; display:flex; justify-content:center }
+.hero-tagline{ flex:0 0 40%; display:flex; align-items:center }
+.hero-tagline-text{ color:var(--canva-gray-dark); font-size:2.2rem; font-weight:700; line-height:1.15 }
+.hero-divider{ width:12px; height:180px; background:var(--canva-blue); border-radius:8px }
+
+/* Remove the blue heading text under the center (per design request) */
+.hero_heading{ display:none !important }
+
+@media (max-width:920px){
+  .hero-center-wrapper{ flex-direction:column; gap:1rem }
+  .hero-logo-left, .hero-tagline{ flex: 1 1 auto; }
+  .hero-divider{ display:none }
+  .hero-tagline-text{ text-align:center }
+}
+
+/* Responsive */
+@media (max-width:920px){
+  .services-grid{ grid-template-columns: 1fr; }
+  .header-component .content_header{ flex-direction:column; gap:1rem; align-items:flex-start }
+  .header-right-brand{ align-self:flex-end }
+}
+
+/* Style login button to match Canva: blue background and white text */
+#btn-login.button_top{
+  background: var(--canva-blue) !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 10px 18px !important;
+  border-radius: 26px !important;
+  box-shadow: 0 4px 12px rgba(52,89,149,0.18);
+  width: auto !important;
+  display: inline-block !important;
+}
+
+/* Remove dark background boxes (from global variables) in header area */
+.header-right .button-component,
+.header-left,
+.header-right-brand{ background: transparent !important; border: none !important; box-shadow: none !important }
+
+/* Ensure the generic button-component (used elsewhere) does not show a dark bg on this page */
+.button-component{ background-color: transparent !important; border: none !important; box-shadow:none !important }
+
+/* Ensure button backgrounds inside header do not stretch full width */
+.header-right .button_background{ width: auto !important; display:inline-block !important }
+
+/* Remove any unexpected small boxed element in top-left by ensuring no borders or backgrounds */
+.content_header, .content_menu, .header-component{ background: transparent !important; border: none !important }
+
+/* --- BEGIN MERGED custom-index.css --- */
+/* Custom index styles to match provided design (scoped to index page selectors) */
+
+/* Header */
+.header-component {
+  background: #ffffff;
+  padding: 18px 0 8px;
+  box-shadow: none;
+}
+.content_header { display:flex; align-items:center; justify-content:space-between; }
+.header-left .site-logo { height: 84px; object-fit:contain; margin-left: 18px; }
+.header-right { margin-right: 18px; }
+
+/* Secondary brand mark on the right */
+.header-right-brand { display:flex; align-items:center; gap:12px; margin-right: 12px; }
+.site-logo-small { height: 56px; object-fit:contain; }
+.brand-tagline { color:#6b6b6b; font-size:14px; font-weight:600; }
+
+/* Keep login button styles intact but visually match design */
+#btn-login.button_top {
+  background: transparent;
+  color: #0e4e8a; /* azul oscuro */
+  border: 2px solid #0e4e8a;
+  padding: 10px 18px;
+  border-radius: 26px;
+  font-weight:700;
+  font-size: 0.95rem;
+}
+
+/* Hero tweaks */
+.section_hero { background: #ffffff; padding: 64px 0 48px; }
+.hero_heading {
+  color: #1f4f8a;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 56px;
+  line-height: 1.02;
+  font-weight:800;
+  margin: 12px 0 18px;
+}
+
+/* Services cards styling similar to provided image */
+.content_services { display:flex; gap: 28px; justify-content: space-between; align-items:stretch; }
+.services_card {
+  background: #ffffff;
+  color: #2b4f86;
+  border-radius: 18px;
+  padding: 0; /* we'll visually separate image and content */
+  width: 32%;
+  box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+  overflow: hidden;
+  display:flex;
+  flex-direction:column;
+}
+.services_card .icon-emoji-component { background:#f0f0f0; padding:0; }
+.services_card .icon-emoji_top { height: 160px; display:flex; align-items:center; justify-content:center; background-size:cover; background-position:center; }
+.services_card .about_card, .services_card .icon-emoji-component { border-radius: 0; }
+.services_card .services_heading, .services_card .heading-style-h3 { font-size:18px; margin:12px 18px 8px; color:#234a78; }
+.services_card .services_description, .services_card p { color:#6b6b6b; margin: 0 18px 18px; font-size:14px; }
+.services_card .card-footer { margin-top:auto; padding:12px 18px; border-top:1px solid rgba(0,0,0,0.04); }
+
+/* Contact call-to-action band in orange */
+.section_contacts .container-large { padding: 48px 0; }
+.section_contacts { background: #ffffff; }
+
+/* Fix: contact form inputs/textarea label overlap and placeholder visibility */
+/* Put labels above inputs in contact area (instead of absolute floating labels) */
+.section_contacts .input-component { position: relative; }
+.section_contacts .input-component .input_label {
+  position: static; /* remove absolute positioning inside contact form */
+  inset: auto;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #596480;
+  font-weight: 600;
+}
+
+/* Ensure textarea has enough top padding and readable placeholder */
+.section_contacts .form_input.is-text-area {
+  min-height: 140px; /* give a comfortable editing area */
+  padding: 12px 14px; /* regular padding (no floating label) */
+  font-size: 15px;
+  line-height: 1.4;
+  color: #111;
+}
+
+.section_contacts .form_input::placeholder {
+  color: #a3a9b8; /* lighter grey placeholder for contrast */
+  opacity: 1;
+}
+
+/* Small screens: keep spacing comfortable */
+@media (max-width: 720px) {
+  .section_contacts .form_input.is-text-area { min-height: 120px; }
+}
+
+/* Center labels and input text horizontally for the contact form */
+.section_contacts .input-component .input_label {
+  text-align: center; /* center the label above the field */
+}
+
+/* Single-line inputs: vertically center content using line-height and horizontal center */
+.section_contacts .input-component input.form_input {
+  min-height: 56px;
+  padding: 0 14px; /* horizontal padding only */
+  line-height: 56px; /* vertically center single-line text */
+  text-align: center;
+}
+
+/* Textarea: center text horizontally, keep top padding for multi-line readability */
+.section_contacts .form_input.is-text-area {
+  text-align: center; /* center content horizontally */
+  padding: 18px 14px; /* keep a comfortable top padding */
+}
+
+/* Center placeholders too */
+.section_contacts .form_input::placeholder { text-align: center; }
+
+/* Checkbox row: keep label left aligned but visually centered relative to the checkbox */
+.section_contacts .checkbox-component { display: flex; align-items: center; gap: 12px; }
+.section_contacts .checkbox-component .form_checkbox-label { margin: 0; }
+
+/* Large CTA center */
+.heading-style-h1 { color:#1f4f8a; font-size:42px; text-align:center; letter-spacing: -0.5px; }
+.text-size-large { text-align:center; color:#6b6b6b; }
+
+/* Orange footer */
+.background-color-secondary { background: #f7931e; }
+footer.background-color-secondary { background:#f7931e; color:#fff; }
+.footer_bottom .text-color-secondary { color: rgba(255,255,255,0.95); }
+
+/* Footer contact buttons */
+.footer .button_top { background: #fff; color:#f7931e; border-radius:24px; padding:8px 18px; font-weight:700; }
+
+/* Big footer contact layout like the reference */
+.padding-section-footer.background-color-secondary { padding: 36px 0; }
+.footer_contact-row { text-align:center; margin-top:8px; }
+.footer_contact-row .contact-pill { display:inline-block; background:#fff; color:#f7931e; padding:8px 18px; border-radius:24px; margin:8px 10px; font-weight:700; }
+
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .content_services { flex-direction: column; }
+  .services_card { width: 100%; }
+  .hero_heading { font-size: 32px; text-align:center; }
+  .content_header { padding: 0 12px; }
+  .header-left .site-logo { height: 56px; }
+}
+
+/* --- END MERGED custom-index.css --- */

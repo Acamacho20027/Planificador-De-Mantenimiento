@@ -1,0 +1,20 @@
+﻿{
+    "date":  "2025-11-05",
+    "title":  "E2E Test Inspeccion",
+    "inspection":  {
+                       "images_base64":  [
+
+                                         ],
+                       "sections":  {
+                                        "ubicacion":  {
+                                                          "oficina":  "Oficina E2E",
+                                                          "piso":  "1",
+                                                          "edificio":  "Edificio 1"
+                                                      },
+                                        "observaciones":  {
+                                                              "observaciones_generales":  "Prueba E2E"
+                                                          }
+                                    }
+                   },
+    "assignedTo":  "demo@empresa.com"
+}

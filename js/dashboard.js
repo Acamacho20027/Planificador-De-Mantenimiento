@@ -75,7 +75,7 @@ function renderTasks(tasks, usuarios) {
 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    headerRow.style.backgroundColor = '#f5f5f5';
+    headerRow.style.backgroundColor = 'var(--canva-white)';
     headerRow.innerHTML = `
         <th style="text-align:left;padding:8px">ID</th>
         <th style="text-align:left;padding:8px">Título</th>
@@ -125,15 +125,16 @@ function renderTasks(tasks, usuarios) {
         const instructionTd = document.createElement('td'); 
         instructionTd.style.padding = '8px';
         
-        const instructionBtn = document.createElement('button');
-        instructionBtn.textContent = t.instruction ? 'Ver Instrucción' : 'Asignar Instrucción';
-        instructionBtn.className = 'small';
-        instructionBtn.style.backgroundColor = t.instruction ? '#28a745' : '#007bff';
-        instructionBtn.style.color = 'white';
-        instructionBtn.style.border = 'none';
-        instructionBtn.style.padding = '4px 8px';
-        instructionBtn.style.borderRadius = '4px';
-        instructionBtn.style.cursor = 'pointer';
+    const instructionBtn = document.createElement('button');
+    instructionBtn.className = 'small';
+    // use the design token colors defined in CSS
+    instructionBtn.style.backgroundColor = 'var(--canva-blue)';
+    instructionBtn.style.color = 'white';
+    instructionBtn.style.border = 'none';
+    instructionBtn.style.padding = '4px 8px';
+    instructionBtn.style.borderRadius = '4px';
+    instructionBtn.style.cursor = 'pointer';
+    instructionBtn.textContent = t.instruction ? 'Ver instrucción' : 'Crear instrucción';
         
         instructionBtn.addEventListener('click', () => {
             if (t.instruction) {
@@ -228,8 +229,8 @@ function statusLabel(status) {
 function renderInspectionSummary(task) {
     const container = document.createElement('div');
     container.style.padding = '12px';
-    container.style.backgroundColor = '#f9f9f9';
-    container.style.border = '1px solid #ddd';
+    container.style.backgroundColor = 'var(--canva-white)';
+    container.style.border = '1px solid var(--canva-gray-light)';
     container.style.borderRadius = '4px';
     
     if (task.inspection && typeof task.inspection === 'object') {
@@ -258,8 +259,8 @@ function initDashboard(){
     const links = document.querySelectorAll('.dashboard-link[data-view]');
     links.forEach(l => l.addEventListener('click', onNavClick));
 
-    // mobile menu toggle
-    const mobileToggle = document.getElementById('mobile-menu-toggle');
+    // mobile menu toggle (support both ids used in templates)
+    const mobileToggle = document.getElementById('mobile-menu-toggle') || document.getElementById('nav-toggle');
     if(mobileToggle){
         mobileToggle.addEventListener('click', ()=>{
             const nav = document.querySelector('.dashboard-nav');
@@ -347,9 +348,9 @@ function initDashboard(){
         table.style.borderCollapse = 'collapse';
         table.style.marginTop = '16px';
         
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        headerRow.style.backgroundColor = '#f5f5f5';
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.style.backgroundColor = 'var(--canva-white)';
         headerRow.innerHTML = `
             <th style="text-align:left;padding:8px">Nombre</th>
             <th style="text-align:left;padding:8px">Email</th>
@@ -363,7 +364,7 @@ function initDashboard(){
         const tbody = document.createElement('tbody');
         list.forEach(u=>{
             const row = document.createElement('tr');
-            row.style.borderBottom = '1px solid #ddd';
+            row.style.borderBottom = '1px solid var(--canva-gray-light)';
             
             const nombreTd = document.createElement('td');
             nombreTd.style.padding = '8px';
@@ -443,6 +444,7 @@ async function showInstructionModal(instruction, taskId) {
         const { task, inspection } = data;
         
         const modal = document.createElement('div');
+        modal.classList.add('app-modal');
         modal.style.cssText = `
             position: fixed;
             top: 0;
@@ -456,7 +458,8 @@ async function showInstructionModal(instruction, taskId) {
             z-index: 1000;
         `;
         
-        const modalContent = document.createElement('div');
+            const modalContent = document.createElement('div');
+        modalContent.classList.add('app-modal-content');
         modalContent.style.cssText = `
             background: white;
             padding: 30px;
@@ -468,19 +471,19 @@ async function showInstructionModal(instruction, taskId) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         `;
         
-        modalContent.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-bottom: 25px;">
+    modalContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--canva-blue); padding-bottom: 15px; margin-bottom: 25px;">
                 <h2 style="margin: 0; color: #333; font-size: 24px; font-weight: 600;">Ver Instrucción</h2>
-                <button id="closeModal" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px;">✕</button>
+                <button id="closeModal" style="background: var(--canva-orange); color: var(--canva-white); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px;">✕</button>
             </div>
-            
+
             <div style="margin-bottom: 25px;">
-                <h3 style="margin: 0 0 15px 0; color: #007bff; font-size: 18px; font-weight: 600; border-left: 4px solid #007bff; padding-left: 10px;">INSPECCIÓN DE LA TAREA</h3>
-                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="margin: 0 0 15px 0; color: var(--canva-blue); font-size: 18px; font-weight: 600; border-left: 4px solid var(--canva-blue); padding-left: 10px;">INSPECCIÓN DE LA TAREA</h3>
+                <div style="border: 1px solid var(--canva-gray-light); padding: 20px; border-radius: 8px; background-color: var(--canva-white); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <h4 style="margin: 0 0 15px 0; color: #000; font-size: 16px;">Tarea: ${task.title}</h4>
                     ${task.description ? `<p style="margin: 0 0 15px 0; color: #000; line-height: 1.5;"><strong>Descripción:</strong> ${task.description}</p>` : ''}
                     ${inspection ? `
-                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--canva-gray-light);">
                             <p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Inspección:</strong> ${inspection.name}</p>
                             <p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Tipo:</strong> ${inspection.type}</p>
                             ${inspection.building ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Edificio:</strong> ${inspection.building}</p>` : ''}
@@ -492,10 +495,10 @@ async function showInstructionModal(instruction, taskId) {
                     ` : '<p style="margin: 0; color: #000; font-style: italic;">No hay inspección asociada a esta tarea</p>'}
                 </div>
             </div>
-            
+
             <div style="margin-bottom: 25px;">
-                <h3 style="margin: 0 0 15px 0; color: #28a745; font-size: 18px; font-weight: 600; border-left: 4px solid #28a745; padding-left: 10px;">INSTRUCCIÓN ASIGNADA</h3>
-                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="margin: 0 0 15px 0; color: var(--canva-orange); font-size: 18px; font-weight: 600; border-left: 4px solid var(--canva-orange); padding-left: 10px;">INSTRUCCIÓN ASIGNADA</h3>
+                <div style="border: 1px solid var(--canva-gray-light); padding: 20px; border-radius: 8px; background-color: var(--canva-white); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <h4 style="margin: 0 0 15px 0; color: #000; font-size: 18px;">${instruction.title}</h4>
                     <p style="margin: 0 0 10px 0; color: #000; line-height: 1.5;"><strong>Categoría:</strong> ${instruction.category}</p>
                     <p style="margin: 0; color: #000; line-height: 1.5;"><strong>Descripción:</strong> ${instruction.description}</p>
@@ -504,18 +507,182 @@ async function showInstructionModal(instruction, taskId) {
         `;
         
         modal.appendChild(modalContent);
+        // Lightbox overlay (one per modal)
+        const lightbox = document.createElement('div');
+        lightbox.id = 'lightboxOverlay';
+        lightbox.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        `;
+
+        const lightboxImg = document.createElement('img');
+        lightboxImg.style.cssText = `
+            max-width: 95%;
+            max-height: 90%;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        `;
+        lightbox.appendChild(lightboxImg);
+        document.body.appendChild(lightbox);
         document.body.appendChild(modal);
         
         // Cerrar modal
         document.getElementById('closeModal').addEventListener('click', () => {
             document.body.removeChild(modal);
+            if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
+            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
         });
         
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 document.body.removeChild(modal);
+                if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
+                try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
             }
         });
+        
+        // Fetch and render image galleries: inspection (before) and task uploads (after)
+        try {
+            
+            // keep a gallery array so lightbox can navigate between images
+            const galleryUrls = [];
+            let currentIndex = -1;
+
+            function openLightboxAt(i){
+                if(i < 0 || i >= galleryUrls.length) return;
+                currentIndex = i;
+                lightboxImg.src = galleryUrls[i];
+                lightbox.style.display = 'flex';
+            }
+
+            function closeLightbox(){
+                lightbox.style.display = 'none';
+                lightboxImg.src = '';
+            }
+
+            function showNext(){
+                if(galleryUrls.length === 0) return;
+                openLightboxAt((currentIndex + 1) % galleryUrls.length);
+            }
+
+            function showPrev(){
+                if(galleryUrls.length === 0) return;
+                openLightboxAt((currentIndex - 1 + galleryUrls.length) % galleryUrls.length);
+            }
+
+            // keyboard navigation when lightbox open
+            function onKeyDown(e){
+                if(lightbox.style.display !== 'flex') return;
+                if(e.key === 'Escape') closeLightbox();
+                if(e.key === 'ArrowRight') showNext();
+                if(e.key === 'ArrowLeft') showPrev();
+            }
+            document.addEventListener('keydown', onKeyDown);
+
+            // touch swipe support
+            let touchStartX = null;
+            lightbox.addEventListener('touchstart', (ev)=>{ touchStartX = ev.touches && ev.touches[0] ? ev.touches[0].clientX : null; });
+            lightbox.addEventListener('touchend', (ev)=>{
+                if(touchStartX === null) return;
+                const endX = ev.changedTouches && ev.changedTouches[0] ? ev.changedTouches[0].clientX : null;
+                if(endX === null) return;
+                const diff = touchStartX - endX;
+                if(Math.abs(diff) > 50){ if(diff > 0) showNext(); else showPrev(); }
+                touchStartX = null;
+            });
+            // inspection images (from /api/inspections/:id)
+            if (inspection && inspection.id) {
+                const inspResp = await fetch(`/api/inspections/${inspection.id}`);
+                if (inspResp.ok) {
+                    const inspData = await inspResp.json();
+                    if (inspData.imagenes && inspData.imagenes.length) {
+                        const galleryWrap = document.createElement('div');
+                        galleryWrap.style.marginBottom = '18px';
+                        galleryWrap.innerHTML = `<h4 style="margin:0 0 8px 0;color:#000;font-size:16px">Fotos de Inspección (Antes)</h4>`;
+                        const row = document.createElement('div');
+                        row.style.display = 'flex';
+                        row.style.flexWrap = 'wrap';
+                        row.style.gap = '10px';
+
+                        inspData.imagenes.forEach(img => {
+                            const thumb = document.createElement('img');
+                            // img.data_base64 may be data URL or pure base64
+                            let src = img.data_base64 || img.data || null;
+                            if (!src) return;
+                            if (!src.startsWith('data:')) {
+                                // assume image/png if unknown
+                                src = `data:image/png;base64,${src}`;
+                            }
+                            thumb.src = src;
+                            thumb.style.width = '96px';
+                            thumb.style.height = '64px';
+                            thumb.loading = 'lazy';
+                            thumb.style.objectFit = 'cover';
+                            thumb.style.borderRadius = '6px';
+                            thumb.style.cursor = 'pointer';
+                            thumb.title = img.nombre_archivo || '';
+                            // add to gallery and open when clicked
+                            const idx = galleryUrls.push(src) - 1;
+                            thumb.dataset.idx = idx;
+                            thumb.addEventListener('click', () => openLightboxAt(parseInt(thumb.dataset.idx, 10)));
+                            row.appendChild(thumb);
+                        });
+                        galleryWrap.appendChild(row);
+                        modalContent.appendChild(galleryWrap);
+                    }
+                }
+            }
+
+            // task uploaded images (after) - from /api/tasks/:id/images
+            const afterResp = await fetch(`/api/tasks/${taskId}/images`);
+            if (afterResp.ok) {
+                const afterData = await afterResp.json();
+                if (afterData.files && afterData.files.length) {
+                    const galleryWrap2 = document.createElement('div');
+                    galleryWrap2.style.marginBottom = '18px';
+                    galleryWrap2.innerHTML = `<h4 style="margin:0 0 8px 0;color:#000;font-size:16px">Fotos de Tarea (Después)</h4>`;
+                    const row2 = document.createElement('div');
+                    row2.style.display = 'flex';
+                    row2.style.flexWrap = 'wrap';
+                    row2.style.gap = '10px';
+
+                        afterData.files.forEach(f => {
+                        const thumb = document.createElement('img');
+                        thumb.src = f.url;
+                            thumb.loading = 'lazy';
+                        thumb.style.width = '96px';
+                        thumb.style.height = '64px';
+                        thumb.style.objectFit = 'cover';
+                        thumb.style.borderRadius = '6px';
+                        thumb.style.cursor = 'pointer';
+                        thumb.title = f.name || '';
+                        const idx2 = galleryUrls.push(f.url) - 1;
+                        thumb.dataset.idx = idx2;
+                        thumb.addEventListener('click', () => openLightboxAt(parseInt(thumb.dataset.idx, 10)));
+                        row2.appendChild(thumb);
+                    });
+                    galleryWrap2.appendChild(row2);
+                    modalContent.appendChild(galleryWrap2);
+                }
+            }
+
+            // Close lightbox when clicked
+            lightbox.addEventListener('click', () => {
+                lightbox.style.display = 'none';
+                lightboxImg.src = '';
+            });
+
+        } catch (imgErr) {
+            console.warn('No se pudieron cargar las imágenes de inspección/tarea:', imgErr);
+        }
         
     } catch (error) {
         console.error('Error cargando información de tarea:', error);
@@ -529,10 +696,10 @@ async function showTaskInstructionModal(taskId) {
         // Obtener información de la tarea y su inspección
         const response = await fetch(`/api/tasks/${taskId}/inspection`);
         if (!response.ok) throw new Error('Error al cargar información de la tarea');
-        
+
         const data = await response.json();
         const { task, inspection } = data;
-        
+
         const modal = document.createElement('div');
         modal.style.cssText = `
             position: fixed;
@@ -546,7 +713,7 @@ async function showTaskInstructionModal(taskId) {
             align-items: center;
             z-index: 1000;
         `;
-        
+
         const modalContent = document.createElement('div');
         modalContent.style.cssText = `
             background: white;
@@ -558,42 +725,42 @@ async function showTaskInstructionModal(taskId) {
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         `;
-        
+
         modalContent.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-bottom: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--canva-blue); padding-bottom: 15px; margin-bottom: 25px;">
                 <h2 style="margin: 0; color: #333; font-size: 24px; font-weight: 600;">Asignar Instrucción</h2>
-                <button id="closeTaskModal" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px;">✕</button>
+                <button id="closeTaskModal" style="background: var(--canva-orange); color: var(--canva-white); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 16px;">✕</button>
             </div>
-            
+
             <div style="margin-bottom: 25px;">
-                <h3 style="margin: 0 0 15px 0; color: #007bff; font-size: 18px; font-weight: 600; border-left: 4px solid #007bff; padding-left: 10px;">INSPECCIÓN DE LA TAREA</h3>
-                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <h4 style="margin: 0 0 15px 0; color: #333; font-size: 16px;">Tarea: ${task.title}</h4>
-                    ${task.description ? `<p style="margin: 0 0 15px 0; color: #555; line-height: 1.5;"><strong>Descripción:</strong> ${task.description}</p>` : ''}
+                <h3 style="margin: 0 0 15px 0; color: var(--canva-blue); font-size: 18px; font-weight: 600; border-left: 4px solid var(--canva-blue); padding-left: 10px;">INSPECCIÓN DE LA TAREA</h3>
+                <div style="border: 1px solid var(--canva-gray-light); padding: 20px; border-radius: 8px; background-color: var(--canva-white); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h4 style="margin: 0 0 15px 0; color: #000; font-size: 16px;">Tarea: ${task.title}</h4>
+                    ${task.description ? `<p style="margin: 0 0 15px 0; color: #000; line-height: 1.5;"><strong>Descripción:</strong> ${task.description}</p>` : ''}
                     ${inspection ? `
-                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                            <p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Inspección:</strong> ${inspection.name}</p>
-                            <p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Tipo:</strong> ${inspection.type}</p>
-                            ${inspection.building ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Edificio:</strong> ${inspection.building}</p>` : ''}
-                            ${inspection.floor ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Piso:</strong> ${inspection.floor}</p>` : ''}
-                            ${inspection.location ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Ubicación:</strong> ${inspection.location}</p>` : ''}
-                            ${inspection.observations ? `<p style="margin: 0 0 8px 0; color: #333; line-height: 1.5;"><strong>Observaciones:</strong> ${inspection.observations}</p>` : ''}
-                            ${inspection.recommendations ? `<p style="margin: 0; color: #333; line-height: 1.5;"><strong>Recomendaciones:</strong> ${inspection.recommendations}</p>` : ''}
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--canva-gray-light);">
+                            <p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Inspección:</strong> ${inspection.name}</p>
+                            <p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Tipo:</strong> ${inspection.type}</p>
+                            ${inspection.building ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Edificio:</strong> ${inspection.building}</p>` : ''}
+                            ${inspection.floor ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Piso:</strong> ${inspection.floor}</p>` : ''}
+                            ${inspection.location ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Ubicación:</strong> ${inspection.location}</p>` : ''}
+                            ${inspection.observations ? `<p style="margin: 0 0 8px 0; color: #000; line-height: 1.5;"><strong>Observaciones:</strong> ${inspection.observations}</p>` : ''}
+                            ${inspection.recommendations ? `<p style="margin: 0; color: #000; line-height: 1.5;"><strong>Recomendaciones:</strong> ${inspection.recommendations}</p>` : ''}
                         </div>
-                    ` : '<p style="margin: 0; color: #666; font-style: italic;">No hay inspección asociada a esta tarea</p>'}
+                    ` : '<p style="margin: 0; color: #000; font-style: italic;">No hay inspección asociada a esta tarea</p>'}
                 </div>
             </div>
-            
+
             <div style="margin-bottom: 25px;">
-                <h3 style="margin: 0 0 15px 0; color: #28a745; font-size: 18px; font-weight: 600; border-left: 4px solid #28a745; padding-left: 10px;">CREAR INSTRUCCIÓN PARA ESTA TAREA</h3>
-                <div style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="margin: 0 0 15px 0; color: var(--canva-blue); font-size: 18px; font-weight: 600; border-left: 4px solid var(--canva-blue); padding-left: 10px;">CREAR INSTRUCCIÓN PARA ESTA TAREA</h3>
+                <div style="border: 1px solid var(--canva-gray-light); padding: 20px; border-radius: 8px; background-color: var(--canva-white); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #000;">Título:</label>
-                        <input type="text" id="instructionTitle" placeholder="Ej: Reparar sistema eléctrico" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; color: #000;">
+                        <input type="text" id="instructionTitle" placeholder="Ej: Reparar sistema eléctrico" style="width: 100%; padding: 12px; border: 2px solid var(--canva-gray-light); border-radius: 6px; font-size: 14px; transition: border-color 0.3s; color: #000;">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #000;">Categoría:</label>
-                        <select id="instructionCategory" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; color: #000;">
+                        <select id="instructionCategory" style="width: 100%; padding: 12px; border: 2px solid var(--canva-gray-light); border-radius: 6px; font-size: 14px; transition: border-color 0.3s; color: #000;">
                             <option value="">Seleccionar categoría</option>
                             <option value="Electricidad">Electricidad</option>
                             <option value="Plomería">Plomería</option>
@@ -606,48 +773,77 @@ async function showTaskInstructionModal(taskId) {
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #000;">Descripción:</label>
-                        <textarea id="instructionDescription" placeholder="Describe los pasos específicos para esta tarea..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; height: 120px; resize: vertical; font-size: 14px; transition: border-color 0.3s; color: #000;"></textarea>
+                        <textarea id="instructionDescription" placeholder="Describe los pasos específicos para esta tarea..." style="width: 100%; padding: 12px; border: 2px solid var(--canva-gray-light); border-radius: 6px; height: 120px; resize: vertical; font-size: 14px; transition: border-color 0.3s; color: #000;"></textarea>
                     </div>
-                    <button id="createInstructionBtn" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Crear Instrucción</button>
+                    <button id="createInstructionBtn" style="background: var(--canva-blue); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Crear Instrucción</button>
                 </div>
             </div>
-            
+
             <div id="instructionPreview" style="display: none;">
-                <h3 style="margin: 0 0 15px 0; color: #6f42c1; font-size: 18px; font-weight: 600; border-left: 4px solid #6f42c1; padding-left: 10px;">PREVIEW DE LA INSTRUCCIÓN CREADA</h3>
-                <div id="previewContent" style="border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: #000;">
+                <h3 style="margin: 0 0 15px 0; color: var(--canva-blue); font-size: 18px; font-weight: 600; border-left: 4px solid var(--canva-blue); padding-left: 10px;">PREVIEW DE LA INSTRUCCIÓN CREADA</h3>
+                <div id="previewContent" style="border: 1px solid var(--canva-gray-light); padding: 20px; border-radius: 8px; background-color: var(--canva-white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: #000;">
                     <!-- Contenido de preview se llenará dinámicamente -->
                 </div>
                 <div style="margin-top: 20px; text-align: right;">
-                    <button id="assignInstructionBtn" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-right: 10px; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Asignar a Tarea</button>
-                    <button id="cancelBtn" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Cancelar</button>
+                    <button id="assignInstructionBtn" style="background: var(--canva-blue); color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-right: 10px; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Asignar a Tarea</button>
+                    <button id="cancelBtn" style="background: var(--canva-gray-dark); color: var(--canva-white); border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Cancelar</button>
                 </div>
             </div>
         `;
-        
+
         modal.appendChild(modalContent);
         document.body.appendChild(modal);
-        
+        // Lightbox overlay (one per modal)
+        const lightbox = document.createElement('div');
+        lightbox.id = 'lightboxOverlay';
+        lightbox.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        `;
+
+        const lightboxImg = document.createElement('img');
+        lightboxImg.style.cssText = `
+            max-width: 95%;
+            max-height: 90%;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        `;
+        lightbox.appendChild(lightboxImg);
+        document.body.appendChild(lightbox);
+
         let createdInstruction = null;
-        
+
         // Event listeners
         document.getElementById('closeTaskModal').addEventListener('click', () => {
             document.body.removeChild(modal);
+            if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
+            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
         });
-        
+
         document.getElementById('cancelBtn').addEventListener('click', () => {
             document.body.removeChild(modal);
+            if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
+            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
         });
-        
+
         document.getElementById('createInstructionBtn').addEventListener('click', async () => {
             const title = document.getElementById('instructionTitle').value.trim();
             const category = document.getElementById('instructionCategory').value;
             const description = document.getElementById('instructionDescription').value.trim();
-            
+
             if (!title || !category || !description) {
                 alert('Por favor completa todos los campos');
                 return;
             }
-            
+
             try {
                 const response = await fetch('/api/instructions', {
                     method: 'POST',
@@ -656,32 +852,32 @@ async function showTaskInstructionModal(taskId) {
                     },
                     body: JSON.stringify({ title, category, description })
                 });
-                
+
                 if (!response.ok) throw new Error('Error al crear instrucción');
-                
+
                 createdInstruction = await response.json();
-                
+
                 // Mostrar preview
                 document.getElementById('previewContent').innerHTML = `
                     <h4 style="margin: 0 0 10px 0;">${createdInstruction.title}</h4>
                     <p style="margin: 0 0 10px 0;"><strong>Categoría:</strong> ${createdInstruction.category}</p>
                     <p style="margin: 0;"><strong>Descripción:</strong> ${createdInstruction.description}</p>
                 `;
-                
+
                 document.getElementById('instructionPreview').style.display = 'block';
-                
+
             } catch (error) {
                 console.error('Error creando instrucción:', error);
                 alert('Error al crear la instrucción');
             }
         });
-        
+
         document.getElementById('assignInstructionBtn').addEventListener('click', async () => {
             if (!createdInstruction) {
                 alert('Primero debes crear una instrucción');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`/api/tasks/${taskId}/instruction`, {
                     method: 'PUT',
@@ -690,29 +886,116 @@ async function showTaskInstructionModal(taskId) {
                     },
                     body: JSON.stringify({ instructionId: createdInstruction.id })
                 });
-                
+
                 if (!response.ok) throw new Error('Error al asignar instrucción');
-                
+
                 // Cerrar modal
                 document.body.removeChild(modal);
-                
+
                 // Recargar datos
                 await loadAndRender();
-                
+
                 alert(`Instrucción "${createdInstruction.title}" asignada correctamente a la tarea`);
-                
+
             } catch (error) {
                 console.error('Error asignando instrucción:', error);
                 alert('Error al asignar la instrucción');
             }
         });
-        
+
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 document.body.removeChild(modal);
+                if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
+                try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
             }
         });
-        
+
+        // Fetch and render image galleries: inspection (before) and task uploads (after)
+        try {
+            // inspection images (from /api/inspections/:id)
+            if (inspection && inspection.id) {
+                const inspResp = await fetch(`/api/inspections/${inspection.id}`);
+                if (inspResp.ok) {
+                    const inspData = await inspResp.json();
+                    if (inspData.imagenes && inspData.imagenes.length) {
+                        const galleryWrap = document.createElement('div');
+                        galleryWrap.style.marginBottom = '18px';
+                        galleryWrap.innerHTML = `<h4 style="margin:0 0 8px 0;color:#000;font-size:16px">Fotos de Inspección (Antes)</h4>`;
+                        const row = document.createElement('div');
+                        row.style.display = 'flex';
+                        row.style.flexWrap = 'wrap';
+                        row.style.gap = '10px';
+
+                        inspData.imagenes.forEach(img => {
+                            const thumb = document.createElement('img');
+                            let src = img.data_base64 || img.data || null;
+                            if (!src) return;
+                            if (!src.startsWith('data:')) {
+                                src = `data:image/png;base64,${src}`;
+                            }
+                            thumb.src = src;
+                            thumb.style.width = '96px';
+                            thumb.style.height = '64px';
+                            thumb.style.objectFit = 'cover';
+                            thumb.style.borderRadius = '6px';
+                            thumb.style.cursor = 'pointer';
+                            thumb.title = img.nombre_archivo || '';
+                            thumb.addEventListener('click', () => {
+                                lightboxImg.src = src;
+                                lightbox.style.display = 'flex';
+                            });
+                            row.appendChild(thumb);
+                        });
+                        galleryWrap.appendChild(row);
+                        modalContent.appendChild(galleryWrap);
+                    }
+                }
+            }
+
+            // task uploaded images (after) - from /api/tasks/:id/images
+            const afterResp = await fetch(`/api/tasks/${taskId}/images`);
+            if (afterResp.ok) {
+                const afterData = await afterResp.json();
+                if (afterData.files && afterData.files.length) {
+                    const galleryWrap2 = document.createElement('div');
+                    galleryWrap2.style.marginBottom = '18px';
+                    galleryWrap2.innerHTML = `<h4 style="margin:0 0 8px 0;color:#000;font-size:16px">Fotos de Tarea (Después)</h4>`;
+                    const row2 = document.createElement('div');
+                    row2.style.display = 'flex';
+                    row2.style.flexWrap = 'wrap';
+                    row2.style.gap = '10px';
+
+                    afterData.files.forEach(f => {
+                        const thumb = document.createElement('img');
+                        thumb.src = f.url;
+                        thumb.style.width = '96px';
+                        thumb.style.height = '64px';
+                        thumb.style.objectFit = 'cover';
+                        thumb.style.borderRadius = '6px';
+                        thumb.style.cursor = 'pointer';
+                        thumb.title = f.name || '';
+                        thumb.addEventListener('click', () => {
+                            lightboxImg.src = f.url;
+                            lightbox.style.display = 'flex';
+                        });
+                        row2.appendChild(thumb);
+                    });
+                    galleryWrap2.appendChild(row2);
+                    modalContent.appendChild(galleryWrap2);
+                }
+            }
+
+            // Close lightbox when clicked
+            lightbox.addEventListener('click', () => {
+                lightbox.style.display = 'none';
+                lightboxImg.src = '';
+            });
+
+        } catch (imgErr) {
+            console.warn('No se pudieron cargar las imágenes de inspección/tarea:', imgErr);
+        }
+
     } catch (error) {
         console.error('Error cargando información de tarea:', error);
         alert('Error al cargar la información de la tarea');

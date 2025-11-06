@@ -209,6 +209,15 @@ html {
     height: 100%
 }
 
+/* Global design tokens (Canva palette) - added for dashboard and other views */
+:root {
+    --canva-blue: #345995;
+    --canva-orange: #f7931e;
+    --canva-white: #f9fafa;
+    --canva-gray-dark: #707070;
+    --canva-gray-light: #979cad;
+}
+
 body {
     color: #333;
     background-color: #808080; /* Gris de fondo como solicitado */

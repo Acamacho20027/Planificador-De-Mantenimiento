@@ -5,6 +5,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../config/database');
+const fs = require('fs');
+const path = require('path');
 
 // Mapeo de estados: BD (español) <-> Frontend (inglés)
 const estadoToStatus = {
@@ -133,7 +135,7 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ error: 'ID de tarea inválido' });
         }
         
-        // Construir query dinámicamente según qué campos se enviaron
+    // Construir query dinámicamente según qué campos se enviaron
         const updates = [];
         const params = { id_tarea: taskId };
         
@@ -167,6 +169,24 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ error: 'No se proporcionaron campos para actualizar' });
         }
         
+        // Validación server-side: si se intenta marcar como Finalizado, verificar que exista al menos
+        // una imagen subida para la tarea (carpeta uploads/tasks/:id con archivos)
+        try {
+            if (params.estado && params.estado === 'Finalizado') {
+                const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
+                if (!fs.existsSync(uploadDir)) {
+                    return res.status(400).json({ error: 'Para marcar Finalizado se requiere al menos una foto subida para la tarea' });
+                }
+                const files = fs.readdirSync(uploadDir).filter(f => f && !f.startsWith('.'));
+                if (!files || files.length === 0) {
+                    return res.status(400).json({ error: 'Para marcar Finalizado se requiere al menos una foto subida para la tarea' });
+                }
+            }
+        } catch (fsErr) {
+            console.error('Error revisando imágenes de tarea:', fsErr);
+            return res.status(500).json({ error: 'Error al verificar fotos de la tarea' });
+        }
+
         updates.push('fecha_actualizacion = GETDATE()');
         
         // Usar la función query correctamente
@@ -379,6 +399,116 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error('Error eliminando tarea:', error);
         res.status(500).json({ error: 'Error al eliminar tarea' });
+    }
+});
+
+// POST /api/tasks/:id/images - subir imágenes asociadas a una tarea
+router.post('/:id/images', async (req, res) => {
+    try {
+        const taskId = parseInt(req.params.id);
+        const { images } = req.body; // esperar [{ name, type, data }]
+
+        if (isNaN(taskId)) return res.status(400).json({ error: 'ID de tarea inválido' });
+        if (!images || !Array.isArray(images) || images.length === 0) return res.status(400).json({ error: 'No se proporcionaron imágenes' });
+
+        const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
+        fs.mkdirSync(uploadDir, { recursive: true });
+
+        const saved = [];
+        // attempt to get DB pool for metadata insertion (optional)
+        let pool = null;
+        try { pool = await db.getConnection(); } catch(e){ pool = null; }
+
+        for (const img of images) {
+            // img.data puede venir como dataURL o base64 puro
+            let base64 = img.data;
+            const match = /^data:(.+);base64,(.+)$/.exec(base64);
+            if (match) base64 = match[2];
+
+            const buffer = Buffer.from(base64, 'base64');
+            const filename = `${Date.now()}-${img.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+            const filepath = path.join(uploadDir, filename);
+            fs.writeFileSync(filepath, buffer);
+
+            // construir URL pública (static sirve desde la raíz del repo)
+            const urlPath = `/uploads/tasks/${taskId}/${filename}`;
+            const fileMeta = { name: filename, url: urlPath, size: buffer.length, type: img.type || null };
+            saved.push(fileMeta);
+
+            // Persist metadata in DB table `imagenes_tarea` if available. If the table doesn't exist
+            // or DB errors occur, ignore and continue (non-fatal).
+            try {
+                if (pool) {
+                    // coerce uploaded_by to integer when possible
+                    const uploadedByRaw = (req.session && req.session.userId) ? req.session.userId : null;
+                    const uploadedBy = uploadedByRaw !== null ? (Number.isInteger(uploadedByRaw) ? uploadedByRaw : parseInt(uploadedByRaw, 10) || null) : null;
+                    await pool.request()
+                        .input('id_tarea', taskId)
+                        .input('nombre_archivo', filename)
+                        .input('url_path', urlPath)
+                        .input('tipo_mime', img.type || null)
+                        .input('tamano_bytes', buffer.length)
+                        .input('uploaded_by', uploadedBy)
+                        .query(`
+                            INSERT INTO imagenes_tarea (id_tarea, nombre_archivo, url_path, tipo_mime, tamano_bytes, uploaded_by, fecha_subida)
+                            VALUES (@id_tarea, @nombre_archivo, @url_path, @tipo_mime, @tamano_bytes, @uploaded_by, GETDATE())
+                        `);
+                }
+            } catch (metaErr) {
+                // Non-fatal: log and continue
+                console.warn('No se pudo insertar metadata de imagen en DB:', metaErr && metaErr.message ? metaErr.message : metaErr);
+            }
+        }
+
+        res.json({ success: true, files: saved });
+    } catch (error) {
+        console.error('Error subiendo imágenes de tarea:', error);
+        res.status(500).json({ error: 'Error al subir imágenes' });
+    }
+});
+
+// GET /api/tasks/:id/images - List uploaded images for a task (served from uploads/tasks/:id)
+router.get('/:id/images', async (req, res) => {
+    try {
+        const taskId = parseInt(req.params.id);
+        if (isNaN(taskId)) return res.status(400).json({ error: 'ID de tarea inválido' });
+        // First try to read metadata from DB table imagenes_tarea (if present)
+        try {
+            const pool = await db.getConnection();
+            const result = await pool.request()
+                .input('id_tarea', taskId)
+                .query(`
+                    SELECT nombre_archivo AS name, url_path AS url, tipo_mime AS type, tamano_bytes AS size, uploaded_by, fecha_subida
+                    FROM imagenes_tarea
+                    WHERE id_tarea = @id_tarea
+                    ORDER BY fecha_subida DESC
+                `);
+
+            const filesInfo = (result && result.recordset) ? result.recordset.map(r => ({
+                name: r.name,
+                url: r.url,
+                type: r.type,
+                size: r.size,
+                uploadedBy: r.uploaded_by !== undefined && r.uploaded_by !== null ? (Number.isInteger(r.uploaded_by) ? r.uploaded_by : parseInt(r.uploaded_by, 10) || null) : null,
+                uploadedAt: r.fecha_subida || null
+            })) : [];
+
+            // If DB returned rows, prefer those. If empty, fall back to filesystem listing.
+            if (filesInfo.length > 0) return res.json({ files: filesInfo });
+        } catch (dbErr) {
+            // Table may not exist or DB error; fall back to filesystem
+            // console.warn('No se pudo leer metadata de imagenes_tarea, usando sistema de archivos:', dbErr.message || dbErr);
+        }
+
+        const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
+        if (!fs.existsSync(uploadDir)) return res.json({ files: [] });
+
+        const files = fs.readdirSync(uploadDir).filter(f => f && !f.startsWith('.'));
+        const filesInfo = files.map(f => ({ name: f, url: `/uploads/tasks/${taskId}/${f}` }));
+        res.json({ files: filesInfo });
+    } catch (error) {
+        console.error('Error obteniendo imágenes de tarea:', error);
+        res.status(500).json({ error: 'Error al obtener imágenes de la tarea' });
     }
 });
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planificador de Mantenimiento</title>
     <link rel="stylesheet" href="../Styles/styles.css">
-        <link rel="stylesheet" href="../Styles/custom-index.css">
+        <link rel="stylesheet" href="../Styles/canva-index.css">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/imagenes/Logo-MyM.png">
 </head>
@@ -16,18 +16,16 @@
             <div class="content_menu">
                     <!-- Logo on the left (preserve login button on the right) -->
                     <div class="header-left">
-                        <img src="../imagenes/Logo-MyM.png" alt="Logo MyM" class="site-logo" />
+                        <!-- Logo moved to hero center to match Canva mockup -->
                     </div>
-                    <!-- Secondary brand mark on the right (visual only) -->
-                    <div class="header-right-brand">
-                        <img src="../imagenes/logo_MantenimientoyConstruccion.jpg" alt="Marca secundaria" class="site-logo-small" />
-                        <div class="brand-tagline">Soluciones de mantenimiento de confianza</div>
+                    <!-- Right side: only login button (secondary brand removed as requested) -->
+                    <div class="header-right">
+                        <div class="button-component">
+                            <div class="button_background">
+                                <button id="btn-login" class="button_top">Iniciar Sesión</button>
+                            </div>
+                        </div>
                     </div>
-                <div class="button-component">
-                    <div class="button_background">
-                        <button id="btn-login" class="button_top">Iniciar Sesión</button>
-                    </div>
-                </div>
             </div>
         </div>
     </header>
@@ -40,6 +38,15 @@
         <div class="padding-global padding-section-first">
             <div class="container-large">
                 <div class="content_hero">
+                    <div class="hero-center-wrapper">
+                        <div class="hero-logo-left">
+                            <img src="/imagenes/Logo-MyM.png" alt="Logo MyM" class="hero-logo-img" />
+                        </div>
+                        <div class="hero-divider" aria-hidden="true"></div>
+                        <div class="hero-tagline">
+                            <p class="hero-tagline-text">Soluciones de<br>mantenimiento de confianza</p>
+                        </div>
+                    </div>
                     <h1 class="hero_heading">Soluciones efectivas de mantenimiento<br>para empresas de cualquier escala</h1>
                     
                     <div class="hero_partners-wrapper margin-top margin-large">
@@ -187,8 +194,8 @@
                         </div>
                         
                         <div class="input-component">
-                            <label class="input_label">Email</label>
-                            <input type="email" class="form_input" placeholder="tu@email.com" required>
+                            <label class="input_label">Correo electrónico</label>
+                            <input type="email" class="form_input" placeholder="tu@correo.com" required>
                         </div>
                         
                         <div class="input-component">
@@ -203,14 +210,7 @@
                     </div>
 
                     <div class="form_buttons-wrapper margin-top margin-large">
-                        <div class="checkbox-component">
-                            <input type="checkbox" class="form_checkbox" id="privacy" required>
-                            <label for="privacy" class="form_checkbox-label">
-                                Acepto la política de privacidad
-                            </label>
-                        </div>
-                        
-                        <div class="button-component">
+                        <div class="button-component" style="margin-left:auto;">
                             <div class="button_background">
                                 <button type="submit" class="button_top">Enviar mensaje</button>
                             </div>
