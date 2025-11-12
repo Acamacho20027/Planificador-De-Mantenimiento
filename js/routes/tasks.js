@@ -7,6 +7,34 @@ const router = express.Router();
 const db = require('../../config/database');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+
+// Configure multer for multipart/form-data uploads (files written to disk)
+// Default per-file upload limit when using multipart uploads. Can be overridden via
+// environment variable FILE_SIZE_LIMIT_BYTES (value in bytes).
+const FILE_SIZE_LIMIT = parseInt(process.env.FILE_SIZE_LIMIT_BYTES, 10) || (200 * 1024 * 1024); // 200MB default
+// Base directory where uploaded files are stored. Can be set to an external drive, e.g. UPLOAD_DIR='B:\uploads'
+const BASE_UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', 'uploads');
+console.log(`⚙️ Upload base directory: ${BASE_UPLOAD_DIR}`);
+// Multer will first store uploads in a temp folder; the route handler will move files
+// to their final location after persisting metadata. This reduces the chance of
+// orphan files when DB inserts fail and allows atomic move/rollback logic.
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        try {
+            const tmpDir = path.join(BASE_UPLOAD_DIR, 'tmp');
+            fs.mkdirSync(tmpDir, { recursive: true });
+            cb(null, tmpDir);
+        } catch (err) {
+            cb(err);
+        }
+    },
+    filename: (req, file, cb) => {
+        const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+        cb(null, `${Date.now()}-${safe}`);
+    }
+});
+const upload = multer({ storage, limits: { fileSize: FILE_SIZE_LIMIT } });
 
 // Mapeo de estados: BD (español) <-> Frontend (inglés)
 const estadoToStatus = {
@@ -43,7 +71,8 @@ router.get('/', async (req, res) => {
                 inst.categoria AS instruccion_categoria
             FROM tareas t
             LEFT JOIN instrucciones inst ON t.id_instruccion = inst.id_instruccion
-            ORDER BY t.fecha_creacion DESC
+            -- Order by most recently updated (so assignment/updates bubble to top); fall back to creation date
+            ORDER BY COALESCE(t.fecha_actualizacion, t.fecha_creacion) DESC
         `);
         
         // Mapear estados de español a inglés y estructurar instrucciones
@@ -173,7 +202,7 @@ router.put('/:id', async (req, res) => {
         // una imagen subida para la tarea (carpeta uploads/tasks/:id con archivos)
         try {
             if (params.estado && params.estado === 'Finalizado') {
-                const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
+                const uploadDir = path.join(BASE_UPLOAD_DIR, 'tasks', String(taskId));
                 if (!fs.existsSync(uploadDir)) {
                     return res.status(400).json({ error: 'Para marcar Finalizado se requiere al menos una foto subida para la tarea' });
                 }
@@ -403,43 +432,109 @@ router.delete('/:id', async (req, res) => {
 });
 
 // POST /api/tasks/:id/images - subir imágenes asociadas a una tarea
-router.post('/:id/images', async (req, res) => {
+// Accepts either JSON with base64 images (legacy) or multipart/form-data file upload (field name: 'images')
+router.post('/:id/images', upload.array('images'), async (req, res) => {
     try {
         const taskId = parseInt(req.params.id);
-        const { images } = req.body; // esperar [{ name, type, data }]
 
-        if (isNaN(taskId)) {return res.status(400).json({ error: 'ID de tarea inválido' });}
-        if (!images || !Array.isArray(images) || images.length === 0) {return res.status(400).json({ error: 'No se proporcionaron imágenes' });}
+        if (isNaN(taskId)) { return res.status(400).json({ error: 'ID de tarea inválido' }); }
 
-        const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
-        fs.mkdirSync(uploadDir, { recursive: true });
+        // Ensure upload directory exists
+    const uploadDir = path.join(BASE_UPLOAD_DIR, 'tasks', String(taskId));
+    fs.mkdirSync(uploadDir, { recursive: true });
 
         const saved = [];
-        // attempt to get DB pool for metadata insertion (optional)
         let pool = null;
-        try { pool = await db.getConnection(); } catch(e){ pool = null; }
+        try { pool = await db.getConnection(); } catch (e) { pool = null; }
+
+        // Case A: multipart/form-data handled by multer -> req.files is populated
+        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+            for (const f of req.files) {
+                // f.path is in the tmp folder
+                const tmpPath = f.path;
+                const filename = f.filename || path.basename(tmpPath);
+                const finalDir = path.join(BASE_UPLOAD_DIR, 'tasks', String(taskId));
+                await fs.promises.mkdir(finalDir, { recursive: true });
+                const finalPath = path.join(finalDir, filename);
+
+                // Move file from tmp to final location. Use rename which is atomic on same FS.
+                try {
+                    await fs.promises.rename(tmpPath, finalPath);
+                } catch (moveErr) {
+                    console.warn('Failed to move uploaded file to final folder, attempting copy:', moveErr && moveErr.message);
+                    // fallback to copy and unlink
+                    try {
+                        const data = await fs.promises.readFile(tmpPath);
+                        await fs.promises.writeFile(finalPath, data);
+                        await fs.promises.unlink(tmpPath);
+                    } catch (copyErr) {
+                        console.error('Failed to copy uploaded file to final location:', copyErr && copyErr.message);
+                        // leave file in tmp and continue to next file, record error
+                        continue;
+                    }
+                }
+
+                const urlPath = `/uploads/tasks/${taskId}/${filename}`;
+                const fileMeta = { name: filename, url: urlPath, size: f.size, type: f.mimetype || null };
+
+                // Persist metadata if DB available; if DB insert fails attempt to roll back by moving file back to tmp
+                try {
+                    if (pool) {
+                        const uploadedByRaw = (req.session && req.session.userId) ? req.session.userId : null;
+                        const uploadedBy = uploadedByRaw !== null ? (Number.isInteger(uploadedByRaw) ? uploadedByRaw : parseInt(uploadedByRaw, 10) || null) : null;
+                        await pool.request()
+                            .input('id_tarea', taskId)
+                            .input('nombre_archivo', filename)
+                            .input('url_path', urlPath)
+                            .input('tipo_mime', f.mimetype || null)
+                            .input('tamano_bytes', f.size)
+                            .input('uploaded_by', uploadedBy)
+                            .query(`
+                                INSERT INTO imagenes_tarea (id_tarea, nombre_archivo, url_path, tipo_mime, tamano_bytes, uploaded_by, fecha_subida)
+                                VALUES (@id_tarea, @nombre_archivo, @url_path, @tipo_mime, @tamano_bytes, @uploaded_by, GETDATE())
+                            `);
+                    }
+                    saved.push(fileMeta);
+                } catch (metaErr) {
+                    console.warn('DB insert failed for uploaded file, attempting rollback:', metaErr && metaErr.message ? metaErr.message : metaErr);
+                    // try to move back to tmp for inspection / retry
+                    try {
+                        const tmpDir = path.join(BASE_UPLOAD_DIR, 'tmp');
+                        await fs.promises.mkdir(tmpDir, { recursive: true });
+                        const rollbackPath = path.join(tmpDir, filename);
+                        await fs.promises.rename(finalPath, rollbackPath);
+                        console.log(`Rolled back file to tmp: ${rollbackPath}`);
+                    } catch (rbErr) {
+                        console.error('Rollback failed, file may be orphaned at:', finalPath, rbErr && rbErr.message);
+                    }
+                }
+            }
+
+            return res.json({ success: true, files: saved });
+        }
+
+        // Case B: legacy JSON upload with base64 images in req.body.images
+        const { images } = req.body; // esperar [{ name, type, data }]
+        if (!images || !Array.isArray(images) || images.length === 0) { return res.status(400).json({ error: 'No se proporcionaron imágenes' }); }
 
         for (const img of images) {
             // img.data puede venir como dataURL o base64 puro
             let base64 = img.data;
             const match = /^data:(.+);base64,(.+)$/.exec(base64);
-            if (match) {base64 = match[2];}
+            if (match) { base64 = match[2]; }
 
             const buffer = Buffer.from(base64, 'base64');
             const filename = `${Date.now()}-${img.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
             const filepath = path.join(uploadDir, filename);
             fs.writeFileSync(filepath, buffer);
 
-            // construir URL pública (static sirve desde la raíz del repo)
             const urlPath = `/uploads/tasks/${taskId}/${filename}`;
             const fileMeta = { name: filename, url: urlPath, size: buffer.length, type: img.type || null };
             saved.push(fileMeta);
 
-            // Persist metadata in DB table `imagenes_tarea` if available. If the table doesn't exist
-            // or DB errors occur, ignore and continue (non-fatal).
+            // Persist metadata in DB table `imagenes_tarea` if available.
             try {
                 if (pool) {
-                    // coerce uploaded_by to integer when possible
                     const uploadedByRaw = (req.session && req.session.userId) ? req.session.userId : null;
                     const uploadedBy = uploadedByRaw !== null ? (Number.isInteger(uploadedByRaw) ? uploadedByRaw : parseInt(uploadedByRaw, 10) || null) : null;
                     await pool.request()
@@ -455,7 +550,6 @@ router.post('/:id/images', async (req, res) => {
                         `);
                 }
             } catch (metaErr) {
-                // Non-fatal: log and continue
                 console.warn('No se pudo insertar metadata de imagen en DB:', metaErr && metaErr.message ? metaErr.message : metaErr);
             }
         }
@@ -500,7 +594,7 @@ router.get('/:id/images', async (req, res) => {
             // console.warn('No se pudo leer metadata de imagenes_tarea, usando sistema de archivos:', dbErr.message || dbErr);
         }
 
-        const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
+    const uploadDir = path.join(BASE_UPLOAD_DIR, 'tasks', String(taskId));
         if (!fs.existsSync(uploadDir)) {return res.json({ files: [] });}
 
         const files = fs.readdirSync(uploadDir).filter(f => f && !f.startsWith('.'));

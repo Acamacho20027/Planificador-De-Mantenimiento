@@ -131,47 +131,38 @@ async function initUserView(){
     box.appendChild(preview);
 
     // preview area for inspection (before) and task (after) images
-    const previewBox = document.createElement('div');
-    previewBox.style.marginTop = '12px';
-    previewBox.className = 'task-preview-box';
-    box.appendChild(previewBox);
+  const previewBox = document.createElement('div');
+  previewBox.style.marginTop = '12px';
+  previewBox.className = 'task-preview-box';
+  // create a two-column preview area similar to admin view
+  const previewContainer = document.createElement('div');
+  previewContainer.style.display = 'flex';
+  previewContainer.style.gap = '12px';
+  previewContainer.style.alignItems = 'flex-start';
+  previewContainer.style.flexWrap = 'wrap';
+  const previewLeft = document.createElement('div'); previewLeft.style.flex = '1 1 45%';
+  const previewRight = document.createElement('div'); previewRight.style.flex = '1 1 45%';
+  previewContainer.appendChild(previewLeft);
+  previewContainer.appendChild(previewRight);
+  previewBox.appendChild(previewContainer);
+  box.appendChild(previewBox);
 
-    // Fetch inspection details (includes inspection images saved in DB)
-    (async function loadInspectionAndImages() {
+    // Populate preview area using shared preview builder when available
+    (async function populatePreview() {
       try {
-        const inspRes = await fetch(`/api/tasks/${t.id}/inspection`, { credentials: 'include' });
-        if (inspRes.ok) {
-          const inspJson = await inspRes.json();
-          const insp = inspJson.inspection;
-          const inspWrap = document.createElement('div');
-          inspWrap.style.marginTop = '8px';
-          inspWrap.innerHTML = `<strong>Inspección:</strong> ${inspJson.inspection ? (inspJson.inspection.name || '') : ''}`;
-          // show observations
-          if (insp && insp.observations) {
-            const obs = document.createElement('div'); obs.style.color = 'var(--canva-gray-dark)'; obs.style.marginTop = '6px'; obs.textContent = insp.observations; inspWrap.appendChild(obs);
+        if (window && typeof window.buildFullPreview === 'function') {
+          const previewNode = await window.buildFullPreview(t.id);
+          if (previewNode) {
+            // replace contents of previewBox with the built preview
+            previewBox.innerHTML = '';
+            previewBox.appendChild(previewNode);
+            // attach lightbox to any thumbnails inside the preview
+            try { if (window && typeof window.attachLightbox === 'function') { window.attachLightbox(previewBox); } } catch(e){ console.warn('attachLightbox failed', e); }
+            return;
           }
-          // show inspection images (if any) - these come from DB as data_base64
-          if (inspJson.inspection && Array.isArray(inspJson.inspection.imagenes) && inspJson.inspection.imagenes.length) {
-            const beforeWrap = document.createElement('div'); beforeWrap.style.marginTop = '8px'; beforeWrap.innerHTML = '<strong>Fotos inspección (antes):</strong>';
-            const imgsRow = document.createElement('div'); imgsRow.style.display = 'flex'; imgsRow.style.gap = '8px'; imgsRow.style.marginTop = '6px';
-            inspJson.inspection.imagenes.forEach(img => {
-              const i = document.createElement('img');
-              i.src = img.data_base64 || img.data || '';
-              i.loading = 'lazy';
-              i.style.width = '120px'; i.style.height = '80px'; i.style.objectFit = 'cover'; i.style.borderRadius = '6px'; i.style.border = '1px solid var(--canva-gray-light)';
-              imgsRow.appendChild(i);
-            });
-            beforeWrap.appendChild(imgsRow);
-            inspWrap.appendChild(beforeWrap);
-          }
-          previewBox.appendChild(inspWrap);
         }
-      } catch (err) {
-        console.warn('No se pudo cargar inspección para tarea', t.id, err);
-      }
 
-      // Fetch task uploaded images (after photos) from new endpoint
-      try {
+        // Fallback: load task images only (best-effort)
         const imgsRes = await fetch(`/api/tasks/${t.id}/images`, { credentials: 'include' });
         if (imgsRes.ok) {
           const imgsJson = await imgsRes.json();
@@ -179,17 +170,25 @@ async function initUserView(){
             const afterWrap = document.createElement('div'); afterWrap.style.marginTop = '8px'; afterWrap.innerHTML = '<strong>Fotos de la tarea (después):</strong>';
             const imgsRow = document.createElement('div'); imgsRow.style.display = 'flex'; imgsRow.style.gap = '8px'; imgsRow.style.marginTop = '6px';
             imgsJson.files.forEach(f => {
-              const i = document.createElement('img');
-              i.src = f.url; i.alt = f.name; i.loading = 'lazy';
-              i.style.width = '120px'; i.style.height = '80px'; i.style.objectFit = 'cover'; i.style.borderRadius = '6px'; i.style.border = '1px solid var(--canva-gray-light)';
-              imgsRow.appendChild(i);
+              const wrapper = document.createElement('div'); wrapper.style.display='inline-block'; wrapper.style.textAlign='center';
+              const i = document.createElement('img'); i.src = f.url; i.alt = f.name; i.loading='lazy'; i.style.width='120px'; i.style.height='80px'; i.style.objectFit='cover'; i.style.borderRadius='6px'; i.style.border='1px solid var(--canva-gray-light)';
+              wrapper.appendChild(i);
+              const meta = document.createElement('div'); meta.style.fontSize='12px'; meta.style.color='var(--canva-gray-dark)'; meta.style.marginTop='4px';
+              let txt = f.name || '';
+              if (f.uploadedAt) txt += ' · ' + formatDate(f.uploadedAt);
+              if (f.size) txt += ' · ' + Math.round((f.size||0)/1024) + ' KB';
+              if (f.uploadedBy) txt += ' · por: ' + f.uploadedBy;
+              meta.textContent = txt;
+              wrapper.appendChild(meta);
+              imgsRow.appendChild(wrapper);
             });
             afterWrap.appendChild(imgsRow);
-            previewBox.appendChild(afterWrap);
+            previewRight.appendChild(afterWrap);
+            try { if (window && typeof window.attachLightbox === 'function') { window.attachLightbox(previewBox); } } catch(e){ console.warn('attachLightbox failed', e); }
           }
         }
       } catch (err) {
-        console.warn('No se pudo cargar imágenes de tarea', t.id, err);
+        console.warn('No se pudo cargar previsualización para tarea', t.id, err);
       }
     })();
 
@@ -203,21 +202,67 @@ async function initUserView(){
         return;
       }
 
-  // If photos present, upload first
+      // If photos present, upload first using multipart/form-data (more efficient than base64 JSON)
       if (fileInput.files && fileInput.files.length > 0) {
-        const toSend = [];
-        for (const f of Array.from(fileInput.files)) {
-          const data = await new Promise((res, rej)=>{
-            const r = new FileReader(); r.onload = ()=> res(r.result); r.onerror = rej; r.readAsDataURL(f);
-          });
-          toSend.push({ name: f.name, type: f.type, data });
+        // progress UI
+        let progressWrap = box.querySelector('.upload-progress-wrap');
+        if (!progressWrap) {
+          progressWrap = document.createElement('div');
+          progressWrap.className = 'upload-progress-wrap';
+          progressWrap.style.marginTop = '10px';
+          const barOuter = document.createElement('div');
+          barOuter.style.width = '100%';
+          barOuter.style.background = '#eee';
+          barOuter.style.borderRadius = '6px';
+          barOuter.style.overflow = 'hidden';
+          barOuter.style.height = '10px';
+          const barInner = document.createElement('div');
+          barInner.className = 'upload-progress-bar';
+          barInner.style.width = '0%';
+          barInner.style.height = '100%';
+          barInner.style.background = 'linear-gradient(90deg, #ff9a00, #ff6a00)';
+          barInner.style.transition = 'width 150ms linear';
+          barOuter.appendChild(barInner);
+          const pct = document.createElement('div');
+          pct.className = 'upload-progress-pct';
+          pct.style.fontSize = '12px';
+          pct.style.marginTop = '6px';
+          pct.style.color = 'var(--canva-gray-dark)';
+          progressWrap.appendChild(barOuter);
+          progressWrap.appendChild(pct);
+          box.appendChild(progressWrap);
         }
 
-        const imgRes = await fetch(`/api/tasks/${t.id}/images`, {
-          method: 'POST', credentials: 'include', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ images: toSend })
-        });
-    if (!imgRes.ok) { alert('Error subiendo imágenes'); return; }
-  await imgRes.json();
+        // Use XMLHttpRequest to track upload progress
+        const form = new FormData();
+        for (const f of Array.from(fileInput.files)) {
+          form.append('images', f, f.name);
+        }
+
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `/api/tasks/${t.id}/images`, true);
+          xhr.withCredentials = true;
+          xhr.upload.onprogress = function (e) {
+            if (!e.lengthComputable) return;
+            const pctVal = Math.round((e.loaded / e.total) * 100);
+            const bar = progressWrap.querySelector('.upload-progress-bar');
+            const pct = progressWrap.querySelector('.upload-progress-pct');
+            if (bar) bar.style.width = pctVal + '%';
+            if (pct) pct.textContent = pctVal + '%';
+          };
+          xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve();
+            } else {
+              let errText = xhr.responseText || `Status ${xhr.status}`;
+              try { const j = JSON.parse(errText); errText = j.message || JSON.stringify(j); } catch (e) {}
+              reject(new Error(errText));
+            }
+          };
+          xhr.onerror = function () { reject(new Error('Network error during upload')); };
+          xhr.send(form);
+        }).catch(err => { alert('Error subiendo imágenes: ' + (err && err.message ? err.message : err)); throw err; });
       }
 
       // Update task status
@@ -236,3 +281,12 @@ async function initUserView(){
 }
 
 document.addEventListener('DOMContentLoaded', initUserView);
+
+function escapeHtml(unsafe){
+  return String(unsafe).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]); });
+}
+
+function formatDate(input){
+  if(!input) return '';
+  try{ const d = new Date(input); if(isNaN(d)) return String(input); return d.toLocaleString(); }catch(e){ return String(input); }
+}

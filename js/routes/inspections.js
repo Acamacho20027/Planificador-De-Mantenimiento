@@ -159,12 +159,13 @@ router.post('/', async (req, res) => {
                 const base64Data = img.data.split(',')[1] || img.data;
                 const tamaño_bytes = Buffer.from(base64Data, 'base64').length;
                 
+                // Use explicit SQL parameter types to avoid driver-side truncation for large payloads
                 await pool.request()
                     .input('id_inspeccion', id_inspeccion)
                     .input('nombre_archivo', img.name)
                     .input('tipo_mime', img.type)
-                    .input('data_base64', img.data)
-                    .input('tamaño_bytes', tamaño_bytes)
+                    .input('data_base64', db.sql.NVarChar(db.sql.MAX), img.data)
+                    .input('tamaño_bytes', db.sql.Int, tamaño_bytes)
                     .input('subido_por', req.session?.user?.id_usuario || null)
                     .query(`
                         INSERT INTO imagenes_inspeccion 

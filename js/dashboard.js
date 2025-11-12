@@ -195,14 +195,18 @@ function renderTasks(tasks, usuarios) {
         // toggle on title click
         titleTd.style.cursor = 'pointer';
         titleTd.addEventListener('click', ()=>{
-            if(detailsTd.style.display === 'none'){
-                // render summary into detailsTd
-                detailsTd.innerHTML = '';
-                detailsTd.appendChild(renderInspectionSummary(t));
-                detailsTd.style.display = 'table-cell';
-            } else {
-                detailsTd.style.display = 'none';
-            }
+            (async () => {
+                if(detailsTd.style.display === 'none'){
+                    detailsTd.innerHTML = '';
+                    const preview = await renderInspectionSummary(t.id);
+                    detailsTd.appendChild(preview);
+                    detailsTd.style.display = 'table-cell';
+                    // attach lightbox on inserted preview thumbnails
+                    try { if (window && typeof window.attachLightbox === 'function') { window.attachLightbox(detailsTd); } } catch(e){ console.warn('attachLightbox failed', e); }
+                } else {
+                    detailsTd.style.display = 'none';
+                }
+            })();
         });
     });
     table.appendChild(tbody);
@@ -220,32 +224,26 @@ function badgeClass(status) {
 
 // statusLabel removed (unused) to reduce lint warnings
 
-function renderInspectionSummary(task) {
-    const container = document.createElement('div');
-    container.style.padding = '12px';
-    container.style.backgroundColor = 'var(--canva-white)';
-    container.style.border = '1px solid var(--canva-gray-light)';
-    container.style.borderRadius = '4px';
-    
-    if (task.inspection && typeof task.inspection === 'object') {
-        const left = document.createElement('div');
-        left.style.float = 'left';
-        left.style.width = '50%';
-        
-        const right = document.createElement('div');
-        right.style.float = 'right';
-        right.style.width = '50%';
-        
-        // Add inspection details here if needed
-        left.innerHTML = '<h4>Detalles de Inspección</h4><p>Información de la inspección asociada...</p>';
-        right.innerHTML = '<h4>Estado</h4><p>Estado actual de la tarea...</p>';
-        
-        container.appendChild(left);
-        container.appendChild(right);
-    } else {
-        container.textContent = 'No hay detalle de inspección disponible para esta tarea.';
+async function renderInspectionSummary(taskId) {
+    // prefer the shared preview builder if available
+    if (window && typeof window.buildFullPreview === 'function') {
+        return await window.buildFullPreview(taskId);
     }
-    return container;
+    // fallback minimal element
+    const fallback = document.createElement('div'); fallback.textContent = 'Previsualización no disponible.'; return fallback;
+}
+
+function escapeHtml(unsafe){
+    return String(unsafe).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]); });
+}
+
+function formatDate(input){
+    if(!input) return '';
+    try{
+        const d = new Date(input);
+        if (isNaN(d)) return String(input);
+        return d.toLocaleString();
+    }catch(e){ return String(input); }
 }
 
 function initDashboard(){

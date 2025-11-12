@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -56,8 +57,14 @@ app.use(cors({
 }));
 // parse cookies so we can read XSRF-TOKEN from requests
 app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Increase JSON / urlencoded body size limits to allow larger base64 image uploads
+// Default body-parser limit is small (~100kb). Adjust via env var BODY_LIMIT (e.g. "50mb").
+// Default to 200mb to allow large base64 image uploads from mobile devices.
+// Can be overridden with the BODY_LIMIT env var (e.g. BODY_LIMIT=400mb).
+const BODY_LIMIT = process.env.BODY_LIMIT || '200mb';
+console.log(`⚙️ body-parser limit set to ${BODY_LIMIT}`);
+app.use(bodyParser.json({ limit: BODY_LIMIT }));
+app.use(bodyParser.urlencoded({ limit: BODY_LIMIT, extended: true }));
 app.use(session({
     name: 'pm.sid',
     secret: SESSION_SECRET,
@@ -94,6 +101,100 @@ const resetLimiter = rateLimit({
 
 // Servir archivos estáticos (desde la raíz del proyecto)
 app.use(express.static(path.join(__dirname, '..')));
+
+// Static serve for uploads. If UPLOAD_DIR env var points to an external drive (e.g. B:\uploads),
+// expose it under the /uploads path so uploaded files are reachable by URLs like /uploads/tasks/:id/...
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
+app.use('/uploads', express.static(UPLOAD_DIR));
+console.log(`⚙️ Serving uploads from: ${UPLOAD_DIR}`);
+
+// Background quota enforcement: delete oldest files when total size exceeds UPLOAD_QUOTA_BYTES
+const UPLOAD_QUOTA_BYTES = parseInt(process.env.UPLOAD_QUOTA_BYTES, 10) || (10 * 1024 * 1024 * 1024); // 10GB default
+const QUOTA_CHECK_INTERVAL_MS = parseInt(process.env.QUOTA_CHECK_INTERVAL_MS, 10) || (24 * 60 * 60 * 1000); // daily
+
+async function getAllFiles(dir) {
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+    const files = [];
+    for (const ent of entries) {
+        const full = path.join(dir, ent.name);
+        if (ent.isDirectory()) {
+            const sub = await getAllFiles(full);
+            files.push(...sub);
+        } else if (ent.isFile()) {
+            const stat = await fs.promises.stat(full);
+            files.push({ path: full, mtime: stat.mtimeMs, size: stat.size });
+        }
+    }
+    return files;
+}
+
+async function enforceUploadQuota() {
+    try {
+        const base = UPLOAD_DIR;
+        if (!fs.existsSync(base)) return;
+        const files = await getAllFiles(base);
+        let total = files.reduce((s, f) => s + (f.size || 0), 0);
+        if (total <= UPLOAD_QUOTA_BYTES) return;
+        // Soft-delete: move oldest files to .trash directory instead of permanent deletion
+        files.sort((a, b) => a.mtime - b.mtime);
+        const trashDir = path.join(UPLOAD_DIR, '.trash');
+        await fs.promises.mkdir(trashDir, { recursive: true });
+        console.log(`⚠️ Upload quota exceeded: ${total} bytes used, limit ${UPLOAD_QUOTA_BYTES}. Moving oldest files to .trash...`);
+        for (const f of files) {
+            try {
+                const rel = path.relative(UPLOAD_DIR, f.path);
+                // create a mirror path inside .trash with timestamp prefix to avoid collisions
+                const destName = `${Date.now()}-${rel.replace(/[\\/]/g, '_')}`;
+                const dest = path.join(trashDir, destName);
+                await fs.promises.rename(f.path, dest);
+                total -= f.size;
+                console.log(`Moved ${f.path} -> ${dest} (${f.size} bytes). New total: ${total}`);
+                if (total <= UPLOAD_QUOTA_BYTES) break;
+            } catch (e) {
+                console.warn('Failed moving file during quota enforcement:', f.path, e && e.message);
+            }
+        }
+    } catch (err) {
+        console.error('Error during upload quota enforcement:', err && err.message);
+    }
+}
+
+// Purge trash older than retention days (permanently delete). Retention configurable via UPLOAD_TRASH_RETENTION_DAYS
+const UPLOAD_TRASH_RETENTION_DAYS = parseInt(process.env.UPLOAD_TRASH_RETENTION_DAYS, 10) || 30;
+
+async function purgeTrash() {
+    try {
+        const trashDir = path.join(UPLOAD_DIR, '.trash');
+        if (!fs.existsSync(trashDir)) return;
+        const entries = await fs.promises.readdir(trashDir);
+        const now = Date.now();
+        for (const e of entries) {
+            const full = path.join(trashDir, e);
+            try {
+                const st = await fs.promises.stat(full);
+                const ageDays = (now - st.mtimeMs) / (1000 * 60 * 60 * 24);
+                if (ageDays >= UPLOAD_TRASH_RETENTION_DAYS) {
+                    if (st.isDirectory()) {
+                        await fs.promises.rm(full, { recursive: true, force: true });
+                    } else {
+                        await fs.promises.unlink(full);
+                    }
+                    console.log(`Purged trash item: ${full}`);
+                }
+            } catch (inner) {
+                console.warn('Failed to purge trash item:', full, inner && inner.message);
+            }
+        }
+    } catch (err) {
+        console.error('Error during trash purge:', err && err.message);
+    }
+}
+
+// Run once at server start and schedule periodic checks
+enforceUploadQuota().catch(() => {});
+purgeTrash().catch(() => {});
+setInterval(() => enforceUploadQuota().catch(() => {}), QUOTA_CHECK_INTERVAL_MS);
+setInterval(() => purgeTrash().catch(() => {}), QUOTA_CHECK_INTERVAL_MS);
 
 // Ruta principal
 app.get('/', (req, res) => {
@@ -134,6 +235,18 @@ app.get('/api/status', async (req, res) => {
     try {
         // Probar conexión a base de datos
         await db.getConnection();
+        // Verify upload directory is writable (fail fast if not)
+        try {
+            await fs.promises.mkdir(UPLOAD_DIR, { recursive: true });
+            const testFile = path.join(UPLOAD_DIR, `.perm_check_${Date.now()}`);
+            await fs.promises.writeFile(testFile, 'ok');
+            await fs.promises.unlink(testFile);
+            console.log(`✅ Upload directory is writable: ${UPLOAD_DIR}`);
+        } catch (uplErr) {
+            console.error(`❌ UPLOAD_DIR not writable: ${UPLOAD_DIR}`);
+            console.error(uplErr && uplErr.message ? uplErr.message : uplErr);
+            process.exit(1);
+        }
         res.json({ 
             status: 'ok', 
             message: 'Servidor y base de datos funcionando correctamente',
@@ -241,6 +354,11 @@ app.post('/api/contact', (req, res) => {
 // Error handler to surface CSRF failures with extra debug info
 app.use((err, req, res, next) => {
     if (!err) {return next();}
+    // Friendly JSON response for oversized payloads (body-parser / raw-body)
+    if (err.type === 'entity.too.large' || err.status === 413) {
+        console.warn('⚠️ Payload too large:', { url: req.originalUrl, ip: req.ip, limit: BODY_LIMIT });
+        return res.status(413).json({ error: 'PayloadTooLarge', message: `Request exceeds server limit (${BODY_LIMIT})` });
+    }
     try {
         if (err.code === 'EBADCSRFTOKEN') {
             console.warn('⚠️ EBADCSRFTOKEN detected');
