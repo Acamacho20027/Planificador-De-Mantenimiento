@@ -43,7 +43,7 @@ async function onSubmitLogin(e){
 
 async function onRequestReset(){
     const email = prompt('Introduce tu email para restablecer contraseña:');
-    if(!email) return;
+    if(!email) {return;}
     const csrf = await getCsrf();
     await fetch('/auth/request-password-reset', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrf }, credentials: 'include',
@@ -54,19 +54,19 @@ async function onRequestReset(){
 
 function togglePasswordVisibility(){
     const input = document.getElementById('password');
-    if(!input) return;
+    if(!input) {return;}
     input.type = input.type === 'password' ? 'text' : 'password';
     const t = document.getElementById('toggle-text');
-    if(t) t.textContent = input.type === 'password' ? 'Mostrar' : 'Ocultar';
+    if(t) {t.textContent = input.type === 'password' ? 'Mostrar' : 'Ocultar';}
 }
 
 document.addEventListener('DOMContentLoaded', function(){
     const form = document.getElementById('login-form');
-    if(form) form.addEventListener('submit', onSubmitLogin);
+    if(form) {form.addEventListener('submit', onSubmitLogin);}
     const resetBtn = document.getElementById('request-reset');
-    if(resetBtn) resetBtn.addEventListener('click', onRequestReset);
+    if(resetBtn) {resetBtn.addEventListener('click', onRequestReset);}
     const toggleBtn = document.getElementById('toggle-password');
-    if(toggleBtn) toggleBtn.addEventListener('click', togglePasswordVisibility);
+    if(toggleBtn) {toggleBtn.addEventListener('click', togglePasswordVisibility);}
 });
 
 

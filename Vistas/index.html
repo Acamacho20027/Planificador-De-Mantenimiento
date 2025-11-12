@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planificador de Mantenimiento</title>
     <link rel="stylesheet" href="../Styles/styles.css">
-        <link rel="stylesheet" href="../Styles/canva-index.css">
-    <!-- Favicon -->
+    <link rel="stylesheet" href="../Styles/canva-index.css">
+    <link rel="stylesheet" href="../Styles/design-tokens.css">
+    <link rel="stylesheet" href="../Styles/visual-overrides.css">
+    <!-- Favicon (company logo preserved) -->
     <link rel="icon" type="image/png" href="/imagenes/Logo-MyM.png">
 </head>
 <body>
@@ -40,7 +42,7 @@
                 <div class="content_hero">
                     <div class="hero-center-wrapper">
                         <div class="hero-logo-left">
-                            <img src="/imagenes/Logo-MyM.png" alt="Logo MyM" class="hero-logo-img" />
+                            <img src="/imagenes/Logo-MyM.png" alt="Logo de la empresa" class="hero-logo-img" />
                         </div>
                         <div class="hero-divider" aria-hidden="true"></div>
                         <div class="hero-tagline">
@@ -189,23 +191,23 @@
                 <form class="form-component">
                     <div class="form_inputs-grid">
                         <div class="input-component">
-                            <label class="input_label">Nombre</label>
-                            <input type="text" class="form_input" placeholder="Tu nombre" required>
+                            <label for="contact-name" class="input_label">Nombre</label>
+                            <input id="contact-name" name="name" type="text" class="form_input" placeholder="Tu nombre" required>
                         </div>
                         
                         <div class="input-component">
-                            <label class="input_label">Correo electrónico</label>
-                            <input type="email" class="form_input" placeholder="tu@correo.com" required>
+                            <label for="contact-email" class="input_label">Correo electrónico</label>
+                            <input id="contact-email" name="email" type="email" class="form_input" placeholder="tu@correo.com" required>
                         </div>
                         
                         <div class="input-component">
-                            <label class="input_label">Teléfono</label>
-                            <input type="tel" class="form_input" placeholder="+34 123 456 789">
+                            <label for="contact-phone" class="input_label">Teléfono</label>
+                            <input id="contact-phone" name="phone" type="tel" class="form_input" placeholder="+34 123 456 789">
                         </div>
                         
                         <div class="input-component">
-                            <label class="input_label">Mensaje</label>
-                            <textarea class="form_input is-text-area is-large" placeholder="Tu mensaje"></textarea>
+                            <label for="contact-message" class="input_label">Mensaje</label>
+                            <textarea id="contact-message" name="message" class="form_input is-text-area is-large" placeholder="Tu mensaje"></textarea>
                         </div>
                     </div>
 

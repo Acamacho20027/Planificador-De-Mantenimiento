@@ -22,9 +22,11 @@
                     logoutWrap.style.cssText = 'position:absolute;right:18px;top:18px;';
                     const btn = document.createElement('button');
                     btn.id = 'dashboardLogoutBtn';
-                    btn.textContent = 'Cerrar sesión';
                     btn.className = 'small ghost';
+                    btn.type = 'button';
                     btn.style.cursor = 'pointer';
+                    // Use SVG icon + label for clearer visual
+                    btn.innerHTML = `<img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:18px; width:18px; vertical-align:middle; margin-right:8px; filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión`;
                     logoutWrap.appendChild(btn);
                     // ensure header is positioned relatively so absolute works
                     const headerEl = document.querySelector('header');
@@ -39,7 +41,7 @@
                             const tokenRes = await fetch('/auth/csrf', { credentials: 'include', cache: 'no-store' });
                             const token = tokenRes.ok ? (await tokenRes.json()).csrfToken : null;
                             // call logout
-                            const logoutRes = await fetch('/auth/logout', { method: 'POST', credentials: 'include', headers: { 'csrf-token': token }, cache: 'no-store' });
+                            await fetch('/auth/logout', { method: 'POST', credentials: 'include', headers: { 'csrf-token': token }, cache: 'no-store' });
                             // Redirect to login regardless of response (handles odd 304 behavior)
                             window.location.href = '/Vistas/login.html';
                         } catch (e) {

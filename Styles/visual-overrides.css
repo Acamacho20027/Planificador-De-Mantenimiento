@@ -1,0 +1,134 @@
+/* Visual overrides and micro-interactions (applied over design-tokens.css) */
+
+/* Page background and container */
+body {
+  background: linear-gradient(180deg, #FBFDFF 0%, #F6F9FB 100%);
+  color: var(--canva-gray-dark);
+  -webkit-font-smoothing:antialiased;
+}
+
+.container-large { padding-left: 20px; padding-right: 20px; }
+
+/* Header */
+header { background: var(--canva-white); border-bottom: 1px solid rgba(0,0,0,0.04); }
+header .container-large { display:flex; align-items:center; justify-content:space-between; padding:18px 0; }
+.heading-style-h1 { font-size: 20px; color: var(--canva-blue); margin:0; }
+/* Large orange banner for the Dashboard title (desktop) */
+header .heading-style-h1 {
+  background: var(--canva-orange);
+  color: var(--canva-white);
+  padding: 12px 28px;
+  font-size: 32px;
+  font-weight: 800;
+  border-radius: 8px;
+  text-align: center;
+  display: inline-block;
+  margin: 0 auto 18px auto;
+}
+
+/* Dashboard layout tweaks */
+.dashboard-wrapper { display:flex; gap:18px; align-items:flex-start; }
+.dashboard-nav {
+  /* allow nav to flow horizontally on wide screens; fixed-width behavior handled in mobile media query */
+  width: auto;
+  background: transparent;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dashboard-nav nav { flex: 1; }
+.dashboard-nav nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row; /* horizontal by default (desktop) */
+  gap: 12px;
+  align-items: center;
+}
+.dashboard-nav nav a { display: inline-block; padding: 10px 14px; border-radius: 8px; color: var(--canva-blue); text-decoration: none; font-weight: 700; }
+.dashboard-nav nav a.active, .dashboard-nav nav a:hover { background: rgba(52,89,149,0.06); box-shadow: 0 6px 18px rgba(15,23,42,0.04); }
+
+.dashboard-content { flex:1; }
+
+/* Cards */
+.chart-card, .usuario-card, .task-preview-box { background: white; border-radius:12px; box-shadow: var(--shadow-1); padding:18px; border:1px solid rgba(15,23,42,0.06); }
+.charts-grid {
+  /* horizontal flow on wide screens; wraps on smaller */
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.chart-card {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* try to show three cards per row on wide screens */
+  flex: 0 1 30%;
+  min-width: 240px;
+}
+
+.chart-visual { display:flex; align-items:center; justify-content:center; height:180px; }
+.chart-visual img, .chart-visual canvas { max-width:100%; max-height:100%; width:100%; height:100%; object-fit:contain; }
+
+/* Chart area */
+.chart-visual { display:flex; align-items:center; justify-content:center; height:180px; }
+.chart-visual img, .chart-visual canvas { max-width:100%; max-height:100%; width:100%; height:100%; object-fit:contain; }
+.chart-card { min-height: 260px; display:flex; flex-direction:column; justify-content:space-between; }
+.chart-card h4 { margin:0 0 10px 0; }
+.chart-meta { margin-top:10px; color:var(--canva-gray-dark); font-weight:600; }
+
+/* Buttons and micro-interactions */
+.btn, .small { transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.btn:active, .small:active { transform: translateY(1px) scale(0.998); }
+.small.ghost { padding:6px 10px; border-radius:8px; }
+.button_top { background:var(--canva-blue); color:white; border-radius:8px; padding:8px 12px; border:0; cursor:pointer; }
+.button_top:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(52,89,149,0.08); }
+
+/* Modal transitions */
+.app-modal { animation: modal-fade 220ms ease both; }
+.app-modal-content { transform-origin: 50% 10%; animation: modal-pop 220ms cubic-bezier(.2,.9,.3,1) both; }
+@keyframes modal-fade { from { opacity:0; } to { opacity:1; } }
+@keyframes modal-pop { from { transform: translateY(6px) scale(.98); opacity:0; } to { transform: translateY(0) scale(1); opacity:1; } }
+
+/* Lightbox */
+#lightboxOverlay { transition: opacity 160ms ease; }
+#lightboxOverlay img { border-radius:8px; }
+
+/* Responsive / mobile tweaks */
+@media (max-width: 1100px) {
+  .dashboard-wrapper { flex-direction:column; }
+  .dashboard-nav { width:100%; order:2; margin-bottom:12px; }
+  /* On narrower screens make the nav vertical and allow the toggle behaviour to reveal it */
+  .dashboard-nav nav ul { flex-direction: column; gap: 8px; }
+  .dashboard-nav.open { display: block; }
+  .heading-style-h1 { font-size:18px; }
+  .charts-grid { flex-direction: column; gap: 12px; }
+  .chart-card { flex: 0 1 100%; min-height: 220px; }
+}
+
+/* Make the main dashboard area fully white so the whole dashboard appears on white */
+main.padding-global.padding-section-large {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+}
+
+@media (max-width: 520px) {
+  .dashboard-nav { padding:8px; }
+  .chart-visual { height:160px; }
+  .charts-grid { gap:12px; }
+  .chart-card { min-height: 200px; padding:12px; }
+  .heading-style-h1 { font-size:16px; }
+}
+
+/* Accessibility */
+button:focus { outline: 3px solid rgba(52,89,149,0.18); outline-offset: 2px; }
+
+/* Small helper for image thumbnails */
+.task-preview-box img, .usuario-card img { border-radius:6px; transition: transform 0.12s ease; }
+.task-preview-box img:hover, .usuario-card img:hover { transform: scale(1.03); }

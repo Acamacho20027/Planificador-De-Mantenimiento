@@ -211,7 +211,7 @@ function createField(sectionKey, f){
 function renderWizard(){
   // Para cada step genera un contenedor con varias secciones (scroll dentro del paso)
   const container = document.getElementById('wizard-container');
-  if(!container) return;
+  if(!container) {return;}
   for(let s=1;s<=totalSteps;s++){
     const stepDiv = document.createElement('div');
     stepDiv.className = 'wizard-step';
@@ -249,7 +249,7 @@ function renderWizard(){
 function showStep(n){
   document.querySelectorAll('.wizard-step').forEach(el=>{
     el.classList.remove('active');
-    if(Number(el.dataset.step)===n) el.classList.add('active');
+    if(Number(el.dataset.step)===n) {el.classList.add('active');}
   });
   document.getElementById('step-indicator').textContent = `Paso ${n} / ${totalSteps}`;
   // prev/next visibility
@@ -264,11 +264,11 @@ function collectAllData(){
   const obj = { location:{}, timestamp: new Date().toISOString(), sections:{}, priority: null };
   // images will be collected separately (file input)
   obj.images = [];
-  const formElements = document.querySelectorAll('#wizard-container input, #wizard-container select, #wizard-container textarea');
+  // collect form elements when needed via querySelector directly; no persistent collection required
   // helper to get value and handle other fields
   function getValue(name){
     const el = document.querySelector(`[name="${name}"]`);
-    if(!el) return '';
+    if(!el) {return '';}
     if(el.type === 'radio'){
       const r = document.querySelector(`[name="${name}"]:checked`);
       return r ? r.value : '';
@@ -287,7 +287,7 @@ function collectAllData(){
   // recorre el schema y obtiene campos
   INSPECCION_SCHEMA_FULL.forEach(block => {
     block.sections.forEach(sec => {
-      if(!obj.sections[sec.key]) obj.sections[sec.key] = {};
+      if(!obj.sections[sec.key]) {obj.sections[sec.key] = {};}
       sec.fields.forEach(f => {
         const name = `${sec.key}__${f.key}`;
         let val = '';
@@ -296,11 +296,11 @@ function collectAllData(){
           val = checked ? checked.value : '';
         } else {
           const el = document.querySelector(`[name="${name}"]`);
-          if(el) val = el.value || '';
+          if(el) {val = el.value || '';}
           // chequear campo 'other' cuando exista:
           if(val === 'Otro' || val === 'otro'){
             const other = document.querySelector(`[name="${name}__other"]`);
-            if(other) val = other.value || val;
+            if(other) {val = other.value || val;}
           }
         }
         obj.sections[sec.key][f.key] = val;
@@ -310,7 +310,7 @@ function collectAllData(){
 
   // prioridad
   const pr = document.querySelector('[name="prioridad__prioridad_tarea"]');
-  if(pr) obj.priority = pr.value || '';
+  if(pr) {obj.priority = pr.value || '';}
   // collect selected image file names (actual file bytes will be read when sending)
   const filesInput = document.getElementById('inspection-images');
   if(filesInput && filesInput.files && filesInput.files.length){
@@ -345,7 +345,7 @@ function renderPreviewCard(){
       .join(' ');
   }
   function prettyFieldLabel(key){
-    if(key === 'oficina') return 'Oficina/Aula';
+    if(key === 'oficina') {return 'Oficina/Aula';}
     return toTitle(String(key).replace(/_/g,' '));
   }
 
@@ -389,7 +389,7 @@ function renderImagesPreview(){
   const imagesContainer = document.getElementById('images-preview');
   imagesContainer.innerHTML = '';
   const input = document.getElementById('inspection-images');
-  if(!input || !input.files || input.files.length===0) return;
+  if(!input || !input.files || input.files.length===0) {return;}
   Array.from(input.files).forEach((f, idx)=>{
     const box = document.createElement('div');
     box.className = 'img-box';
@@ -415,7 +415,7 @@ function renderImagesPreview(){
     del.addEventListener('click', ()=>{
       // remove this file from the FileList by rebuilding a DataTransfer
       const dt = new DataTransfer();
-      Array.from(input.files).forEach((ff,i)=>{ if(i!==idx) dt.items.add(ff); });
+      Array.from(input.files).forEach((ff,i)=>{ if(i!==idx) {dt.items.add(ff);} });
       input.files = dt.files;
       renderImagesPreview();
       renderPreviewCard();
@@ -448,7 +448,7 @@ async function sendTask(){
         const data = await readFileAsDataURL(f);
         arr.push({ name: f.name, type: f.type, data });
       }
-      if(arr.length) inspection.images_base64 = arr;
+      if(arr.length) {inspection.images_base64 = arr;}
     } catch(e){
       console.error('Error reading images', e);
     }
@@ -501,15 +501,15 @@ function validateStep(step){
           if(!el) { valid = false; return; }
           if(el.type === 'radio'){
             const checked = document.querySelector(`[name="${name}"]:checked`);
-            if(!checked) valid = false;
+            if(!checked) {valid = false;}
           } else if(!el.value){
             // if select and other visible then require other
             if(el.tagName.toLowerCase()==='select'){
               if((el.value === 'Otro' || el.value === 'otro')){
                 const other = document.querySelector(`[name="${name}__other"]`);
-                if(!other || !other.value) valid = false;
-              } else valid = false; // if empty
-            } else valid = false;
+                if(!other || !other.value) {valid = false;}
+              } else {valid = false;} // if empty
+            } else {valid = false;}
           }
         }
       });
@@ -524,14 +524,14 @@ function initInspection(){
   // reset to first step to ensure UI shows correctly when re-initialized
   currentStep = 1;
   const container = document.getElementById('wizard-container');
-  if(container) container.innerHTML = '';
+  if(container) {container.innerHTML = '';}
   renderWizard();
   renderPreviewCard();
 
   // helper to safely attach event listener (replace node to avoid duplicate handlers)
   function onceAttach(selector, event, handler){
     const el = document.querySelector(selector);
-    if(!el) return null;
+    if(!el) {return null;}
     try{ const clone = el.cloneNode(true); el.parentNode.replaceChild(clone, el); clone.addEventListener(event, handler); return clone; }catch(e){ el.addEventListener(event, handler); return el; }
   }
 
@@ -539,7 +539,7 @@ function initInspection(){
   onceAttach('#prev-step', 'click', ()=>{ if(currentStep>1){ currentStep--; showStep(currentStep); window.scrollTo(0,0); } });
   onceAttach('#next-step', 'click', ()=>{
     if(!validateStep(currentStep)){
-      if(!confirm('No todos los campos obligatorios en este paso están llenos. ¿Deseas continuar igual?')) return;
+      if(!confirm('No todos los campos obligatorios en este paso están llenos. ¿Deseas continuar igual?')) {return;}
     }
     if(currentStep < totalSteps){ currentStep++; showStep(currentStep); window.scrollTo(0,0); }
     else { renderPreviewCard(); window.scrollTo(0, document.body.scrollHeight); }
@@ -550,13 +550,13 @@ function initInspection(){
   const addPhotoBtn = document.getElementById('add-photo');
   const clearPhotosBtn = document.getElementById('clear-photos');
   const filesInputEl = document.getElementById('inspection-images');
-  if(addPhotoBtn && filesInputEl){
+    if(addPhotoBtn && filesInputEl){
     // replace/add click
-    try{ addPhotoBtn.replaceWith(addPhotoBtn.cloneNode(true)); }catch(e){}
+    try{ addPhotoBtn.replaceWith(addPhotoBtn.cloneNode(true)); }catch(e){ void 0; }
     document.getElementById('add-photo').addEventListener('click', ()=> filesInputEl.click());
   }
   if(clearPhotosBtn && filesInputEl){
-    try{ clearPhotosBtn.replaceWith(clearPhotosBtn.cloneNode(true)); }catch(e){}
+    try{ clearPhotosBtn.replaceWith(clearPhotosBtn.cloneNode(true)); }catch(e){ void 0; }
     document.getElementById('clear-photos').addEventListener('click', ()=>{ filesInputEl.value = ''; renderImagesPreview(); renderPreviewCard(); });
   }
 
@@ -564,7 +564,7 @@ function initInspection(){
   window.removeEventListener('input', renderPreviewCard);
   window.addEventListener('input', ()=> { renderPreviewCard(); });
   if(filesInputEl){
-    try{ filesInputEl.removeEventListener('change', renderImagesPreview); }catch(e){}
+    try{ filesInputEl.removeEventListener('change', renderImagesPreview); }catch(e){ void 0; }
     filesInputEl.addEventListener('change', ()=> { renderImagesPreview(); renderPreviewCard(); });
   }
 }
@@ -574,6 +574,6 @@ initInspection();
 
 // Ensure wizard is re-initialized when the page becomes visible again
 // (covers bfcache and normal navigation back/forward flows)
-window.addEventListener('pageshow', (e)=>{
+window.addEventListener('pageshow', ()=>{
   initInspection();
 });

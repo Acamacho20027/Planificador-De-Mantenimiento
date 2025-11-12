@@ -96,7 +96,7 @@ async function run() {
   try {
     console.log('Base URL:', BASE);
     const taskId = await adminCreateInspection();
-    if (!taskId) throw new Error('No task ID returned from create inspection');
+    if (!taskId) {throw new Error('No task ID returned from create inspection');}
     console.log('Created task id:', taskId);
     await demoFlow(taskId);
     console.log('E2E script completed.');

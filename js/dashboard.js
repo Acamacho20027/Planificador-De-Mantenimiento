@@ -16,53 +16,53 @@ async function loadAndRender() {
 }
 
 function renderCharts(stats) {
-    if (!stats) return;
+    if (!stats) {return;}
     // New stats shape: { labels: ['Completadas','En progreso','No iniciadas'], counts: [nDone, nProgress, nNotStarted] }
-    const { labels = [], counts = [] } = stats || {};
+    const { counts = [] } = stats || {};
     const [nDone = 0, nProgress = 0, nNotStarted = 0] = counts;
 
     // Hide all cards by default
     ['card-done','card-progress','card-notstarted'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
+        if (el) {el.style.display = 'none';}
     });
 
     // helper to show python image if available
     const showImgIfExists = async (imgId, src) => {
         const img = document.getElementById(imgId);
-        if (!img) return;
+        if (!img) {return;}
         img.style.display = 'none';
         try{
             const res = await fetch(src, { method: 'HEAD' });
-            if(res.ok) img.style.display = 'block';
-        }catch(e){}
+            if(res.ok) {img.style.display = 'block';}
+        }catch(e){ void 0; }
     }
 
     const total = nDone + nProgress + nNotStarted || 1;
 
     if (nDone > 0) {
-        const el = document.getElementById('card-done'); if (el) el.style.display = 'block';
+        const el = document.getElementById('card-done'); if (el) {el.style.display = 'block';}
         showImgIfExists('img-state-done','/charts/state_done.png');
-        const metaCount = document.getElementById('meta-done-count'); if(metaCount) metaCount.textContent = nDone;
-        const metaPct = document.getElementById('meta-done-pct'); if(metaPct) metaPct.textContent = Math.round((nDone/total)*100) + '%';
+        const metaCount = document.getElementById('meta-done-count'); if(metaCount) {metaCount.textContent = nDone;}
+        const metaPct = document.getElementById('meta-done-pct'); if(metaPct) {metaPct.textContent = Math.round((nDone/total)*100) + '%';}
     }
     if (nProgress > 0) {
-        const el = document.getElementById('card-progress'); if (el) el.style.display = 'block';
+        const el = document.getElementById('card-progress'); if (el) {el.style.display = 'block';}
         showImgIfExists('img-state-progress','/charts/state_in_progress.png');
-        const metaCount = document.getElementById('meta-progress-count'); if(metaCount) metaCount.textContent = nProgress;
-        const metaPct = document.getElementById('meta-progress-pct'); if(metaPct) metaPct.textContent = Math.round((nProgress/total)*100) + '%';
+        const metaCount = document.getElementById('meta-progress-count'); if(metaCount) {metaCount.textContent = nProgress;}
+        const metaPct = document.getElementById('meta-progress-pct'); if(metaPct) {metaPct.textContent = Math.round((nProgress/total)*100) + '%';}
     }
     if (nNotStarted > 0) {
-        const el = document.getElementById('card-notstarted'); if (el) el.style.display = 'block';
+        const el = document.getElementById('card-notstarted'); if (el) {el.style.display = 'block';}
         showImgIfExists('img-state-notstarted','/charts/state_not_started.png');
-        const metaCount = document.getElementById('meta-notstarted-count'); if(metaCount) metaCount.textContent = nNotStarted;
-        const metaPct = document.getElementById('meta-notstarted-pct'); if(metaPct) metaPct.textContent = Math.round((nNotStarted/total)*100) + '%';
+        const metaCount = document.getElementById('meta-notstarted-count'); if(metaCount) {metaCount.textContent = nNotStarted;}
+        const metaPct = document.getElementById('meta-notstarted-pct'); if(metaPct) {metaPct.textContent = Math.round((nNotStarted/total)*100) + '%';}
     }
 }
 
 function renderTasks(tasks, usuarios) {
     const container = document.getElementById('tasks-container');
-    if (!container) return;
+    if (!container) {return;}
     if (!tasks || !tasks.length) {
         container.innerHTML = '<p>No hay tareas.</p>';
         return;
@@ -97,7 +97,7 @@ function renderTasks(tasks, usuarios) {
         // apply initial badge class for visual state
         sel.className = badgeClass(t.status);
         [['done','Finalizado'],['in_progress','En proceso'],['not_started','No iniciado']].forEach(([val,label])=>{
-            const op = document.createElement('option'); op.value = val; op.textContent = label; if(val===t.status) op.selected = true; sel.appendChild(op);
+            const op = document.createElement('option'); op.value = val; op.textContent = label; if(val===t.status) {op.selected = true;} sel.appendChild(op);
         });
         // update badge class when selection changes
         sel.addEventListener('change', ()=>{
@@ -111,13 +111,13 @@ function renderTasks(tasks, usuarios) {
         (usuarios||[]).forEach(u=>{
             const op = document.createElement('option');
             op.value = u.user_id; op.textContent = u.nombre ? `${u.nombre} (${u.email})` : u.email; op.dataset.userName = u.nombre || u.email;
-            if(t.assignedUserId && t.assignedUserId === u.user_id) op.selected = true;
+            if(t.assignedUserId && t.assignedUserId === u.user_id) {op.selected = true;}
             selUser.appendChild(op);
         });
         // fallback to name match if no userId stored
         if(!selUser.value && t.assignedTo){
             const match = (usuarios||[]).find(u => (u.nombre||u.email) === t.assignedTo);
-            if(match) selUser.value = match.user_id;
+            if(match) {selUser.value = match.user_id;}
         }
         assignTd.appendChild(selUser);
 
@@ -162,7 +162,7 @@ function renderTasks(tasks, usuarios) {
                     payload.assignedUserId = null;
                 }
                 const res = await fetch(`/api/tasks/${t.id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-                if(!res.ok) throw new Error('Error');
+                if(!res.ok) {throw new Error('Error');}
                 await loadAndRender();
             }catch(e){ console.error(e); alert('Error al guardar cambios'); }
             saveBtn.disabled = false;
@@ -211,20 +211,14 @@ function renderTasks(tasks, usuarios) {
 }
 
 function badgeClass(status) {
-    if (!status) return '';
-    if (status === 'done') return 'badge-done';
-    if (status === 'in_progress') return 'badge-progress';
-    if (status === 'not_started') return 'badge-notstarted';
+    if (!status) {return '';}
+    if (status === 'done') {return 'badge-done';}
+    if (status === 'in_progress') {return 'badge-progress';}
+    if (status === 'not_started') {return 'badge-notstarted';}
     return '';
 }
 
-function statusLabel(status) {
-    if (!status) return '';
-    if (status === 'done') return 'Completada';
-    if (status === 'in_progress') return 'En progreso';
-    if (status === 'not_started') return 'No iniciada';
-    return status;
-}
+// statusLabel removed (unused) to reduce lint warnings
 
 function renderInspectionSummary(task) {
     const container = document.createElement('div');
@@ -264,7 +258,7 @@ function initDashboard(){
     if(mobileToggle){
         mobileToggle.addEventListener('click', ()=>{
             const nav = document.querySelector('.dashboard-nav');
-            if(nav) nav.classList.toggle('open');
+            if(nav) {nav.classList.toggle('open');}
         });
     }
 
@@ -287,13 +281,13 @@ function initDashboard(){
         document.querySelectorAll('.dashboard-view').forEach(el => el.style.display = 'none');
         // show selected view
         const el = document.getElementById(`view-${view}`);
-        if (el) el.style.display = 'block';
-        if(view === 'admin') setupAdminForm();
+        if (el) {el.style.display = 'block';}
+        if(view === 'admin') {setupAdminForm();}
     }
 
     function setupAdminForm(){
         const form = document.getElementById('form-crear-usuario');
-        if(!form) return;
+        if(!form) {return;}
         
         // Remover event listeners existentes para evitar duplicados
         const newForm = form.cloneNode(true);
@@ -337,7 +331,7 @@ function initDashboard(){
 
     async function loadUsersAdmin(){
         const adminList = document.getElementById('lista-usuarios-admin');
-        if(!adminList) return;
+        if(!adminList) {return;}
         const res = await fetch('/api/usuarios', { credentials:'include' });
         const list = res.ok ? await res.json() : [];
         adminList.innerHTML = '';
@@ -392,7 +386,7 @@ function initDashboard(){
             delBtn.textContent = 'Eliminar';
             delBtn.className = 'small ghost';
             delBtn.addEventListener('click', async ()=>{
-                if(!confirm('¿Eliminar usuario?')) return;
+                if(!confirm('¿Eliminar usuario?')) {return;}
                 
                 console.log('🔍 Eliminando usuario:', u.user_id, u.nombre);
                 
@@ -438,13 +432,14 @@ async function showInstructionModal(instruction, taskId) {
     try {
         // Obtener información de la tarea y su inspección
         const response = await fetch(`/api/tasks/${taskId}/inspection`);
-        if (!response.ok) throw new Error('Error al cargar información de la tarea');
+        if (!response.ok) {throw new Error('Error al cargar información de la tarea');}
         
         const data = await response.json();
         const { task, inspection } = data;
         
-        const modal = document.createElement('div');
+    const modal = document.createElement('div');
         modal.classList.add('app-modal');
+    let onKeyDown = null;
         modal.style.cssText = `
             position: fixed;
             top: 0;
@@ -537,15 +532,15 @@ async function showInstructionModal(instruction, taskId) {
         // Cerrar modal
         document.getElementById('closeModal').addEventListener('click', () => {
             document.body.removeChild(modal);
-            if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
-            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
+            if (lightbox && lightbox.parentNode) {document.body.removeChild(lightbox);}
+            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){ void 0; }
         });
         
-        modal.addEventListener('click', (e) => {
+            modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 document.body.removeChild(modal);
-                if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
-                try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
+                if (lightbox && lightbox.parentNode) {document.body.removeChild(lightbox);}
+                try{ document.removeEventListener('keydown', onKeyDown); }catch(e){ void 0; }
             }
         });
         
@@ -556,46 +551,46 @@ async function showInstructionModal(instruction, taskId) {
             const galleryUrls = [];
             let currentIndex = -1;
 
-            function openLightboxAt(i){
-                if(i < 0 || i >= galleryUrls.length) return;
+            const openLightboxAt = (i) => {
+                if(i < 0 || i >= galleryUrls.length) {return;}
                 currentIndex = i;
                 lightboxImg.src = galleryUrls[i];
                 lightbox.style.display = 'flex';
-            }
+            };
 
-            function closeLightbox(){
+            const closeLightbox = () => {
                 lightbox.style.display = 'none';
                 lightboxImg.src = '';
-            }
+            };
 
-            function showNext(){
-                if(galleryUrls.length === 0) return;
+            const showNext = () => {
+                if(galleryUrls.length === 0) {return;}
                 openLightboxAt((currentIndex + 1) % galleryUrls.length);
-            }
+            };
 
-            function showPrev(){
-                if(galleryUrls.length === 0) return;
+            const showPrev = () => {
+                if(galleryUrls.length === 0) {return;}
                 openLightboxAt((currentIndex - 1 + galleryUrls.length) % galleryUrls.length);
-            }
+            };
 
             // keyboard navigation when lightbox open
-            function onKeyDown(e){
-                if(lightbox.style.display !== 'flex') return;
-                if(e.key === 'Escape') closeLightbox();
-                if(e.key === 'ArrowRight') showNext();
-                if(e.key === 'ArrowLeft') showPrev();
-            }
+            onKeyDown = function(e){
+                if(lightbox.style.display !== 'flex') {return;}
+                if(e.key === 'Escape') {closeLightbox();}
+                if(e.key === 'ArrowRight') {showNext();}
+                if(e.key === 'ArrowLeft') {showPrev();}
+            };
             document.addEventListener('keydown', onKeyDown);
 
             // touch swipe support
             let touchStartX = null;
             lightbox.addEventListener('touchstart', (ev)=>{ touchStartX = ev.touches && ev.touches[0] ? ev.touches[0].clientX : null; });
             lightbox.addEventListener('touchend', (ev)=>{
-                if(touchStartX === null) return;
+                if(touchStartX === null) {return;}
                 const endX = ev.changedTouches && ev.changedTouches[0] ? ev.changedTouches[0].clientX : null;
-                if(endX === null) return;
+                if(endX === null) {return;}
                 const diff = touchStartX - endX;
-                if(Math.abs(diff) > 50){ if(diff > 0) showNext(); else showPrev(); }
+                if(Math.abs(diff) > 50){ if(diff > 0) {showNext();} else {showPrev();} }
                 touchStartX = null;
             });
             // inspection images (from /api/inspections/:id)
@@ -616,7 +611,7 @@ async function showInstructionModal(instruction, taskId) {
                             const thumb = document.createElement('img');
                             // img.data_base64 may be data URL or pure base64
                             let src = img.data_base64 || img.data || null;
-                            if (!src) return;
+                            if (!src) {return;}
                             if (!src.startsWith('data:')) {
                                 // assume image/png if unknown
                                 src = `data:image/png;base64,${src}`;
@@ -695,7 +690,7 @@ async function showTaskInstructionModal(taskId) {
     try {
         // Obtener información de la tarea y su inspección
         const response = await fetch(`/api/tasks/${taskId}/inspection`);
-        if (!response.ok) throw new Error('Error al cargar información de la tarea');
+        if (!response.ok) {throw new Error('Error al cargar información de la tarea');}
 
         const data = await response.json();
         const { task, inspection } = data;
@@ -817,21 +812,22 @@ async function showTaskInstructionModal(taskId) {
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         `;
         lightbox.appendChild(lightboxImg);
-        document.body.appendChild(lightbox);
+    document.body.appendChild(lightbox);
+    let onKeyDown = null;
 
-        let createdInstruction = null;
+    let createdInstruction = null;
 
         // Event listeners
         document.getElementById('closeTaskModal').addEventListener('click', () => {
             document.body.removeChild(modal);
-            if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
-            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
+            if (lightbox && lightbox.parentNode) {document.body.removeChild(lightbox);}
+            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){ void 0; }
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
             document.body.removeChild(modal);
-            if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
-            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
+            if (lightbox && lightbox.parentNode) {document.body.removeChild(lightbox);}
+            try{ document.removeEventListener('keydown', onKeyDown); }catch(e){ void 0; }
         });
 
         document.getElementById('createInstructionBtn').addEventListener('click', async () => {
@@ -853,7 +849,7 @@ async function showTaskInstructionModal(taskId) {
                     body: JSON.stringify({ title, category, description })
                 });
 
-                if (!response.ok) throw new Error('Error al crear instrucción');
+                if (!response.ok) {throw new Error('Error al crear instrucción');}
 
                 createdInstruction = await response.json();
 
@@ -887,7 +883,7 @@ async function showTaskInstructionModal(taskId) {
                     body: JSON.stringify({ instructionId: createdInstruction.id })
                 });
 
-                if (!response.ok) throw new Error('Error al asignar instrucción');
+                if (!response.ok) {throw new Error('Error al asignar instrucción');}
 
                 // Cerrar modal
                 document.body.removeChild(modal);
@@ -904,10 +900,10 @@ async function showTaskInstructionModal(taskId) {
         });
 
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
+                if (e.target === modal) {
                 document.body.removeChild(modal);
-                if (lightbox && lightbox.parentNode) document.body.removeChild(lightbox);
-                try{ document.removeEventListener('keydown', onKeyDown); }catch(e){}
+                if (lightbox && lightbox.parentNode) {document.body.removeChild(lightbox);}
+                try{ document.removeEventListener('keydown', onKeyDown); }catch(e){ void 0; }
             }
         });
 
@@ -930,7 +926,7 @@ async function showTaskInstructionModal(taskId) {
                         inspData.imagenes.forEach(img => {
                             const thumb = document.createElement('img');
                             let src = img.data_base64 || img.data || null;
-                            if (!src) return;
+                            if (!src) {return;}
                             if (!src.startsWith('data:')) {
                                 src = `data:image/png;base64,${src}`;
                             }

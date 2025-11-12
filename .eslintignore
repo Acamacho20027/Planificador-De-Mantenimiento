@@ -1,0 +1,5 @@
+node_modules/
+js/vendor/
+uploads/
+Styles/backups/
+/*.min.js

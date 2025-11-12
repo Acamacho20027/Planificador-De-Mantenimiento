@@ -6,6 +6,8 @@
   <title>Inspección - Mantenimiento</title>
   <link rel="stylesheet" href="../Styles/styles.css">
   <link rel="stylesheet" href="../Styles/custom-dashboard.css">
+  <link rel="stylesheet" href="../Styles/design-tokens.css">
+  <link rel="stylesheet" href="../Styles/visual-overrides.css">
 </head>
 <body class="inspeccion-page">
   <div class="container">
@@ -49,8 +51,8 @@
       <div id="task-preview"></div>
 
       <div style="display:flex;gap:.5rem;margin-top:.6rem;align-items:center;">
-        <input id="inspection-images" type="file" accept="image/*" multiple capture="environment" style="display:none;" />
-        <button id="add-photo" class="small ghost">Agregar foto</button>
+  <input id="inspection-images" name="inspection-images" type="file" accept="image/*" multiple capture="environment" style="display:none;" />
+  <button id="add-photo" class="small ghost" type="button"><img src="/imagenes/icon-upload.svg" aria-hidden="true" style="height:16px;width:16px;vertical-align:middle;margin-right:8px;filter:invert(1) grayscale(1) contrast(100%);">Agregar foto</button>
         <button id="clear-photos" class="small ghost">Borrar fotos</button>
         <button id="send-task" class="small">Enviar tarea</button>
       </div>

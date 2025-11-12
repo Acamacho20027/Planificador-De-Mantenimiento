@@ -1,4 +1,6 @@
 // Planificador de Mantenimiento - JavaScript
+/* global Chart */
+/* exported loadStatsAndCharts, loadTasksList */
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Planificador de Mantenimiento cargado');
     
@@ -136,26 +138,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Charts (fetch data from /api/stats)
     let chartsInitialized = false;
+    /* eslint-disable-next-line no-unused-vars */
     async function loadStatsAndCharts() {
-        if (chartsInitialized) return;
+        if (chartsInitialized) {return;}
         chartsInitialized = true;
 
         try {
             const res = await fetch('/api/stats');
-            if (!res.ok) throw new Error('Failed to load stats');
+            if (!res.ok) {throw new Error('Failed to load stats');}
             const json = await res.json();
 
             const { labels = ['Lun','Mar','Mié','Jue','Vie'], done = [], in_progress = [], not_started = [] } = json;
 
-            function createBar(ctxId, label, data, color) {
+            const createBar = (ctxId, label, data, color) => {
                 const ctx = document.getElementById(ctxId);
-                if (!ctx) return;
+                if (!ctx) {return;}
                 new Chart(ctx, {
                     type: 'bar',
                     data: { labels, datasets: [{ label, data, backgroundColor: color }] },
                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
                 });
-            }
+            };
 
             createBar('chart-done', 'Completadas', done, 'rgba(76,175,80,0.8)');
             createBar('chart-progress', 'En progreso', in_progress, 'rgba(33,150,243,0.8)');
@@ -167,12 +170,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Tasks list
+    /* eslint-disable-next-line no-unused-vars */
     async function loadTasksList() {
         const container = document.getElementById('view-tasks');
-        if (!container) return;
+        if (!container) {return;}
         try {
             const res = await fetch('/api/tasks');
-            if (!res.ok) throw new Error('Failed to load tasks');
+            if (!res.ok) {throw new Error('Failed to load tasks');}
             const data = await res.json();
 
             // render a simple table

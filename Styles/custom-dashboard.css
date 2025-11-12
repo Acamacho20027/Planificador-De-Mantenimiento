@@ -1,5 +1,35 @@
 /* Custom visual styles for dashboard to match provided design */
 
+/* Ensure small buttons have a sensible default outside specific view scopes */
+.small {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--canva-blue);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* Ghost variant as a visible alternative on dark/orange backgrounds */
+.small.ghost {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+/* Explicit styling for the dashboard-injected logout button to guarantee contrast */
+#dashboardLogoutBtn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.18);
+  cursor: pointer;
+  font-weight: 700;
+  z-index: 1200;
+}
+
 /* Layout */
 .dashboard-wrapper { display:flex; gap:28px; align-items:flex-start; }
 .dashboard-nav { width: 240px; background: var(--canva-white); border-radius: 12px; padding: 22px; box-shadow: 0 12px 30px rgba(15,23,42,0.06); }

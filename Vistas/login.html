@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planificador de Mantenimiento - Iniciar Sesión</title>
     <link rel="stylesheet" href="../Styles/login.css">
+    <link rel="stylesheet" href="../Styles/design-tokens.css">
     <link rel="preload" href="../js/login.js" as="script">
+        <link rel="stylesheet" href="../Styles/visual-overrides.css">
 </head>
 <body class="login-page">
     <div class="login-container">
@@ -21,20 +23,20 @@
             <form id="login-form">
                 <div class="form-group">
                     <label for="email" class="form-label">Correo Electrónico</label>
-                    <input id="email" type="email" class="form-input" required placeholder="admin@empresa.com" />
+                    <input id="email" name="email" type="email" class="form-input" required placeholder="admin@empresa.com" />
                 </div>
                 
                 <div class="form-group">
                     <label for="password" class="form-label">Contraseña</label>
-                    <input id="password" type="password" class="form-input" required placeholder="Tu contraseña" />
+                    <input id="password" name="password" type="password" class="form-input" required placeholder="Tu contraseña" />
                 </div>
                 
                 <div class="checkbox-group">
-                    <input type="checkbox" id="remember" class="checkbox-input">
+                    <input type="checkbox" id="remember" name="remember" class="checkbox-input">
                     <label for="remember" class="checkbox-label">¿Recordar cuenta?</label>
                 </div>
                 
-                <button type="submit" class="login-button">
+                <button id="loginBtn" type="submit" class="login-button btn btn-primary">
                     Iniciar sesión
                 </button>
                 
@@ -63,7 +65,7 @@
             <!-- Información del proyecto -->
             <div class="project-info">
                 <div class="project-logo">
-                    <img src="../imagenes/logo_MantenimientoyConstruccion.jpg" alt="Logo Planificador de Mantenimiento" />
+                    <img src="../imagenes/Logo-MyM.png" alt="Logo Planificador de Mantenimiento" />
                 </div>
                 <h3 class="project-name">Planificador de Mantenimiento</h3>
                 <p class="project-motto">Optimizando la gestión de mantenimiento industrial con tecnología avanzada</p>

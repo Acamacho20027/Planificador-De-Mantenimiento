@@ -209,14 +209,7 @@ html {
     height: 100%
 }
 
-/* Global design tokens (Canva palette) - added for dashboard and other views */
-:root {
-    --canva-blue: #345995;
-    --canva-orange: #f7931e;
-    --canva-white: #f9fafa;
-    --canva-gray-dark: #707070;
-    --canva-gray-light: #979cad;
-}
+/* Global design tokens moved to Styles/design-tokens.css to centralize tokens */
 
 body {
     color: #333;
@@ -343,39 +336,7 @@ ul,ol {
     list-style: none
 }
 
-:root {
-    --background-color--background-primary: #09090c;
-    --text-color--text-primary: #ffffff;
-    --base-color-neutral--black-1: #09090c;
-    --shadows--button-white: #ffffff0d;
-    --text-color--text-alternate: #ffffff;
-    --text-color--text-secondary: #8f8f8f;
-    --border-color--border-primary: #1a1a1a;
-    --background-color--background-icons-buttons: #1a1a1a;
-    --background-color--background-secondary: #1a1a1a;
-    --link-color--link-primary: #8f8f8f;
-    --link-color--link-secondary: #ffffff;
-    --background-color--background-tertiary: #1a1a1a;
-    --border-color--border-alternate: #1a1a1a;
-    --border-color--border-secondary: #222;
-    --shadows--button-black-25: #00000040;
-    --shadows--button-black-50: #00000080;
-    --shadows--card-black: #000;
-    --base-color-neutral--white: #ffffff;
-    --base-color-brand--accent-blue: #4188f4;
-    --base-color-neutral--gray-2: #1a1a1a;
-    --base-color-neutral--transparent: transparent;
-    --base-color-brand--accent-blue-faded: #4188f4;
-    --background-color--background-alternate: #353535;
-    --border-color--border-tertiary: #707070;
-    --base-color-neutral--gray-8: #8f8f8f;
-    --base-color-neutral--gray-7: #707070;
-    --base-color-neutral--gray-6: #353535;
-    --base-color-neutral--gray-5: #2a2a2a;
-    --base-color-neutral--gray-4: #222;
-    --base-color-neutral--gray-3: #1d1d1d;
-    --base-color-neutral--gray-1: #141415
-}
+/* Token block migrated to Styles/design-tokens.css */
 
 body {
     background-color: #808080; /* Gris de fondo como solicitado */
@@ -617,14 +578,15 @@ label {
     background-color: #ffffff; /* Fondo blanco para contraste con gris */
     padding: 1rem;
     border-radius: 8px;
-    border: 2px solid #2f6fd6; /* Borde azul */
+    /* removed blue border to allow natural dashboard layout and visual overrides */
 }
 
 /* Dashboard navigation: simple, light, and professional */
 
 .dashboard-nav {
     width: 100%;
-    background: #2f6fd6; /* Azul para navegación */
+    /* make nav neutral so visual-overrides control final appearance */
+    background: transparent;
     padding: 0.5rem 1rem;
     border-bottom: 1px solid rgba(0,0,0,0.06);
     display: flex;
@@ -698,7 +660,7 @@ label {
 
 /* Ensure dashboard layout is flexible */
 .dashboard-wrapper {
-    display: block;
+    /* keep layout free for overrides (flex/grid defined in theme files) */
 }
 
 .dashboard-content {
@@ -728,7 +690,10 @@ label {
 
 /* Force canvases hidden — use python-generated images only */
 .dashboard-wrapper .chart-card canvas {
-    display: none !important;
+    /* allow canvases to render (previously hidden to force use of static images) */
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .dashboard-wrapper .chart-card img {
@@ -1270,6 +1235,12 @@ table tr td, table tr th {
     margin-bottom: 1rem;
 }
 
+/* Remove the global white header stripe only for inspeccion page so it blends with the gray container */
+.inspeccion-page header {
+    background: transparent;
+    padding: 0.25rem 0;
+}
+
 .inspeccion-page header h1{
     font-size: 1.1rem;
     margin: 0;
@@ -1280,9 +1251,11 @@ table tr td, table tr th {
     display: block;
     border-radius: 8px;
     padding: 1rem;
+    /* restore the light panel so the inner card is visible (flecha blanca) */
     background: #f6f7f8; /* light panel to contrast with gray page */
     color: var(--base-color-neutral--black-1);
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 0;
 }
 
 .inspeccion-page .wizard-step:not(.active){ display:none }

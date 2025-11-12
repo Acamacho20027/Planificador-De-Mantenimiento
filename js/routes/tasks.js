@@ -75,7 +75,7 @@ router.get('/', async (req, res) => {
 // POST /api/tasks - Crear nueva tarea
 router.post('/', async (req, res) => {
     try {
-        const { title, status, assignedTo, date, priority, description, inspection, instructionId } = req.body;
+    const { title, status, assignedTo, date, priority, description, instructionId } = req.body;
         
         // Validaciones
         if (!title || !title.trim()) {
@@ -408,8 +408,8 @@ router.post('/:id/images', async (req, res) => {
         const taskId = parseInt(req.params.id);
         const { images } = req.body; // esperar [{ name, type, data }]
 
-        if (isNaN(taskId)) return res.status(400).json({ error: 'ID de tarea inválido' });
-        if (!images || !Array.isArray(images) || images.length === 0) return res.status(400).json({ error: 'No se proporcionaron imágenes' });
+        if (isNaN(taskId)) {return res.status(400).json({ error: 'ID de tarea inválido' });}
+        if (!images || !Array.isArray(images) || images.length === 0) {return res.status(400).json({ error: 'No se proporcionaron imágenes' });}
 
         const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
         fs.mkdirSync(uploadDir, { recursive: true });
@@ -423,7 +423,7 @@ router.post('/:id/images', async (req, res) => {
             // img.data puede venir como dataURL o base64 puro
             let base64 = img.data;
             const match = /^data:(.+);base64,(.+)$/.exec(base64);
-            if (match) base64 = match[2];
+            if (match) {base64 = match[2];}
 
             const buffer = Buffer.from(base64, 'base64');
             const filename = `${Date.now()}-${img.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
@@ -471,7 +471,7 @@ router.post('/:id/images', async (req, res) => {
 router.get('/:id/images', async (req, res) => {
     try {
         const taskId = parseInt(req.params.id);
-        if (isNaN(taskId)) return res.status(400).json({ error: 'ID de tarea inválido' });
+        if (isNaN(taskId)) {return res.status(400).json({ error: 'ID de tarea inválido' });}
         // First try to read metadata from DB table imagenes_tarea (if present)
         try {
             const pool = await db.getConnection();
@@ -494,14 +494,14 @@ router.get('/:id/images', async (req, res) => {
             })) : [];
 
             // If DB returned rows, prefer those. If empty, fall back to filesystem listing.
-            if (filesInfo.length > 0) return res.json({ files: filesInfo });
+            if (filesInfo.length > 0) {return res.json({ files: filesInfo });}
         } catch (dbErr) {
             // Table may not exist or DB error; fall back to filesystem
             // console.warn('No se pudo leer metadata de imagenes_tarea, usando sistema de archivos:', dbErr.message || dbErr);
         }
 
         const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'tasks', String(taskId));
-        if (!fs.existsSync(uploadDir)) return res.json({ files: [] });
+        if (!fs.existsSync(uploadDir)) {return res.json({ files: [] });}
 
         const files = fs.readdirSync(uploadDir).filter(f => f && !f.startsWith('.'));
         const filesInfo = files.map(f => ({ name: f, url: `/uploads/tasks/${taskId}/${f}` }));

@@ -8,51 +8,24 @@ async function initUserView(){
   let me = await fetch('/auth/me', { credentials: 'include' }).then(r=>r.json()).catch(()=>({ authenticated:false }));
 
   if (!me.authenticated) {
-    // show login form
-    authArea.innerHTML = `
-      <div style="max-width:520px;margin:0 auto;padding:18px;border:1px solid var(--canva-gray-light);background:var(--canva-white);border-radius:8px;">
-        <h3 style="margin-top:0;color:var(--canva-blue);">Iniciar sesión</h3>
-        <form id="loginForm">
-          <div style="margin-bottom:8px;"><label>Email</label><input id="loginEmail" type="email" required style="width:100%;padding:8px;border:1px solid var(--canva-gray-light);border-radius:6px;"/></div>
-          <div style="margin-bottom:8px;"><label>Password</label><input id="loginPass" type="password" required style="width:100%;padding:8px;border:1px solid var(--canva-gray-light);border-radius:6px;"/></div>
-          <div style="text-align:right;"><button class="small" type="submit" style="background:var(--canva-blue);color:var(--canva-white);">Entrar</button></div>
-        </form>
-        <p style="margin-top:10px;color:var(--canva-gray-dark)">Si aún no tienes cuenta, pídele al administrador crear un usuario desde Administración.</p>
-      </div>
-    `;
-
-    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      // fetch csrf
-  const tokenRes = await fetch('/auth/csrf', { credentials: 'include', cache: 'no-store' });
-      const token = tokenRes.ok ? (await tokenRes.json()).csrfToken : null;
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPass').value;
-
-      const res = await fetch('/auth/login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'csrf-token': token },
-        body: JSON.stringify({ email, password })
-      });
-      if (res.ok) {
-        location.reload();
-      } else {
-        const err = await res.json().catch(()=>({error:'Error'}));
-        alert(err.error || 'Error en login');
-      }
-    });
-
+    // If the user is not authenticated, redirect to the canonical login page
+    // (we previously injected an inline login form here; prefer the standalone login view).
+    window.location.href = '/Vistas/login.html';
     return;
   }
 
   // If authenticated, show welcome and list tasks assigned
-  authArea.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;"><div><strong>${me.user.nombre || me.user.email}</strong><div style="color:var(--canva-gray-dark)">${me.user.rol}</div></div><div><button id="logoutBtn" class="small ghost">Cerrar sesión</button></div></div>`;
+  authArea.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;"><div><strong>${me.user.nombre || me.user.email}</strong><div style="color:var(--canva-gray-dark)">${me.user.rol}</div></div><div><button id="logoutBtn" class="small ghost" type="button"><img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:16px;width:16px;vertical-align:middle;margin-right:8px;filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión</button></div></div>`;
   document.getElementById('logoutBtn').addEventListener('click', async ()=>{
-  const tokenRes = await fetch('/auth/csrf', { credentials: 'include', cache: 'no-store' });
-  const token = tokenRes.ok ? (await tokenRes.json()).csrfToken : null;
-  await fetch('/auth/logout', { method:'POST', credentials:'include', headers:{'csrf-token': token}, cache: 'no-store' }).catch(()=>{});
-    location.reload();
+    const tokenRes = await fetch('/auth/csrf', { credentials: 'include', cache: 'no-store' });
+    const token = tokenRes.ok ? (await tokenRes.json()).csrfToken : null;
+    try {
+      await fetch('/auth/logout', { method:'POST', credentials:'include', headers:{'csrf-token': token}, cache: 'no-store' });
+    } catch (e) {
+      // ignore network errors for logout, still redirect
+    }
+    // Redirect to the main login page after logout instead of reloading the same SPA view
+    window.location.href = '/Vistas/login.html';
   });
 
   // load tasks and filter by assignedTo matching user's email or name
@@ -61,7 +34,7 @@ async function initUserView(){
   const tasks = await tasksRes.json();
 
   const assigned = tasks.filter(t => {
-    if (!t.assignedTo) return false;
+    if (!t.assignedTo) {return false;}
     const lower = String(t.assignedTo).toLowerCase();
     return lower.includes((me.user.email||'').toLowerCase()) || lower.includes((me.user.nombre||'').toLowerCase());
   });
@@ -89,8 +62,8 @@ async function initUserView(){
     prioritySpan.textContent = priorityText;
     function getPriorityClass(p){
       const s = (p||'').toString().toLowerCase();
-      if (s.includes('alta') || s.includes('high')) return 'priority-high';
-      if (s.includes('media') || s.includes('medium')) return 'priority-medium';
+      if (s.includes('alta') || s.includes('high')) {return 'priority-high';}
+      if (s.includes('media') || s.includes('medium')) {return 'priority-medium';}
       return 'priority-low';
     }
     prioritySpan.className = getPriorityClass(priorityText);
@@ -108,15 +81,15 @@ async function initUserView(){
 
     // status selector
     const statusLabel = document.createElement('label'); statusLabel.textContent = 'Estado: '; statusLabel.style.fontWeight='700';
-    const sel = document.createElement('select'); ['not_started','in_progress','done'].forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent = s==='not_started'?'No iniciado':s==='in_progress'?'En proceso':'Finalizado'; if(s===t.status) o.selected=true; sel.appendChild(o); });
+    const sel = document.createElement('select'); ['not_started','in_progress','done'].forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent = s==='not_started'?'No iniciado':s==='in_progress'?'En proceso':'Finalizado'; if(s===t.status) {o.selected=true;} sel.appendChild(o); });
     sel.style.marginLeft='8px'; sel.style.padding='6px'; sel.style.border='1px solid var(--canva-gray-light)'; sel.style.borderRadius='6px';
     const statusRow = document.createElement('div'); statusRow.style.marginTop='10px'; statusRow.style.display='flex'; statusRow.style.alignItems='center'; statusRow.appendChild(statusLabel); statusRow.appendChild(sel);
 
     // status badge that mirrors dashboard colors
     const statusSpan = document.createElement('span');
     function getStatusBadgeInfo(status){
-      if (status === 'done') return { cls: 'badge-done', text: 'Finalizado' };
-      if (status === 'in_progress') return { cls: 'badge-progress', text: 'En proceso' };
+      if (status === 'done') {return { cls: 'badge-done', text: 'Finalizado' };}
+      if (status === 'in_progress') {return { cls: 'badge-progress', text: 'En proceso' };}
       return { cls: 'badge-notstarted', text: 'No iniciado' };
     }
     const info = getStatusBadgeInfo(t.status);
@@ -136,8 +109,9 @@ async function initUserView(){
     // file input & preview
   const fileInput = document.createElement('input'); fileInput.type='file'; fileInput.accept='image/*'; fileInput.multiple=true; fileInput.style.display='none'; fileInput.id = `files-${t.id}`;
   // hint mobile devices to open camera when possible
-  try { fileInput.setAttribute('capture', 'environment'); } catch(e) {}
-  const addBtn = document.createElement('button'); addBtn.textContent='Agregar foto'; addBtn.className='small ghost'; addBtn.type = 'button'; addBtn.style.marginLeft='10px';
+  try { fileInput.setAttribute('capture', 'environment'); } catch(e) { void 0; }
+  const addBtn = document.createElement('button'); addBtn.className='small ghost'; addBtn.type = 'button'; addBtn.style.marginLeft='10px';
+  addBtn.innerHTML = `<img src="/imagenes/icon-upload.svg" aria-hidden="true" style="height:16px;width:16px;vertical-align:middle;margin-right:8px;filter:invert(1) grayscale(1) contrast(100%);">Agregar foto`;
     const preview = document.createElement('div'); preview.style.display='flex'; preview.style.gap='8px'; preview.style.marginTop='10px';
 
     addBtn.addEventListener('click', ()=> fileInput.click());
@@ -229,8 +203,7 @@ async function initUserView(){
         return;
       }
 
-      // If photos present, upload first
-      let uploadedFiles = [];
+  // If photos present, upload first
       if (fileInput.files && fileInput.files.length > 0) {
         const toSend = [];
         for (const f of Array.from(fileInput.files)) {
@@ -243,8 +216,8 @@ async function initUserView(){
         const imgRes = await fetch(`/api/tasks/${t.id}/images`, {
           method: 'POST', credentials: 'include', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ images: toSend })
         });
-        if (!imgRes.ok) { alert('Error subiendo imágenes'); return; }
-        const imgJson = await imgRes.json(); uploadedFiles = imgJson.files || [];
+    if (!imgRes.ok) { alert('Error subiendo imágenes'); return; }
+  await imgRes.json();
       }
 
       // Update task status

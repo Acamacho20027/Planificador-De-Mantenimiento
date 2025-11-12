@@ -1,0 +1,85 @@
+/* Design tokens and base typography for the app */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+:root{
+  /* Color tokens (based on existing Canva palette) */
+  --canva-blue: #345995;
+  --canva-orange: #f7931e;
+  --canva-white: #f9fafa;
+  --canva-gray-dark: #707070;
+  --canva-gray-light: #979cad;
+
+  /* Additional tokens from canva-index.css */
+  --canva-radius: 14px;
+  --max-width: 1100px;
+
+
+/* Additional tokens migrated from styles.css :root (theme variables) */
+  --background-color--background-primary: #09090c;
+  --text-color--text-primary: #ffffff;
+  --base-color-neutral--black-1: #09090c;
+  --shadows--button-white: #ffffff0d;
+  --text-color--text-alternate: #ffffff;
+  --text-color--text-secondary: #8f8f8f;
+  --border-color--border-primary: #1a1a1a;
+  --background-color--background-icons-buttons: #1a1a1a;
+  --background-color--background-secondary: #1a1a1a;
+  --link-color--link-primary: #8f8f8f;
+  --link-color--link-secondary: #ffffff;
+  --background-color--background-tertiary: #1a1a1a;
+  --border-color--border-alternate: #1a1a1a;
+  --border-color--border-secondary: #222;
+  --shadows--button-black-25: #00000040;
+  --shadows--button-black-50: #00000080;
+  --shadows--card-black: #000;
+  --base-color-neutral--white: #ffffff;
+  --base-color-brand--accent-blue: #4188f4;
+  --base-color-neutral--gray-2: #1a1a1a;
+  --base-color-neutral--transparent: transparent;
+  --base-color-brand--accent-blue-faded: #4188f4;
+  --background-color--background-alternate: #353535;
+  --border-color--border-tertiary: #707070;
+  --base-color-neutral--gray-8: #8f8f8f;
+  --base-color-neutral--gray-7: #707070;
+  --base-color-neutral--gray-6: #353535;
+  --base-color-neutral--gray-5: #2a2a2a;
+  --base-color-neutral--gray-4: #222;
+  --base-color-neutral--gray-3: #1d1d1d;
+  --base-color-neutral--gray-1: #141415;
+  /* Typography */
+  --font-family-system: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --fs-base: 16px;
+  --fs-1: 32px; /* h1 */
+  --fs-2: 20px; /* h2 */
+  --fs-3: 16px; /* h3 */
+  --line-height-base: 1.4;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+
+  /* Radius & shadows */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --shadow-1: 0 8px 20px rgba(15,23,42,0.06);
+}
+
+/* Base type */
+html,body{ font-family: var(--font-family-system); font-size: var(--fs-base); line-height: var(--line-height-base); }
+h1{ font-size: var(--fs-1); line-height:1.05; margin:0 0 var(--space-md) 0; color:var(--canva-blue); }
+h2{ font-size:var(--fs-2); color:var(--canva-blue); }
+
+/* Buttons system */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer; border:0; }
+.btn-primary { background:var(--canva-blue); color: #fff; }
+.btn-secondary { background:transparent; color:var(--canva-blue); border:1px solid rgba(52,89,149,0.12); }
+.btn-ghost { background: transparent; color: #fff; border:1px solid rgba(255,255,255,0.12); }
+
+/* Utility */
+.container-large { max-width:1200px; margin:0 auto; padding:0 var(--space-md); }
+.visually-hidden{ position:absolute!important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap }
+
+/* Make focus outlines visible and accessible */
+button:focus, a:focus, input:focus, select:focus, textarea:focus { outline: 3px solid rgba(52,89,149,0.18); outline-offset: 2px; }

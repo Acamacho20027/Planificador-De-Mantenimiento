@@ -9,8 +9,12 @@ const db = require('../../config/database');
 const csurf = require('csurf');
 const rateLimit = require('express-rate-limit');
 
-// CSRF protection
-const csrfProtection = csurf();
+// CSRF protection (accept token from header, body or XSRF-TOKEN cookie)
+const csrfProtection = csurf({
+    value: (req) => {
+        return req.headers['x-csrf-token'] || req.headers['csrf-token'] || (req.cookies && req.cookies['XSRF-TOKEN']) || (req.body && (req.body._csrf || req.body.csrf || req.body['csrf-token'])) || null;
+    }
+});
 
 // Rate limiter para login
 const loginLimiter = rateLimit({
