@@ -256,7 +256,69 @@ function initDashboard(){
     if(mobileToggle){
         mobileToggle.addEventListener('click', ()=>{
             const nav = document.querySelector('.dashboard-nav');
-            if(nav) {nav.classList.toggle('open');}
+            if(nav) {
+                const willOpen = !nav.classList.contains('open');
+                nav.classList.toggle('open');
+                // accessibility hint
+                mobileToggle.setAttribute('aria-expanded', willOpen);
+                try {
+                    // Safari on iOS can ignore some CSS rules; apply an inline display toggle as a defensive fallback for small screens
+                    if (window.matchMedia && window.matchMedia('(max-width: 720px)').matches) {
+                        nav.style.display = willOpen ? 'block' : 'none';
+                    } else {
+                        // ensure default behavior on desktop
+                        nav.style.display = '';
+                    }
+                } catch (e) { /* ignore */ }
+            }
+        });
+    }
+
+    // Ensure nav is closed by default on mobile (defensive: in case CSS or server rendered it open)
+    (function ensureNavClosed(){
+        const nav = document.querySelector('.dashboard-nav');
+        if(!nav) return;
+        nav.classList.remove('open');
+        if(mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+        try {
+            if (window.matchMedia && window.matchMedia('(max-width: 720px)').matches) {
+                // Defensive: explicitly hide nav via inline style on small screens to override any stubborn CSS in Safari
+                nav.style.display = 'none';
+                // hide header logout on mobile if present
+                const hdr = document.getElementById('dashboardLogoutBtn'); if (hdr) hdr.style.display = 'none';
+            } else {
+                nav.style.display = '';
+                const hdr = document.getElementById('dashboardLogoutBtn'); if (hdr) hdr.style.display = '';
+            }
+        } catch (e) { /* ignore */ }
+
+        // Close menu when clicking outside on small screens
+        document.addEventListener('click', (ev) => {
+            try {
+                if (window.matchMedia && !window.matchMedia('(max-width: 720px)').matches) return; // only mobile
+                if (!nav.classList.contains('open')) return;
+                const inside = nav.contains(ev.target) || (mobileToggle && mobileToggle.contains(ev.target));
+                if (!inside) {
+                    nav.classList.remove('open');
+                    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+                }
+            } catch (e) { /* ignore */ }
+        }, { capture: true });
+    })();
+
+    // Logout from menu (works both desktop and mobile)
+    const menuLogout = document.getElementById('menu-logout');
+    if (menuLogout) {
+        menuLogout.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const tokenRes = await fetch('/auth/csrf', { credentials: 'include', cache: 'no-store' });
+                const token = tokenRes.ok ? (await tokenRes.json()).csrfToken : null;
+                await fetch('/auth/logout', { method: 'POST', credentials: 'include', headers: { 'csrf-token': token }, cache: 'no-store' });
+            } catch (err) {
+                // ignore errors
+            }
+            window.location.href = '/Vistas/login.html';
         });
     }
 
