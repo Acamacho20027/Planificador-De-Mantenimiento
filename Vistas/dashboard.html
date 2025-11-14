@@ -19,15 +19,17 @@
     <main class="padding-global padding-section-large">
         <div class="container-large dashboard-wrapper">
             <!-- top navigation bar -->
+            <button id="nav-toggle" aria-label="Abrir menú" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;">☰</button>
             <aside class="dashboard-nav">
                 <h3 class="heading-style-h3">Menú</h3>
-                <button id="nav-toggle" aria-label="Abrir menú" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;">☰</button>
                 <nav>
                     <ul>
                         <li><a href="#home" class="dashboard-link" data-view="home">Home</a></li>
                         <li><a href="inspeccion.html" class="dashboard-link">Inspección</a></li>
                         <li><a href="#tasks" class="dashboard-link" data-view="tasks">Tareas</a></li>
                         <li><a href="#admin" class="dashboard-link" data-view="admin">Administración</a></li>
+                        <!-- Logout option inside the hamburger menu (useful on mobile) -->
+                        <li><a href="#" id="menu-logout" class="dashboard-link">Cerrar sesión</a></li>
                     </ul>
                 </nav>
             </aside>
