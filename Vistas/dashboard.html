@@ -19,7 +19,14 @@
     <main class="padding-global padding-section-large">
         <div class="container-large dashboard-wrapper">
             <!-- top navigation bar -->
-            <button id="nav-toggle" aria-label="Abrir menú" style="background:transparent;border:none;font-size:1.1rem;cursor:pointer;">☰</button>
+            <button id="nav-toggle" aria-label="Abrir menú" style="background:transparent;border:none;cursor:pointer;" aria-expanded="false">
+                <!-- SVG hamburger with thicker bars for better visibility on mobile/Safari -->
+                <svg width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="0" y="0" width="28" height="3" rx="1.5" fill="currentColor" />
+                    <rect x="0" y="8.5" width="28" height="3" rx="1.5" fill="currentColor" />
+                    <rect x="0" y="17" width="28" height="3" rx="1.5" fill="currentColor" />
+                </svg>
+            </button>
             <aside class="dashboard-nav">
                 <h3 class="heading-style-h3">Menú</h3>
                 <nav>

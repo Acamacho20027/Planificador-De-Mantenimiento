@@ -20,8 +20,9 @@
 
 /* Explicit styling for the dashboard-injected logout button to guarantee contrast */
 #dashboardLogoutBtn {
-  padding: 8px 12px;
+  padding: 6px 8px;
   border-radius: 6px;
+  font-size: 14px;
   /* Make it visible against orange or white headers: white background + blue text */
   background: var(--canva-white);
   color: var(--canva-blue);
@@ -29,7 +30,12 @@
   box-shadow: 0 6px 18px rgba(15,23,42,0.06);
   cursor: pointer;
   font-weight: 700;
-  z-index: 1200;
+  z-index: 1050;
+}
+
+/* Hide header logout button on small screens to avoid overlap; use menu logout instead */
+@media (max-width: 720px) {
+  #dashboardLogoutBtn { display: none; }
 }
 
 /* Layout */
@@ -189,6 +195,31 @@ footer.padding-section-footer.background-color-secondary { background: var(--can
   .charts-grid { gap: 12px; }
   .heading-style-h1 { font-size: 20px; padding: 12px; }
 }
+
+/* Hamburger / nav toggle styles to improve visibility and hit-area on mobile */
+#nav-toggle {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 6px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: var(--canva-blue);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  z-index: 2200;
+}
+
+/* Slight focus ring for accessibility */
+#nav-toggle:focus { outline: 2px solid rgba(52,89,149,0.12); outline-offset: 2px; }
+
+/* Make the SVG bars use currentColor so they inherit color above */
+#nav-toggle svg { display:block; }
+
 
 /* Improve thumbnails responsiveness and spacing */
 .app-modal-content .task-preview-box img, .app-modal-content img { border-radius: 6px; }
