@@ -253,57 +253,136 @@ function initDashboard(){
 
     // mobile menu toggle (support both ids used in templates)
     const mobileToggle = document.getElementById('mobile-menu-toggle') || document.getElementById('nav-toggle');
+    let menuJustOpened = false; // Variable compartida para evitar cierre inmediato
+    let isHandlingToggle = false; // Flag para prevenir doble ejecución
+    
     if(mobileToggle){
-        mobileToggle.addEventListener('click', ()=>{
-            const nav = document.querySelector('.dashboard-nav');
-            if(nav) {
-                const willOpen = !nav.classList.contains('open');
-                nav.classList.toggle('open');
-                // accessibility hint
-                mobileToggle.setAttribute('aria-expanded', willOpen);
-                try {
-                    // Safari on iOS can ignore some CSS rules; apply an inline display toggle as a defensive fallback for small screens
-                    if (window.matchMedia && window.matchMedia('(max-width: 720px)').matches) {
-                        nav.style.display = willOpen ? 'block' : 'none';
-                    } else {
-                        // ensure default behavior on desktop
-                        nav.style.display = '';
-                    }
-                } catch (e) { /* ignore */ }
+        const handleMenuToggle = function(e){
+            // Prevenir doble ejecución
+            if (isHandlingToggle) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return;
             }
-        });
+            
+            isHandlingToggle = true;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            console.log('🔍 Menu button clicked');
+            
+            const nav = document.querySelector('.dashboard-nav');
+            if(!nav) {
+                console.error('Nav element not found');
+                isHandlingToggle = false;
+                return;
+            }
+            
+            const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+            const isOpen = nav.classList.contains('open');
+            
+            console.log('🔍 Menu state:', { isMobile, isOpen });
+            
+            if (isMobile) {
+                if (!isOpen) {
+                    // Abrir menú
+                    nav.classList.add('open');
+                    nav.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; transform: translateX(0) !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 280px !important; max-width: 85% !important; height: 100vh !important; z-index: 9999 !important; background: #ffffff !important; padding: 22px !important; box-shadow: 2px 0 10px rgba(0,0,0,0.15) !important; overflow-y: auto !important; margin: 0 !important; border-radius: 0 !important;';
+                    mobileToggle.setAttribute('aria-expanded', 'true');
+                    console.log('🔍 Menu opened');
+                    
+                    // Marcar que el menú acaba de abrirse para evitar que se cierre inmediatamente
+                    menuJustOpened = true;
+                    setTimeout(() => { 
+                        menuJustOpened = false;
+                        isHandlingToggle = false;
+                    }, 500);
+                } else {
+                    // Cerrar menú
+                    nav.classList.remove('open');
+                    nav.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; transform: translateX(-100%) !important;';
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    console.log('🔍 Menu closed');
+                    setTimeout(() => { isHandlingToggle = false; }, 100);
+                }
+            } else {
+                // Desktop behavior
+                nav.classList.toggle('open');
+                nav.style.cssText = '';
+                mobileToggle.setAttribute('aria-expanded', !isOpen);
+                setTimeout(() => { isHandlingToggle = false; }, 100);
+            }
+        };
+        
+        // Solo usar click, no touchstart (para evitar doble ejecución en móviles)
+        mobileToggle.addEventListener('click', handleMenuToggle, { passive: false });
+        console.log('🔍 Menu toggle listeners attached');
+    } else {
+        console.error('🔍 Mobile toggle button NOT found');
     }
 
     // Ensure nav is closed by default on mobile (defensive: in case CSS or server rendered it open)
     (function ensureNavClosed(){
         const nav = document.querySelector('.dashboard-nav');
         if(!nav) return;
+        
         nav.classList.remove('open');
         if(mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+        
         try {
-            if (window.matchMedia && window.matchMedia('(max-width: 720px)').matches) {
-                // Defensive: explicitly hide nav via inline style on small screens to override any stubborn CSS in Safari
-                nav.style.display = 'none';
-                // hide header logout on mobile if present
+            const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+            
+            if (isMobile) {
+                nav.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; transform: translateX(-100%) !important;';
                 const hdr = document.getElementById('dashboardLogoutBtn'); if (hdr) hdr.style.display = 'none';
             } else {
-                nav.style.display = '';
+                nav.style.cssText = '';
                 const hdr = document.getElementById('dashboardLogoutBtn'); if (hdr) hdr.style.display = '';
             }
         } catch (e) { /* ignore */ }
 
-        // Close menu when clicking outside on small screens
-        document.addEventListener('click', (ev) => {
-            try {
-                if (window.matchMedia && !window.matchMedia('(max-width: 720px)').matches) return; // only mobile
-                if (!nav.classList.contains('open')) return;
-                const inside = nav.contains(ev.target) || (mobileToggle && mobileToggle.contains(ev.target));
-                if (!inside) {
+        // Close menu when clicking a link in mobile
+        const navLinks = nav.querySelectorAll('.dashboard-link');
+        navLinks.forEach((link) => {
+            link.addEventListener('click', () => {
+                const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+                if (isMobile) {
                     nav.classList.remove('open');
+                    nav.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; transform: translateX(-100%) !important;';
                     if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
                 }
-            } catch (e) { /* ignore */ }
-        }, { capture: true });
+            });
+        });
+
+        // Close menu when clicking outside on small screens
+        // Usar setTimeout para que se ejecute DESPUÉS del handler del botón
+        document.addEventListener('click', (ev) => {
+            setTimeout(() => {
+                try {
+                    const isMobile = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
+                    if (!isMobile) return;
+                    if (!nav.classList.contains('open')) return;
+                    
+                    // Si el menú acaba de abrirse, ignorar este click
+                    if (menuJustOpened) {
+                        return;
+                    }
+                    
+                    // Verificar si el click fue en el botón hamburguesa - si es así, no cerrar
+                    const clickedOnToggle = mobileToggle && (mobileToggle.contains(ev.target) || mobileToggle === ev.target);
+                    if (clickedOnToggle) {
+                        return;
+                    }
+                    
+                    const inside = nav.contains(ev.target);
+                    if (!inside) {
+                        nav.classList.remove('open');
+                        nav.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; transform: translateX(-100%) !important;';
+                        if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+                    }
+                } catch (e) { /* ignore */ }
+            }, 0);
+        }, { capture: false });
     })();
 
     // Logout from menu (works both desktop and mobile)

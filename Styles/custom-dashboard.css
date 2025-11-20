@@ -194,10 +194,36 @@ footer.padding-section-footer.background-color-secondary { background: var(--can
   .task-preview-box img { width: 48%; height: auto; }
   .usuario-wrapper .small { width: 100%; padding: 12px 16px; font-size: 16px; }
   .usuario-card input, .usuario-card select, .usuario-card textarea { font-size: 16px; padding: 10px; }
-  .dashboard-nav { display: none; } /* nav hidden on mobile; can be replaced by a hamburger later */
-  .dashboard-nav.open { display: block; position: relative; margin-bottom: 12px; z-index: 1002; }
+  aside.dashboard-nav,
+  .dashboard-nav { 
+    display: none !important; 
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 280px !important;
+    max-width: 85% !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+    overflow-y: auto !important;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.15) !important;
+    background: var(--canva-white) !important;
+    padding: 22px !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease !important;
+  }
+  aside.dashboard-nav.open,
+  .dashboard-nav.open { 
+    display: block !important; 
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
   .charts-grid { gap: 12px; }
-  .heading-style-h1 { font-size: 20px; padding: 12px; }
+  .heading-style-h1 { font-size: 20px; padding: 12px; padding-left: 60px; }
 }
 
 /* Hamburger / nav toggle styles to improve visibility and hit-area on mobile */
@@ -216,6 +242,9 @@ footer.padding-section-footer.background-color-secondary { background: var(--can
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   z-index: 2200;
+  position: fixed;
+  top: 12px;
+  left: 12px;
 }
 
 /* Show hamburger only on mobile screens */
