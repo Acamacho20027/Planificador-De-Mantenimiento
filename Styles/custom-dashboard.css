@@ -20,7 +20,7 @@
 
 /* Explicit styling for the dashboard-injected logout button to guarantee contrast */
 #dashboardLogoutBtn {
-  padding: 6px 8px;
+  padding: 8px 16px;
   border-radius: 6px;
   font-size: 14px;
   /* Make it visible against orange or white headers: white background + blue text */
@@ -31,6 +31,10 @@
   cursor: pointer;
   font-weight: 700;
   z-index: 1050;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 /* Hide header logout button on small screens to avoid overlap; use menu logout instead */
@@ -198,7 +202,7 @@ footer.padding-section-footer.background-color-secondary { background: var(--can
 
 /* Hamburger / nav toggle styles to improve visibility and hit-area on mobile */
 #nav-toggle {
-  display: inline-flex !important;
+  display: none; /* Hidden on desktop, only shown on mobile */
   align-items: center;
   justify-content: center;
   width: 44px;
@@ -212,6 +216,13 @@ footer.padding-section-footer.background-color-secondary { background: var(--can
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   z-index: 2200;
+}
+
+/* Show hamburger only on mobile screens */
+@media (max-width: 720px) {
+  #nav-toggle {
+    display: inline-flex !important;
+  }
 }
 
 /* Slight focus ring for accessibility */

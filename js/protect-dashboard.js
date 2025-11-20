@@ -28,7 +28,7 @@
                     btn.className = 'small ghost';
                     btn.type = 'button';
                     btn.style.cursor = 'pointer';
-                    btn.innerHTML = `<img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:14px; width:14px; vertical-align:middle; margin-right:6px; filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión`;
+                    btn.innerHTML = `<img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:14px; width:14px; filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión`;
                     logoutWrap.appendChild(btn);
                     // ensure header is positioned relatively so absolute works
                     const headerEl = document.querySelector('header');

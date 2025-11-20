@@ -108,8 +108,6 @@ async function initUserView(){
 
     // file input & preview
   const fileInput = document.createElement('input'); fileInput.type='file'; fileInput.accept='image/*'; fileInput.multiple=true; fileInput.style.display='none'; fileInput.id = `files-${t.id}`;
-  // hint mobile devices to open camera when possible
-  try { fileInput.setAttribute('capture', 'environment'); } catch(e) { void 0; }
   const addBtn = document.createElement('button'); addBtn.className='small ghost'; addBtn.type = 'button'; addBtn.style.marginLeft='10px';
   addBtn.innerHTML = `<img src="/imagenes/icon-upload.svg" aria-hidden="true" style="height:16px;width:16px;vertical-align:middle;margin-right:8px;filter:invert(1) grayscale(1) contrast(100%);">Agregar foto`;
     const preview = document.createElement('div'); preview.style.display='flex'; preview.style.gap='8px'; preview.style.marginTop='10px';
