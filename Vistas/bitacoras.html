@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bitácoras - Planificador de Mantenimiento</title>
+    <link rel="stylesheet" href="../Styles/styles.css">
+    <link rel="stylesheet" href="../Styles/custom-dashboard.css">
+    <link rel="stylesheet" href="../Styles/design-tokens.css">
+    <link rel="stylesheet" href="../Styles/visual-overrides.css">
+    <link rel="stylesheet" href="../Styles/mobile-nav.css">
+</head>
+<body data-default-cliente="Cliente Único" data-default-sede="Sede Única">
+    <header class="padding-global">
+        <div class="container-large">
+            <h1 class="heading-style-h1">Bitácoras</h1>
+        </div>
+    </header>
+
+    <main class="padding-global padding-section-large">
+        <div class="container-large dashboard-wrapper">
+            <button id="nav-toggle" aria-label="Abrir menú" style="background:transparent;border:none;cursor:pointer;" aria-expanded="false">
+                <svg width="28" height="20" viewBox="0 0 28 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="0" y="0" width="28" height="3" rx="1.5" fill="currentColor" />
+                    <rect x="0" y="8.5" width="28" height="3" rx="1.5" fill="currentColor" />
+                    <rect x="0" y="17" width="28" height="3" rx="1.5" fill="currentColor" />
+                </svg>
+            </button>
+            <aside class="dashboard-nav">
+                <h3 class="heading-style-h3">Menú</h3>
+                <nav>
+                    <ul>
+                        <li><a href="dashboard.html#home" class="dashboard-link">Home</a></li>
+                        <li><a href="inspeccion.html" class="dashboard-link">Inspección</a></li>
+                        <li><a href="dashboard.html#tasks" class="dashboard-link">Tareas</a></li>
+                        <li><a href="dashboard.html#admin" class="dashboard-link">Administración</a></li>
+                        <li><a href="bitacoras.html" class="dashboard-link active">Bitácoras</a></li>
+                        <li class="nav-mobile-only">
+                            <button type="button" id="menu-logout" class="dashboard-link logout-link">
+                                <img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:16px;width:16px;filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <section class="dashboard-content">
+                <div class="dashboard-hero">
+                    <div>
+                        <p class="eyebrow">Microservicio FastAPI</p>
+                        <h2 class="heading-style-h2">Procesa y descarga bitácoras</h2>
+                        <div class="service-indicator" id="bitacora-service-status">Revisando servicio...</div>
+                    </div>
+                    <div class="hero-actions">
+                        <button type="button" class="small outline" id="btn-check-service">Revisar estado</button>
+                    </div>
+                </div>
+
+                <div class="bitacora-simple">
+                    <div class="simple-card">
+                        <div class="simple-head">
+                            <div>
+                                <p class="eyebrow">Flujo básico</p>
+                                <h3>Generar bitácora mensual</h3>
+                                <p class="muted">Solo elige el mes y presiona el botón. Cliente y sede ya están preconfigurados.</p>
+                            </div>
+                            <label class="toggle-advanced">
+                                <input type="checkbox" id="toggle-avanzado" />
+                                <span>Modo avanzado</span>
+                            </label>
+                        </div>
+                        <div class="simple-grid">
+                            <label class="form-field">
+                                <span>Mes de la bitácora</span>
+                                <input type="month" id="input-periodo-simple" required />
+                            </label>
+                            <div class="simple-actions">
+                                <button type="button" class="primary-big" id="btn-generar-simple">👉 Generar bitácora del mes</button>
+                                <button type="button" class="primary-outline" id="btn-descargar-simple">Descargar Excel</button>
+                            </div>
+                        </div>
+                        <div class="status-panel" id="simple-status" aria-live="polite">
+                            <div class="status-title">Panel de estado</div>
+                            <div class="status-body" id="simple-status-text">Selecciona mes y genera la bitácora.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="zona-avanzada" class="bitacora-grid" hidden>
+                    <article class="bitacora-panel wide" aria-labelledby="procesar-title">
+                        <div class="panel-head">
+                            <div>
+                                <p class="eyebrow">Automatización</p>
+                                <h3 id="procesar-title">Procesar Bitácoras</h3>
+                                <p class="muted">Lee .txt, agrupa por cliente y periodo, y genera Excel.</p>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <label class="form-field">
+                                <span>Cliente</span>
+                                <input type="text" id="input-cliente-procesar" placeholder="Nombre exacto del cliente" />
+                            </label>
+                            <label class="form-field">
+                                <span>Periodo (YYYY-MM)</span>
+                                <input type="month" id="input-periodo-procesar" />
+                            </label>
+                        </div>
+                        <div class="actions-row">
+                            <button type="button" class="small" id="btn-procesar">Procesar bitácoras</button>
+                            <div class="pill pill-muted" id="procesar-info">Solo Administradores</div>
+                        </div>
+                        <div class="panel-log" id="procesar-status" aria-live="polite"></div>
+                    </article>
+
+                    <article class="bitacora-panel" aria-labelledby="metricas-title">
+                        <div class="panel-head">
+                            <p class="eyebrow">Visibilidad</p>
+                            <h3 id="metricas-title">Ver Métricas</h3>
+                            <p class="muted">Totales por cliente, estado y periodo.</p>
+                        </div>
+                        <div class="actions-row">
+                            <button type="button" class="small ghost" id="btn-metricas">Consultar métricas</button>
+                        </div>
+                        <div class="metrics-grid" id="metricas-resumen">
+                            <div class="metric-box">
+                                <p class="label">Registros</p>
+                                <strong id="metricas-total">--</strong>
+                            </div>
+                            <div class="metric-box">
+                                <p class="label">Clientes</p>
+                                <strong id="metricas-clientes">--</strong>
+                            </div>
+                            <div class="metric-box">
+                                <p class="label">Periodos</p>
+                                <strong id="metricas-periodos">--</strong>
+                            </div>
+                        </div>
+                        <div class="panel-log" id="metricas-detalle" aria-live="polite"></div>
+                    </article>
+
+                    <article class="bitacora-panel" aria-labelledby="descarga-title">
+                        <div class="panel-head">
+                            <p class="eyebrow">Exportación</p>
+                            <h3 id="descarga-title">Descargar Excel</h3>
+                            <p class="muted">Descarga directa desde FastAPI.</p>
+                        </div>
+                        <div class="form-grid">
+                            <label class="form-field">
+                                <span>Cliente</span>
+                                <input type="text" id="input-cliente-descarga" placeholder="Cliente" required />
+                            </label>
+                            <label class="form-field">
+                                <span>Periodo (YYYY-MM)</span>
+                                <input type="month" id="input-periodo-descarga" required />
+                            </label>
+                        </div>
+                        <div class="actions-row">
+                            <button type="button" class="small outline" id="btn-descargar">Descargar Excel</button>
+                        </div>
+                        <div class="panel-log" id="descarga-status" aria-live="polite"></div>
+                    </article>
+                </div>
+
+                <div class="bitacora-log" id="bitacora-log" aria-live="polite"></div>
+            </section>
+        </div>
+    </main>
+
+    <script src="../js/bitacoras.js"></script>
+</body>
+</html>

@@ -56,10 +56,12 @@
         window.location.href = '/Vistas/login.html';
         return;
     }
-    // only load the dashboard script when authenticated
-    const s = document.createElement('script');
-    s.src = '../js/dashboard.js';
-    document.body.appendChild(s);
+    // only load the dashboard script when authenticated; avoid double-load if already present
+    if (!window.__dashboardLoaded) {
+        const s = document.createElement('script');
+        s.src = '../js/dashboard.js';
+        document.body.appendChild(s);
+    }
 })();
 
 

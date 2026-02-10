@@ -32,10 +32,11 @@
                 <h3 class="heading-style-h3">Menú</h3>
                 <nav>
                     <ul>
-                        <li><a href="#home" class="dashboard-link" data-view="home">Home</a></li>
+                        <li><a href="dashboard.html#home" class="dashboard-link" data-view="home">Home</a></li>
                         <li><a href="inspeccion.html" class="dashboard-link">Inspección</a></li>
-                        <li><a href="#tasks" class="dashboard-link" data-view="tasks">Tareas</a></li>
-                        <li><a href="#admin" class="dashboard-link" data-view="admin">Administración</a></li>
+                        <li><a href="dashboard.html#tasks" class="dashboard-link" data-view="tasks">Tareas</a></li>
+                        <li><a href="dashboard.html#admin" class="dashboard-link" data-view="admin">Administración</a></li>
+                        <li><a href="bitacoras.html" class="dashboard-link">Bitácoras</a></li>
                         <li class="nav-mobile-only">
                             <button type="button" id="menu-logout" class="dashboard-link logout-link">
                                 <img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:16px;width:16px;filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión
@@ -47,28 +48,68 @@
 
             <section class="dashboard-content">
                 <div id="view-home" class="dashboard-view">
-                    <div class="charts-grid">
-                        <div class="chart-card" id="card-done" style="display:none;">
-                            <h4>Completadas</h4>
-                            <div class="chart-visual" id="visual-done">
-                                <!-- python-generated image for done state -->
-                                <img src="/charts/state_done.png" alt="Completadas" style="width:100%;margin-top:.5rem;display:none;" id="img-state-done"/>
-                            </div>
-                            <div class="chart-meta"><span class="detail-accent" id="meta-done-count">0</span> tareas — <span id="meta-done-pct">0%</span></div>
+                    <div class="dashboard-hero">
+                        <div>
+                            <p class="eyebrow">Panel operativo</p>
+                            <h2 class="heading-style-h2">Resumen de inspecciones</h2>
+                            <p class="muted">Datos en vivo desde SQL Server.</p>
                         </div>
-                        <div class="chart-card" id="card-progress" style="display:none;">
-                            <h4>En progreso</h4>
-                            <div class="chart-visual" id="visual-progress">
-                                <img src="/charts/state_in_progress.png" alt="En progreso" style="width:100%;margin-top:.5rem;display:none;" id="img-state-progress"/>
-                            </div>
-                            <div class="chart-meta"><span class="detail-accent" id="meta-progress-count">0</span> tareas — <span id="meta-progress-pct">0%</span></div>
+                        <div class="hero-actions">
+                            <button type="button" class="small outline" id="btn-refresh-dashboard">Actualizar</button>
                         </div>
-                        <div class="chart-card" id="card-notstarted" style="display:none;">
-                            <h4>No iniciadas</h4>
-                            <div class="chart-visual" id="visual-notstarted">
-                                <img src="/charts/state_not_started.png" alt="No iniciadas" style="width:100%;margin-top:.5rem;display:none;" id="img-state-notstarted"/>
+                    </div>
+
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <p>Inspecciones / tareas</p>
+                            <div class="kpi-value" id="kpi-total">--</div>
+                            <span class="kpi-pill" id="kpi-updated">Sin datos</span>
+                        </div>
+                        <div class="kpi-card">
+                            <p>Completadas</p>
+                            <div class="kpi-value" id="kpi-done">--</div>
+                            <span class="kpi-pill pill-success" id="kpi-done-pct">0%</span>
+                        </div>
+                        <div class="kpi-card">
+                            <p>En progreso</p>
+                            <div class="kpi-value" id="kpi-progress">--</div>
+                            <span class="kpi-pill pill-info" id="kpi-progress-pct">0%</span>
+                        </div>
+                        <div class="kpi-card">
+                            <p>No iniciadas</p>
+                            <div class="kpi-value" id="kpi-notstarted">--</div>
+                            <span class="kpi-pill pill-muted" id="kpi-notstarted-pct">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-grid-pro">
+                        <div class="chart-card-pro">
+                            <div class="chart-head">
+                                <div>
+                                    <p class="eyebrow">Estados</p>
+                                    <h4>Distribución de estados</h4>
+                                </div>
+                                <span class="pill" id="label-last-sync">Actualizando...</span>
                             </div>
-                            <div class="chart-meta"><span class="detail-accent" id="meta-notstarted-count">0</span> tareas — <span id="meta-notstarted-pct">0%</span></div>
+                            <canvas id="chart-status" aria-label="Distribución por estado" role="img"></canvas>
+                        </div>
+                        <div class="chart-card-pro">
+                            <div class="chart-head">
+                                <div>
+                                    <p class="eyebrow">Evolución</p>
+                                    <h4>Inspecciones por fecha</h4>
+                                </div>
+                            </div>
+                            <canvas id="chart-evolution" aria-label="Evolución temporal" role="img"></canvas>
+                        </div>
+                        <div class="chart-card-pro tall">
+                            <div class="chart-head">
+                                <div>
+                                    <p class="eyebrow">Asignación</p>
+                                    <h4>Por técnico</h4>
+                                </div>
+                            </div>
+                            <canvas id="chart-technicians" aria-label="Carga por técnico" role="img"></canvas>
                         </div>
                     </div>
                 </div>
@@ -115,6 +156,8 @@
         </div>
     </main>
 
+    <script src="../js/vendor/chart.umd.min.js"></script>
+    <script src="../js/charts.js"></script>
     <script src="../js/preview.js"></script>
     <script src="../js/dashboard.js"></script>
     <script src="../js/protect-dashboard.js"></script>

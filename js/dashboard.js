@@ -1,62 +1,24 @@
 // dashboard.js - fetch tasks and stats, render charts and tasks table
+window.__dashboardLoaded = true;
 
 // Funciones globales para cargar y renderizar datos
 async function loadAndRender() {
-    const [statsRes, tasksRes, usersRes] = await Promise.all([
-        fetch('/api/stats'),
-        fetch('/api/tasks'),
-        fetch('/api/usuarios', { credentials:'include' }).catch(()=>({ ok:false }))
-    ]);
-    const stats = statsRes.ok ? await statsRes.json() : null;
-    const tasks = tasksRes.ok ? await tasksRes.json() : [];
-    const usuarios = usersRes && usersRes.ok ? await usersRes.json() : [];
+    try {
+        const [insightsRes, tasksRes, usersRes] = await Promise.all([
+            fetch('/api/dashboard/insights'),
+            fetch('/api/tasks'),
+            fetch('/api/usuarios', { credentials:'include' }).catch(()=>({ ok:false }))
+        ]);
+        const insights = insightsRes && insightsRes.ok ? await insightsRes.json() : null;
+        const tasks = tasksRes.ok ? await tasksRes.json() : [];
+        const usuarios = usersRes && usersRes.ok ? await usersRes.json() : [];
 
-    renderCharts(stats);
-    renderTasks(tasks, usuarios);
-}
-
-function renderCharts(stats) {
-    if (!stats) {return;}
-    // New stats shape: { labels: ['Completadas','En progreso','No iniciadas'], counts: [nDone, nProgress, nNotStarted] }
-    const { counts = [] } = stats || {};
-    const [nDone = 0, nProgress = 0, nNotStarted = 0] = counts;
-
-    // Hide all cards by default
-    ['card-done','card-progress','card-notstarted'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {el.style.display = 'none';}
-    });
-
-    // helper to show python image if available
-    const showImgIfExists = async (imgId, src) => {
-        const img = document.getElementById(imgId);
-        if (!img) {return;}
-        img.style.display = 'none';
-        try{
-            const res = await fetch(src, { method: 'HEAD' });
-            if(res.ok) {img.style.display = 'block';}
-        }catch(e){ void 0; }
-    }
-
-    const total = nDone + nProgress + nNotStarted || 1;
-
-    if (nDone > 0) {
-        const el = document.getElementById('card-done'); if (el) {el.style.display = 'block';}
-        showImgIfExists('img-state-done','/charts/state_done.png');
-        const metaCount = document.getElementById('meta-done-count'); if(metaCount) {metaCount.textContent = nDone;}
-        const metaPct = document.getElementById('meta-done-pct'); if(metaPct) {metaPct.textContent = Math.round((nDone/total)*100) + '%';}
-    }
-    if (nProgress > 0) {
-        const el = document.getElementById('card-progress'); if (el) {el.style.display = 'block';}
-        showImgIfExists('img-state-progress','/charts/state_in_progress.png');
-        const metaCount = document.getElementById('meta-progress-count'); if(metaCount) {metaCount.textContent = nProgress;}
-        const metaPct = document.getElementById('meta-progress-pct'); if(metaPct) {metaPct.textContent = Math.round((nProgress/total)*100) + '%';}
-    }
-    if (nNotStarted > 0) {
-        const el = document.getElementById('card-notstarted'); if (el) {el.style.display = 'block';}
-        showImgIfExists('img-state-notstarted','/charts/state_not_started.png');
-        const metaCount = document.getElementById('meta-notstarted-count'); if(metaCount) {metaCount.textContent = nNotStarted;}
-        const metaPct = document.getElementById('meta-notstarted-pct'); if(metaPct) {metaPct.textContent = Math.round((nNotStarted/total)*100) + '%';}
+        if (window.dashboardCharts && typeof window.dashboardCharts.render === 'function') {
+            window.dashboardCharts.render(insights);
+        }
+        renderTasks(tasks, usuarios);
+    } catch (err) {
+        console.error('Error cargando dashboard:', err);
     }
 }
 
@@ -400,6 +362,11 @@ function initDashboard(){
         document.getElementById('menu-logout'),
         document.getElementById('admin-mobile-logout')
     ].filter(Boolean).forEach((btn) => btn.addEventListener('click', handleLogout));
+
+    const refreshBtn = document.getElementById('btn-refresh-dashboard');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => loadAndRender());
+    }
 
     // default view
     showView('home');

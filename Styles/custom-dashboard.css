@@ -135,12 +135,120 @@
 .chart-meta { margin-top: 12px; color: var(--canva-gray-dark); font-size:14px; }
 .detail-accent { color: var(--canva-blue); font-weight:800; font-size:16px; }
 
+/* Pro dashboard hero + KPIs + charts */
+.dashboard-hero { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px; }
+.eyebrow { text-transform:uppercase; letter-spacing:0.08em; font-size:11px; color: var(--canva-gray-dark); margin:0 0 4px 0; }
+.muted { color: var(--canva-gray-dark); margin:4px 0 0 0; }
+.hero-actions { display:flex; align-items:center; gap:10px; }
+
+.kpi-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:18px; }
+.kpi-card { background: #fff; border:1px solid rgba(15,23,42,0.06); border-radius:14px; padding:14px 16px; box-shadow: 0 10px 26px rgba(15,23,42,0.05); }
+.kpi-card p { margin:0; color: var(--canva-gray-dark); font-weight:600; }
+.kpi-value { font-size:32px; font-weight:800; color: var(--canva-blue); line-height:1.1; margin-top:6px; }
+.kpi-pill { display:inline-flex; align-items:center; gap:6px; margin-top:8px; padding:6px 10px; border-radius:999px; background: var(--canva-gray-light); color: #111; font-weight:700; font-size:12px; }
+.pill-success { background: rgba(59,163,114,0.14); color: #2f855a; }
+.pill-info { background: rgba(59,130,246,0.14); color: #1d4ed8; }
+.pill-muted { background: rgba(107,114,128,0.18); color: #374151; }
+
+.chart-grid-pro { display:grid; grid-template-columns: repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
+.chart-card-pro { background: linear-gradient(180deg,#ffffff,#f8fbff); border-radius:16px; padding:16px; box-shadow: 0 16px 36px rgba(15,23,42,0.07); border:1px solid rgba(15,23,42,0.05); }
+.chart-card-pro.tall { grid-row: span 2; }
+.chart-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:12px; }
+.chart-head h4 { margin:0; color: var(--canva-blue); font-size:18px; }
+.pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background: rgba(59,130,246,0.12); color: #1d4ed8; font-weight:700; font-size:12px; }
+
+.chart-card-pro canvas { width:100%; height:320px; }
+.chart-card-pro.tall canvas { height:420px; }
+
 /* Tasks table tweaks to look modern */
 #tasks-container table tr:nth-child(even) { background: #ffffff; }
 #tasks-container table th { background: transparent; color: #6b7280; font-weight:700; padding:12px; text-align:left; }
 #tasks-container table td { border-bottom: 1px solid #f1f5f9; padding:12px; }
 #tasks-container .small { padding: 8px 12px; border-radius:8px; background:var(--canva-blue); color:#fff; border:none; cursor:pointer; font-weight:700; }
 #tasks-container .small.ghost { background:transparent; color:var(--canva-blue); border:1px solid var(--canva-blue); }
+
+/* Bitacora block */
+.bitacora-card {
+  margin-top: 26px;
+  background: var(--canva-white);
+  border: 1px solid rgba(15,23,42,0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+.bitacora-card-header h3 {
+  margin: 0;
+  color: var(--canva-blue);
+}
+.bitacora-card-header p {
+  margin: 6px 0 0 0;
+  color: var(--canva-gray-dark);
+}
+.bitacora-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.bitacora-status {
+  margin-top: 12px;
+  color: var(--canva-gray-dark);
+  font-size: 14px;
+  min-height: 22px;
+}
+.bitacora-status.info { color: var(--canva-blue); }
+.bitacora-status.success { color: #0f9d58; }
+.bitacora-status.error { color: #c0392b; }
+.bitacora-status.muted { color: var(--canva-gray-dark); }
+.small.outline {
+  background: transparent;
+  color: var(--canva-blue);
+  border: 1px solid var(--canva-blue);
+}
+
+/* Nueva vista de Bitácoras */
+.service-indicator { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:12px; background: rgba(107,114,128,0.14); color:#111; font-weight:700; }
+.service-indicator.online { background: rgba(59,163,114,0.14); color:#2f855a; }
+.service-indicator.offline { background: rgba(192,57,43,0.14); color:#c0392b; }
+.service-indicator.warn { background: rgba(255,159,67,0.18); color:#d97706; }
+
+.bitacora-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(320px,1fr)); gap:16px; margin-top:12px; }
+.bitacora-panel { background:#fff; border:1px solid rgba(15,23,42,0.06); border-radius:14px; padding:16px; box-shadow: 0 14px 32px rgba(15,23,42,0.06); display:flex; flex-direction:column; gap:12px; }
+.bitacora-panel.wide { grid-column: span 2; }
+.panel-head h3 { margin:4px 0 2px 0; color: var(--canva-blue); }
+.panel-head p { margin:0; color: var(--canva-gray-dark); }
+.form-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+.form-field { display:flex; flex-direction:column; gap:6px; font-weight:700; color: var(--canva-gray-dark); }
+.form-field input { padding:10px 12px; border-radius:10px; border:1px solid rgba(15,23,42,0.08); background:#fff; color:#111; }
+.actions-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.metrics-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
+.metric-box { background: var(--canva-bg, #f8fafc); border:1px solid rgba(15,23,42,0.05); border-radius:10px; padding:10px; }
+.metric-box .label { margin:0; color: var(--canva-gray-dark); font-weight:600; }
+.metric-box strong { font-size:20px; color: var(--canva-blue); }
+.panel-log { min-height:22px; font-size:14px; color: var(--canva-gray-dark); }
+.bitacora-log { margin-top:16px; background:#0f172a; color:#e5e7eb; border-radius:12px; padding:12px; max-height:200px; overflow-y:auto; border:1px solid rgba(255,255,255,0.08); }
+.bitacora-log .log-line { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.bitacora-log .log-line:last-child { border-bottom:none; }
+.bitacora-log .log-line.success { color: #4ade80; }
+.bitacora-log .log-line.error { color: #f87171; }
+.bitacora-log .log-line.info { color: #93c5fd; }
+
+/* Modo simple bitácoras */
+.bitacora-simple { margin-bottom: 18px; }
+.simple-card { background:#fff; border:1px solid rgba(15,23,42,0.06); border-radius:16px; padding:16px; box-shadow:0 16px 36px rgba(15,23,42,0.06); display:flex; flex-direction:column; gap:14px; }
+.simple-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.simple-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:12px; align-items:center; }
+.simple-actions { display:flex; flex-wrap:wrap; gap:10px; }
+.primary-big { background: var(--canva-blue); color:#fff; border:none; border-radius:12px; padding:14px 18px; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 10px 26px rgba(15,23,42,0.08); }
+.primary-outline { background: transparent; color: var(--canva-blue); border:2px solid var(--canva-blue); border-radius:12px; padding:12px 16px; font-size:15px; font-weight:800; cursor:pointer; }
+.toggle-advanced { display:inline-flex; align-items:center; gap:8px; font-weight:800; color: var(--canva-blue); cursor:pointer; }
+.toggle-advanced input { width:18px; height:18px; }
+.status-panel { background:#0b5ed7; color:#fff; border-radius:14px; padding:12px; box-shadow:0 10px 24px rgba(11,94,215,0.22); border:1px solid rgba(255,255,255,0.18); }
+.status-panel .status-title { font-weight:800; font-size:15px; margin-bottom:6px; }
+.status-panel .status-body { font-size:16px; line-height:1.35; }
+.status-panel.ok { background:#0f9d58; box-shadow:0 10px 24px rgba(15,157,88,0.22); }
+.status-panel.warn { background:#f59e0b; box-shadow:0 10px 24px rgba(245,158,11,0.22); }
+.status-panel.error { background:#c0392b; box-shadow:0 10px 24px rgba(192,57,43,0.22); }
 
 /* Footer / CTA band similar to image: orange bar */
 footer.padding-section-footer.background-color-secondary { background: var(--canva-orange); color: #fff; padding:34px 0; }
@@ -151,6 +259,8 @@ footer.padding-section-footer.background-color-secondary { background: var(--can
   .dashboard-nav { width: 100%; margin-bottom: 12px; }
   .charts-grid { flex-direction:column; }
   .chart-card { width:100%; }
+  .chart-grid-pro { grid-template-columns: 1fr; }
+  .bitacora-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 1024px) {

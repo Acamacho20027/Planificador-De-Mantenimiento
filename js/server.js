@@ -25,6 +25,8 @@ const authRoutes = require('./routes/auth');
 const tasksRoutes = require('./routes/tasks');
 const inspectionsRoutes = require('./routes/inspections');
 const instructionsRoutes = require('./routes/instructions');
+const bitacoraRoutes = require('./routes/bitacora');
+const dashboardMetricsRoutes = require('./routes/dashboard-metrics');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -298,6 +300,12 @@ app.use('/api/tasks', authRoutes.requireAuth, tasksRoutes);
 
 // Usar rutas de instrucciones (protegidas)
 app.use('/api/instructions', authRoutes.requireAuth, instructionsRoutes);
+
+// Rutas de bitácoras (protegidas; procesar/descargar requieren admin dentro del router)
+app.use('/api/bitacora', authRoutes.requireAuth, bitacoraRoutes);
+
+// Rutas de métricas del dashboard (datos reales para gráficos)
+app.use('/api/dashboard', authRoutes.requireAuth, dashboardMetricsRoutes);
 
 // Obtener estadísticas (endpoint especial fuera de tasks)
 app.get('/api/stats', authRoutes.requireAuth, async (req, res) => {
