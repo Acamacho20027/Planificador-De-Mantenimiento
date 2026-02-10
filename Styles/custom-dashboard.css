@@ -37,9 +37,43 @@
   gap: 6px;
 }
 
+/* Logout button shown inside the admin view */
+.admin-mobile-logout {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+  width: 100%;
+}
+.admin-mobile-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--canva-blue);
+  color: var(--canva-white);
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(15,23,42,0.12);
+  width: 100%;
+}
+.admin-mobile-logout-btn img { display: block; }
+
 /* Hide header logout button on small screens to avoid overlap; use menu logout instead */
 @media (max-width: 720px) {
   #dashboardLogoutBtn { display: none; }
+}
+
+/* Show admin logout button for tablets and smaller */
+@media (min-width: 721px) {
+  .admin-mobile-logout-btn { width: auto; }
+}
+
+@media (min-width: 1600px) {
+  .admin-mobile-logout { display: none; }
 }
 
 /* Layout */
@@ -72,6 +106,24 @@
   font-weight: 700;
   transition: all .12s ease-in-out;
 }
+.dashboard-nav .dashboard-link.logout-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  border-radius: 12px;
+  border: none;
+  background: var(--canva-blue);
+  color: var(--canva-white);
+  cursor: pointer;
+  text-align: center;
+}
+.dashboard-nav .dashboard-link.logout-link:hover {
+  background: #27477d;
+  color: #fff;
+}
+.nav-mobile-only { display: none; }
 .dashboard-nav .dashboard-link:hover { background: var(--canva-blue); color: var(--canva-white); box-shadow: 0 8px 20px rgba(52,89,149,0.08); }
 .dashboard-nav .dashboard-link.active { background: var(--canva-blue); color: var(--canva-white); }
 
@@ -99,6 +151,10 @@ footer.padding-section-footer.background-color-secondary { background: var(--can
   .dashboard-nav { width: 100%; margin-bottom: 12px; }
   .charts-grid { flex-direction:column; }
   .chart-card { width:100%; }
+}
+
+@media (max-width: 1024px) {
+  .nav-mobile-only { display: block; }
 }
 
 /* Usuario view specific styles (moved from inline in usuario.html) */

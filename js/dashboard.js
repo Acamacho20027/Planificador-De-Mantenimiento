@@ -385,21 +385,21 @@ function initDashboard(){
         }, { capture: false });
     })();
 
-    // Logout from menu (works both desktop and mobile)
-    const menuLogout = document.getElementById('menu-logout');
-    if (menuLogout) {
-        menuLogout.addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                const tokenRes = await fetch('/auth/csrf', { credentials: 'include', cache: 'no-store' });
-                const token = tokenRes.ok ? (await tokenRes.json()).csrfToken : null;
-                await fetch('/auth/logout', { method: 'POST', credentials: 'include', headers: { 'csrf-token': token }, cache: 'no-store' });
-            } catch (err) {
-                // ignore errors
-            }
-            window.location.href = '/Vistas/login.html';
-        });
+    // Logout from menu/buttons (works both desktop and mobile)
+    async function handleLogout(event) {
+        if (event) { event.preventDefault(); }
+        try {
+            await fetch('/auth/logout', { method: 'POST', credentials: 'include', cache: 'no-store' });
+        } catch (err) {
+            // ignore errors
+        }
+        window.location.href = '/Vistas/login.html';
     }
+
+    [
+        document.getElementById('menu-logout'),
+        document.getElementById('admin-mobile-logout')
+    ].filter(Boolean).forEach((btn) => btn.addEventListener('click', handleLogout));
 
     // default view
     showView('home');
@@ -466,6 +466,9 @@ function initDashboard(){
                 alert(err.message || 'Error al crear usuario'); 
             }
         });
+
+        // Load current users when the admin form is prepared to ensure the list is visible immediately
+        loadUsersAdmin().catch(err => console.warn('No se pudo cargar la lista de usuarios:', err));
     }
 
     async function loadUsersAdmin(){

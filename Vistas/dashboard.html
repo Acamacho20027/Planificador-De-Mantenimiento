@@ -36,6 +36,11 @@
                         <li><a href="inspeccion.html" class="dashboard-link">Inspección</a></li>
                         <li><a href="#tasks" class="dashboard-link" data-view="tasks">Tareas</a></li>
                         <li><a href="#admin" class="dashboard-link" data-view="admin">Administración</a></li>
+                        <li class="nav-mobile-only">
+                            <button type="button" id="menu-logout" class="dashboard-link logout-link">
+                                <img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:16px;width:16px;filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión
+                            </button>
+                        </li>
                     </ul>
                 </nav>
             </aside>
@@ -80,6 +85,11 @@
 
                 <div id="view-admin" class="dashboard-view" style="display:none;">
                     <h3>Administración de Usuarios</h3>
+                    <div class="admin-mobile-logout">
+                        <button type="button" id="admin-mobile-logout" class="admin-mobile-logout-btn">
+                            <img src="/imagenes/icon-logout.svg" aria-hidden="true" style="height:16px;width:16px;filter:invert(1) grayscale(1) contrast(100%);">Cerrar sesión
+                        </button>
+                    </div>
                     <form id="form-crear-usuario" style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
                         <div>
                             <label for="nuevo-email">Email</label>

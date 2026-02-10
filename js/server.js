@@ -41,10 +41,15 @@ const DEBUG_SECRET = process.env.DEBUG_SECRET || 'dev-debug-secret';
 // Middleware
 // Apply helmet in production. In development, enable a relaxed helmet config
 // to avoid strict headers that interfere with local LAN testing (HSTS/COOP).
+const helmetCommonOptions = {
+    originAgentCluster: false
+};
+
 if (IS_PROD) {
-    app.use(helmet());
+    app.use(helmet(helmetCommonOptions));
 } else {
     app.use(helmet({
+        ...helmetCommonOptions,
         contentSecurityPolicy: false,
         crossOriginOpenerPolicy: false,
         crossOriginEmbedderPolicy: false,

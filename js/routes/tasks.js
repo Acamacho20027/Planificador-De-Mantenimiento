@@ -477,9 +477,9 @@ router.post('/:id/images', upload.array('images'), async (req, res) => {
                 const urlPath = `/uploads/tasks/${taskId}/${filename}`;
                 const fileMeta = { name: filename, url: urlPath, size: f.size, type: f.mimetype || null };
 
-                // Persist metadata if DB available; if DB insert fails attempt to roll back by moving file back to tmp
-                try {
-                    if (pool) {
+                let keepFile = true;
+                if (pool) {
+                    try {
                         const uploadedByRaw = (req.session && req.session.userId) ? req.session.userId : null;
                         const uploadedBy = uploadedByRaw !== null ? (Number.isInteger(uploadedByRaw) ? uploadedByRaw : parseInt(uploadedByRaw, 10) || null) : null;
                         await pool.request()
@@ -493,20 +493,30 @@ router.post('/:id/images', upload.array('images'), async (req, res) => {
                                 INSERT INTO imagenes_tarea (id_tarea, nombre_archivo, url_path, tipo_mime, tamano_bytes, uploaded_by, fecha_subida)
                                 VALUES (@id_tarea, @nombre_archivo, @url_path, @tipo_mime, @tamano_bytes, @uploaded_by, GETDATE())
                             `);
+                    } catch (metaErr) {
+                        const metaMsg = metaErr && metaErr.message ? metaErr.message : String(metaErr);
+                        const missingTable = /Invalid object name 'imagenes_tarea'/i.test(metaMsg);
+                        if (missingTable) {
+                            console.warn('Tabla imagenes_tarea no encontrada; se conservará el archivo sin metadatos en BD. Mensaje:', metaMsg);
+                        } else {
+                            keepFile = false;
+                            console.warn('DB insert failed for uploaded file, attempting rollback:', metaMsg);
+                            try {
+                                const tmpDir = path.join(BASE_UPLOAD_DIR, 'tmp');
+                                await fs.promises.mkdir(tmpDir, { recursive: true });
+                                const rollbackPath = path.join(tmpDir, filename);
+                                await fs.promises.rename(finalPath, rollbackPath);
+                                console.log(`Rolled back file to tmp: ${rollbackPath}`);
+                            } catch (rbErr) {
+                                keepFile = false;
+                                console.error('Rollback failed, file may be orphaned at:', finalPath, rbErr && rbErr.message);
+                            }
+                        }
                     }
+                }
+
+                if (keepFile) {
                     saved.push(fileMeta);
-                } catch (metaErr) {
-                    console.warn('DB insert failed for uploaded file, attempting rollback:', metaErr && metaErr.message ? metaErr.message : metaErr);
-                    // try to move back to tmp for inspection / retry
-                    try {
-                        const tmpDir = path.join(BASE_UPLOAD_DIR, 'tmp');
-                        await fs.promises.mkdir(tmpDir, { recursive: true });
-                        const rollbackPath = path.join(tmpDir, filename);
-                        await fs.promises.rename(finalPath, rollbackPath);
-                        console.log(`Rolled back file to tmp: ${rollbackPath}`);
-                    } catch (rbErr) {
-                        console.error('Rollback failed, file may be orphaned at:', finalPath, rbErr && rbErr.message);
-                    }
                 }
             }
 

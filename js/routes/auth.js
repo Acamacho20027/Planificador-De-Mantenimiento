@@ -98,8 +98,8 @@ router.post('/login', loginLimiter, csrfProtection, async (req, res) => {
     }
 });
 
-// POST /auth/logout - Cerrar sesión
-router.post('/logout', csrfProtection, (req, res) => {
+// POST /auth/logout - Cerrar sesión (CSRF no requerido; destruye sesión server-side)
+router.post('/logout', (req, res) => {
     if (req.session) {
         req.session.destroy((err) => {
             if (err) {
