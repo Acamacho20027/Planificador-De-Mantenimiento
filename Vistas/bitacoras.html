@@ -62,7 +62,7 @@
                             <div>
                                 <p class="eyebrow">Flujo básico</p>
                                 <h3>Generar bitácora mensual</h3>
-                                <p class="muted">El cliente ya está fijado. Solo elige el mes y presiona el botón.</p>
+                                <p class="muted">Elige cliente, mes y procesa. Los registros nuevos se agregan al Excel existente (se omiten duplicados). Enero, febrero, etc. se acumulan en el mismo archivo.</p>
                             </div>
                             <label class="toggle-advanced">
                                 <input type="checkbox" id="toggle-avanzado" />
@@ -72,14 +72,14 @@
                         <div class="simple-grid">
                             <label class="form-field">
                                 <span>Cliente</span>
-                                <div class="pill pill-muted" id="cliente-fijo">Cliente Principal</div>
+                                <select id="select-cliente-simple"></select>
                             </label>
                             <label class="form-field">
                                 <span>Bitácora del mes</span>
                                 <input type="month" id="input-periodo-simple" required />
                             </label>
                             <div class="simple-actions">
-                                <button type="button" class="primary-big" id="btn-generar-simple">👉 Generar bitácora del mes</button>
+                                <button type="button" class="primary-big" id="btn-generar-simple">Generar bitácora del mes</button>
                                 <button type="button" class="primary-outline" id="btn-descargar-simple">Descargar Excel</button>
                             </div>
                         </div>
@@ -162,10 +162,6 @@
                             <label class="form-field">
                                 <span>Cliente</span>
                                 <select id="select-cliente-descarga"></select>
-                            </label>
-                            <label class="form-field">
-                                <span>Periodo (YYYY-MM)</span>
-                                <input type="month" id="input-periodo-descarga" required />
                             </label>
                         </div>
                         <div class="actions-row">

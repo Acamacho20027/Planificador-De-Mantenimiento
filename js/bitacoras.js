@@ -1,6 +1,6 @@
-// Controlador de la vista de bitácoras (versión estable sin multi-mes)
+// Controlador de la vista de bitácoras (usa API Node /api/bitacora con auth)
 (function(){
-    const API_BASE = 'http://127.0.0.1:8000';
+    const API_BASE = '/api/bitacora';
     const state = {
         serviceOk: false,
         clientes: [],
@@ -68,7 +68,7 @@
     async function checkService(){
         setServiceStatus('Verificando servicio...', 'warn');
         try{
-            const res = await fetch(`${API_BASE}/health`, { cache:'no-store' });
+            const res = await fetch(`${API_BASE}/health`, { credentials:'include', cache:'no-store' });
             if(!res.ok){ throw new Error('sin respuesta'); }
             const data = await res.json();
             setServiceStatus('Servicio activo', 'online');
@@ -94,18 +94,20 @@
         try{
             const payload = { cliente: cliente || state.defaultCliente };
             if(period){ payload.period = period; }
-            const res = await fetch(`${API_BASE}/bitacora/procesar`, {
+            const res = await fetch(`${API_BASE}/procesar`, {
                 method:'POST',
                 headers:{ 'Content-Type':'application/json' },
+                credentials:'include',
                 body: JSON.stringify(payload)
             });
             const data = await res.json().catch(()=>({}));
             if(!res.ok){ throw new Error(data.detail || data.error || 'Error procesando bitácoras'); }
-            const filas = data.generated?.[0]?.rows || 0;
-            const mensaje = data.message || (filas > 0 ? 'Bitácora actualizada' : 'No hay nuevos registros');
+            const newAdded = data.new_records ?? data.generated?.[0]?.new_records_added ?? 0;
+            const totalRows = data.total_rows ?? data.generated?.[0]?.total_rows ?? 0;
+            const mensaje = data.message || (newAdded > 0 ? `Bitácora actualizada. ${newAdded} nuevo(s). Total: ${totalRows}.` : (totalRows > 0 ? `Sin registros nuevos. Total: ${totalRows}.` : 'No hay nuevos registros'));
             if(statusEl){ statusEl.textContent = mensaje; }
-            pushLog(`${mensaje} · Cliente: ${payload.cliente} · Periodo: ${period || 'año actual'}`, filas > 0 ? 'success' : 'warn');
-            setSimpleStatus(mensaje, filas > 0 ? 'success' : 'warn');
+            pushLog(`${mensaje} · Cliente: ${payload.cliente} · Periodo: ${period || 'año actual'}`, newAdded > 0 || totalRows > 0 ? 'success' : 'warn');
+            setSimpleStatus(mensaje, newAdded > 0 || totalRows > 0 ? 'success' : 'warn');
         }catch(err){
             const msg = err.message || 'Error al procesar bitácora';
             if(statusEl){ statusEl.textContent = msg; }
@@ -121,7 +123,7 @@
         const detalle = qs('#metricas-detalle');
         if(detalle){ detalle.textContent = 'Calculando métricas...'; }
         try{
-            const res = await fetch(`${API_BASE}/bitacora/metricas`, { cache:'no-store' });
+            const res = await fetch(`${API_BASE}/metricas`, { credentials:'include', cache:'no-store' });
             const data = await res.json().catch(()=>({}));
             if(!res.ok){ throw new Error(data.detail || data.error || 'Error obteniendo métricas'); }
             qs('#metricas-total') && (qs('#metricas-total').textContent = data.total_registros || 0);
@@ -137,7 +139,7 @@
         }
     }
 
-    async function descargar({ statusTarget, cliente, period, buttons }={}){
+    async function descargar({ statusTarget, cliente, buttons }={}){
         const btns = buttons || ['#btn-descargar'];
         const statusEl = statusTarget || qs('#descarga-status');
         setBusyButtons(btns, true);
@@ -145,8 +147,7 @@
         try{
             const params = new URLSearchParams();
             if(cliente){ params.append('cliente', cliente); }
-            if(period){ params.append('period', period); }
-            const res = await fetch(`${API_BASE}/bitacora/excel?${params.toString()}`);
+            const res = await fetch(`${API_BASE}/excel?${params.toString()}`, { credentials:'include' });
             if(!res.ok){
                 const errJson = await res.json().catch(()=>({}));
                 throw new Error(errJson.detail || errJson.error || 'No se encontró el archivo');
@@ -164,7 +165,7 @@
             a.remove();
             setTimeout(()=>URL.revokeObjectURL(url), 2000);
             if(statusEl){ statusEl.textContent = 'Excel descargado correctamente'; }
-            pushLog(`Descarga OK · Cliente: ${cliente || state.defaultCliente} · Periodo: ${period || 'año actual'}`,'success');
+            pushLog(`Descarga OK · Cliente: ${cliente || state.defaultCliente}`,'success');
             setSimpleStatus('Excel descargado correctamente. Revisa tu carpeta de descargas.', 'success');
         }catch(err){
             if(statusEl){ statusEl.textContent = err.message || 'Error al descargar'; }
@@ -176,7 +177,7 @@
     }
 
     function renderClientesOptions(){
-        const selects = ['#select-cliente-procesar', '#select-cliente-descarga'];
+        const selects = ['#select-cliente-simple', '#select-cliente-procesar', '#select-cliente-descarga'];
         selects.map(qs).filter(Boolean).forEach(sel => {
             sel.innerHTML = '';
             state.clientes.forEach(cli => {
@@ -189,13 +190,11 @@
                 sel.appendChild(opt);
             });
         });
-        const badge = qs('#cliente-fijo');
-        if(badge){ badge.textContent = state.defaultCliente; }
     }
 
     async function cargarClientes(){
         try{
-            const res = await fetch(`${API_BASE}/bitacora/clientes`, { cache:'no-store' });
+            const res = await fetch(`${API_BASE}/clientes`, { credentials:'include', cache:'no-store' });
             const data = await res.json().catch(()=>({ clientes: [] }));
             if(res.ok && Array.isArray(data.clientes)){
                 state.clientes = data.clientes.length ? data.clientes : [state.defaultCliente];
@@ -215,9 +214,10 @@
         }
         setBusyButtons(['#btn-crear-cliente'], true);
         try{
-            const res = await fetch(`${API_BASE}/bitacora/clientes`, {
+            const res = await fetch(`${API_BASE}/clientes`, {
                 method:'POST',
                 headers:{ 'Content-Type':'application/json' },
+                credentials:'include',
                 body: JSON.stringify({ nombre: clean })
             });
             const data = await res.json().catch(()=>({}));
@@ -299,14 +299,14 @@
 
         qs('#btn-generar-simple')?.addEventListener('click', async ()=>{
             const period = getPeriod('#input-periodo-simple');
+            const cliente = qs('#select-cliente-simple')?.value || state.defaultCliente;
             if(!period){ setSimpleStatus('Elige un periodo (YYYY-MM).', 'warn'); return; }
-            await procesar({ cliente: state.defaultCliente, period, statusTarget: qs('#simple-status-text'), buttons:['#btn-generar-simple'] });
+            await procesar({ cliente, period, statusTarget: qs('#simple-status-text'), buttons:['#btn-generar-simple'] });
         });
 
         qs('#btn-descargar-simple')?.addEventListener('click', async ()=>{
-            const period = getPeriod('#input-periodo-simple');
-            if(!period){ setSimpleStatus('Elige un periodo (YYYY-MM) para descargar.', 'warn'); return; }
-            await descargar({ cliente: state.defaultCliente, period, statusTarget: qs('#simple-status-text'), buttons:['#btn-descargar-simple'] });
+            const cliente = qs('#select-cliente-simple')?.value || state.defaultCliente;
+            await descargar({ cliente, statusTarget: qs('#simple-status-text'), buttons:['#btn-descargar-simple'] });
         });
 
         qs('#btn-procesar')?.addEventListener('click', ()=>{
@@ -319,13 +319,7 @@
 
         qs('#btn-descargar')?.addEventListener('click', ()=>{
             const cliente = qs('#select-cliente-descarga')?.value || state.defaultCliente;
-            const period = getPeriod('#input-periodo-descarga');
-            if(!period){
-                const status = qs('#descarga-status');
-                if(status){ status.textContent = 'Indica un periodo (YYYY-MM)'; }
-                return;
-            }
-            descargar({ cliente, period, statusTarget: qs('#descarga-status'), buttons:['#btn-descargar'] });
+            descargar({ cliente, statusTarget: qs('#descarga-status'), buttons:['#btn-descargar'] });
         });
 
         qs('#btn-crear-cliente')?.addEventListener('click', ()=>{

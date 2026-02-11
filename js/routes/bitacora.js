@@ -8,7 +8,7 @@ const auth = require('./auth');
 
 const fetchFn = global.fetch || ((...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)));
 
-const SERVICE_URL = (process.env.BITACORA_SERVICE_URL || 'http://127.0.0.1:8001').replace(/\/$/, '');
+const SERVICE_URL = (process.env.BITACORA_SERVICE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const SERVICE_TIMEOUT_MS = parseInt(process.env.BITACORA_SERVICE_TIMEOUT_MS, 10) || 15000;
 
 function validatePeriod(period) {
@@ -25,6 +25,19 @@ async function callService(path, options = {}) {
         clearTimeout(timer);
     }
 }
+
+router.get('/health', async (req, res) => {
+    try {
+        const upstream = await callService('/health');
+        const payload = await upstream.json().catch(() => ({}));
+        if (!upstream.ok) {
+            return res.status(upstream.status).json(payload);
+        }
+        return res.json(payload);
+    } catch (err) {
+        return res.status(502).json({ status: 'error', error: 'Microservicio no disponible' });
+    }
+});
 
 router.post('/procesar', auth.requireAdmin, async (req, res) => {
     try {
@@ -65,28 +78,56 @@ router.get('/metricas', async (req, res) => {
 
 router.get('/excel', auth.requireAdmin, async (req, res) => {
     try {
-        const { cliente, period } = req.query;
-        if (!cliente || !period) {
-            return res.status(400).json({ error: 'cliente y period son requeridos' });
-        }
-        if (!validatePeriod(period)) {
-            return res.status(400).json({ error: 'Formato de periodo invalido. Use YYYY-MM.' });
-        }
-
-        const upstream = await callService(`/bitacora/excel?cliente=${encodeURIComponent(cliente)}&period=${encodeURIComponent(period)}`);
+        let cliente = req.query.cliente;
+        if (Array.isArray(cliente)) cliente = cliente[0];
+        cliente = (cliente && String(cliente).trim()) || 'Cliente Principal';
+        const query = new URLSearchParams({ cliente });
+        const upstream = await callService(`/bitacora/excel?${query.toString()}`);
         if (!upstream.ok) {
             const payload = await upstream.json().catch(() => ({}));
             return res.status(upstream.status).json({ error: payload.detail || payload.error || 'No se encontro el archivo solicitado' });
         }
 
-        // Propagar headers seguros para descarga
-        const disposition = upstream.headers.get('content-disposition') || `attachment; filename="bitacora_${cliente}_${period}.xlsx"`;
+        const disposition = upstream.headers.get('content-disposition') || `attachment; filename="bitacora_${cliente}.xlsx"`;
         res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', disposition);
 
-        upstream.body.pipe(res);
+        const buffer = Buffer.from(await upstream.arrayBuffer());
+        res.send(buffer);
     } catch (err) {
         console.error('Error en /api/bitacora/excel:', err && err.message);
+        return res.status(502).json({ error: 'Microservicio no disponible' });
+    }
+});
+
+router.get('/clientes', async (req, res) => {
+    try {
+        const upstream = await callService('/bitacora/clientes');
+        const payload = await upstream.json().catch(() => ({}));
+        if (!upstream.ok) {
+            return res.status(upstream.status).json(payload);
+        }
+        return res.json(payload);
+    } catch (err) {
+        console.error('Error en /api/bitacora/clientes:', err && err.message);
+        return res.status(502).json({ error: 'Microservicio no disponible' });
+    }
+});
+
+router.post('/clientes', auth.requireAdmin, async (req, res) => {
+    try {
+        const upstream = await callService('/bitacora/clientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body || {})
+        });
+        const payload = await upstream.json().catch(() => ({}));
+        if (!upstream.ok) {
+            return res.status(upstream.status).json(payload);
+        }
+        return res.json(payload);
+    } catch (err) {
+        console.error('Error en /api/bitacora/clientes POST:', err && err.message);
         return res.status(502).json({ error: 'Microservicio no disponible' });
     }
 });

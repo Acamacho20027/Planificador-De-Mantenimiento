@@ -226,12 +226,32 @@
 .metric-box .label { margin:0; color: var(--canva-gray-dark); font-weight:600; }
 .metric-box strong { font-size:20px; color: var(--canva-blue); }
 .panel-log { min-height:22px; font-size:14px; color: var(--canva-gray-dark); }
-.bitacora-log { margin-top:16px; background:#0f172a; color:#e5e7eb; border-radius:12px; padding:12px; max-height:200px; overflow-y:auto; border:1px solid rgba(255,255,255,0.08); }
-.bitacora-log .log-line { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+.bitacora-log {
+  margin-top: 16px;
+  background: linear-gradient(180deg, #0f172a, #0b1222);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  max-height: 240px;
+  min-height: 120px;
+  overflow-y: auto;
+  border: 1px solid rgba(255,255,255,0.18);
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.bitacora-log .log-line {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.22);
+  color: #ffffff;
+}
 .bitacora-log .log-line:last-child { border-bottom:none; }
-.bitacora-log .log-line.success { color: #4ade80; }
-.bitacora-log .log-line.error { color: #f87171; }
-.bitacora-log .log-line.info { color: #93c5fd; }
+.bitacora-log .log-line.success { color: #a8f5c8; }
+.bitacora-log .log-line.error { color: #ffc8d4; }
+.bitacora-log .log-line.info { color: #d4e8ff; }
+.bitacora-log .log-line.warn { color: #fff0c8; }
 
 /* Modo simple bitácoras */
 .bitacora-simple { margin-bottom: 18px; }

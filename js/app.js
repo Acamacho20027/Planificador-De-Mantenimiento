@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Manejo del formulario mejorado
+    // Manejo del formulario de contacto (mapeo: name->nombre, phone->telefono, message->mensaje)
     const form = document.querySelector('.form-component');
     if (form) {
         form.addEventListener('submit', async function(e) {
@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const formData = new FormData(form);
             const data = {
-                nombre: formData.get('nombre') || document.querySelector('input[type="text"]').value,
-                email: formData.get('email') || document.querySelector('input[type="email"]').value,
-                telefono: formData.get('telefono') || document.querySelector('input[type="tel"]').value,
-                mensaje: formData.get('mensaje') || document.querySelector('textarea').value
+                nombre: formData.get('name') || '',
+                email: formData.get('email') || '',
+                telefono: formData.get('phone') || '',
+                mensaje: formData.get('message') || ''
             };
 
             try {
@@ -48,8 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showNotification('Error al enviar el formulario. Inténtalo de nuevo.', 'error');
                 }
             } catch (error) {
-                showNotification('Formulario enviado correctamente. Pronto nos pondremos en contacto contigo.', 'success');
-                form.reset();
+                showNotification('Error de conexión. Inténtalo de nuevo más tarde.', 'error');
             }
         });
     }
@@ -217,4 +216,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
