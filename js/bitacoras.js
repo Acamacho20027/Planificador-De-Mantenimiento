@@ -1,18 +1,14 @@
-// Bitácoras view controller (FastAPI integration)
+// Controlador de la vista de bitácoras (versión estable sin multi-mes)
 (function(){
     const API_BASE = 'http://127.0.0.1:8000';
     const state = {
         serviceOk: false,
-        avanzado: false
+        clientes: [],
+        defaultCliente: (document.body?.dataset?.defaultCliente) || 'Cliente Principal'
     };
 
     const qs = (sel) => document.querySelector(sel);
     const logBox = () => qs('#bitacora-log');
-
-    function currentPeriod(){
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    }
 
     function setServiceStatus(text, tone){
         const el = qs('#bitacora-service-status');
@@ -44,7 +40,10 @@
     }
 
     function setBusyButtons(ids, busy){
-        ids.map(qs).filter(Boolean).forEach(btn => { btn.disabled = !!busy; btn.classList.toggle('is-busy', !!busy); });
+        ids.map(qs).filter(Boolean).forEach(btn => {
+            btn.disabled = !!busy;
+            btn.classList.toggle('is-busy', !!busy);
+        });
     }
 
     async function ensureAdmin(){
@@ -82,65 +81,72 @@
         }
     }
 
-    async function procesar({ statusTarget }={}){
-        const btnId = ['#btn-procesar'];
-        setBusyButtons(btnId, true);
+    const getPeriod = (selector) => {
+        const val = qs(selector)?.value || '';
+        return val.trim() || null;
+    };
+
+    async function procesar({ statusTarget, cliente, period, buttons }={}){
+        const btnIds = buttons || ['#btn-procesar'];
+        setBusyButtons(btnIds, true);
         const statusEl = statusTarget || qs('#procesar-status');
-        if(statusEl){ statusEl.textContent = 'Actualizando bitácora...'; }
+        if(statusEl){ statusEl.textContent = 'Procesando...'; }
         try{
+            const payload = { cliente: cliente || state.defaultCliente };
+            if(period){ payload.period = period; }
             const res = await fetch(`${API_BASE}/bitacora/procesar`, {
                 method:'POST',
                 headers:{ 'Content-Type':'application/json' },
-                body: JSON.stringify({})
+                body: JSON.stringify(payload)
             });
             const data = await res.json().catch(()=>({}));
             if(!res.ok){ throw new Error(data.detail || data.error || 'Error procesando bitácoras'); }
-            const archivos = data.generated || [];
-            const filas = archivos[0]?.rows || 0;
-            const mensaje = data.message || (filas > 0 ? 'Bitácora actualizada correctamente' : 'No hay nuevos registros');
+            const filas = data.generated?.[0]?.rows || 0;
+            const mensaje = data.message || (filas > 0 ? 'Bitácora actualizada' : 'No hay nuevos registros');
             if(statusEl){ statusEl.textContent = mensaje; }
-            pushLog(mensaje, 'success');
-            setSimpleStatus(mensaje, 'success');
+            pushLog(`${mensaje} · Cliente: ${payload.cliente} · Periodo: ${period || 'año actual'}`, filas > 0 ? 'success' : 'warn');
+            setSimpleStatus(mensaje, filas > 0 ? 'success' : 'warn');
         }catch(err){
             const msg = err.message || 'Error al procesar bitácora';
             if(statusEl){ statusEl.textContent = msg; }
             pushLog(msg, 'error');
-            setSimpleStatus('Error al procesar bitácora', 'error');
+            setSimpleStatus(msg, 'error');
         }finally{
-            setBusyButtons(btnId, false);
+            setBusyButtons(btnIds, false);
         }
     }
 
     async function metricas(){
         setBusyButtons(['#btn-metricas'], true);
-        qs('#metricas-detalle').textContent = 'Calculando métricas...';
+        const detalle = qs('#metricas-detalle');
+        if(detalle){ detalle.textContent = 'Calculando métricas...'; }
         try{
             const res = await fetch(`${API_BASE}/bitacora/metricas`, { cache:'no-store' });
             const data = await res.json().catch(()=>({}));
             if(!res.ok){ throw new Error(data.detail || data.error || 'Error obteniendo métricas'); }
-            const total = data.total_registros || 0;
-            const clientes = data.clientes ? Object.keys(data.clientes).length : 0;
-            const periodos = data.periodos ? Object.keys(data.periodos).length : 0;
-            qs('#metricas-total').textContent = total;
-            qs('#metricas-clientes').textContent = clientes;
-            qs('#metricas-periodos').textContent = periodos;
-            qs('#metricas-detalle').textContent = 'OK: métricas actualizadas';
-            pushLog(`Métricas -> registros:${total} clientes:${clientes} periodos:${periodos}`,'info');
+            qs('#metricas-total') && (qs('#metricas-total').textContent = data.total_registros || 0);
+            qs('#metricas-clientes') && (qs('#metricas-clientes').textContent = data.clientes ? Object.keys(data.clientes).length : 0);
+            qs('#metricas-periodos') && (qs('#metricas-periodos').textContent = data.periodos ? Object.keys(data.periodos).length : 0);
+            if(detalle){ detalle.textContent = 'OK: métricas actualizadas'; }
+            pushLog('Métricas actualizadas','info');
         }catch(err){
-            qs('#metricas-detalle').textContent = err.message || 'No se pudieron cargar métricas';
+            if(detalle){ detalle.textContent = err.message || 'No se pudieron cargar métricas'; }
             pushLog(err.message || 'Error en métricas','error');
         }finally{
             setBusyButtons(['#btn-metricas'], false);
         }
     }
 
-    async function descargar({ statusTarget }={}){
-        const btns = ['#btn-descargar'];
+    async function descargar({ statusTarget, cliente, period, buttons }={}){
+        const btns = buttons || ['#btn-descargar'];
         const statusEl = statusTarget || qs('#descarga-status');
         setBusyButtons(btns, true);
         if(statusEl){ statusEl.textContent = 'Descargando...'; }
         try{
-            const res = await fetch(`${API_BASE}/bitacora/excel`);
+            const params = new URLSearchParams();
+            if(cliente){ params.append('cliente', cliente); }
+            if(period){ params.append('period', period); }
+            const res = await fetch(`${API_BASE}/bitacora/excel?${params.toString()}`);
             if(!res.ok){
                 const errJson = await res.json().catch(()=>({}));
                 throw new Error(errJson.detail || errJson.error || 'No se encontró el archivo');
@@ -148,14 +154,17 @@
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
+            const cd = res.headers.get('content-disposition') || '';
+            const nameMatch = cd.match(/filename="?([^";]+)"?/i);
+            const filename = nameMatch ? nameMatch[1] : `bitacora_${(cliente || 'cliente')}.xlsx`;
             a.href = url;
-            a.download = `bitacora_mantenimiento.xlsx`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             a.remove();
             setTimeout(()=>URL.revokeObjectURL(url), 2000);
             if(statusEl){ statusEl.textContent = 'Excel descargado correctamente'; }
-            pushLog('Descarga OK de la bitácora','success');
+            pushLog(`Descarga OK · Cliente: ${cliente || state.defaultCliente} · Periodo: ${period || 'año actual'}`,'success');
             setSimpleStatus('Excel descargado correctamente. Revisa tu carpeta de descargas.', 'success');
         }catch(err){
             if(statusEl){ statusEl.textContent = err.message || 'Error al descargar'; }
@@ -163,6 +172,69 @@
             setSimpleStatus(err.message || 'No se pudo descargar el Excel', 'error');
         }finally{
             setBusyButtons(btns, false);
+        }
+    }
+
+    function renderClientesOptions(){
+        const selects = ['#select-cliente-procesar', '#select-cliente-descarga'];
+        selects.map(qs).filter(Boolean).forEach(sel => {
+            sel.innerHTML = '';
+            state.clientes.forEach(cli => {
+                const opt = document.createElement('option');
+                opt.value = cli;
+                opt.textContent = cli;
+                if(cli.toLowerCase() === state.defaultCliente.toLowerCase()){
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            });
+        });
+        const badge = qs('#cliente-fijo');
+        if(badge){ badge.textContent = state.defaultCliente; }
+    }
+
+    async function cargarClientes(){
+        try{
+            const res = await fetch(`${API_BASE}/bitacora/clientes`, { cache:'no-store' });
+            const data = await res.json().catch(()=>({ clientes: [] }));
+            if(res.ok && Array.isArray(data.clientes)){
+                state.clientes = data.clientes.length ? data.clientes : [state.defaultCliente];
+                state.defaultCliente = data.default || state.defaultCliente;
+            }
+            renderClientesOptions();
+        }catch(err){
+            pushLog('No se pudieron cargar clientes','error');
+        }
+    }
+
+    async function crearCliente(nombre){
+        const clean = (nombre || '').trim();
+        if(!clean){
+            pushLog('Indica un nombre de cliente','warn');
+            return;
+        }
+        setBusyButtons(['#btn-crear-cliente'], true);
+        try{
+            const res = await fetch(`${API_BASE}/bitacora/clientes`, {
+                method:'POST',
+                headers:{ 'Content-Type':'application/json' },
+                body: JSON.stringify({ nombre: clean })
+            });
+            const data = await res.json().catch(()=>({}));
+            if(!res.ok){ throw new Error(data.detail || 'No se pudo crear el cliente'); }
+            if(data.created === false){
+                pushLog('El cliente ya existe','warn');
+                qs('#nuevo-cliente') && (qs('#nuevo-cliente').value = '');
+                return;
+            }
+            state.clientes = data.clientes || state.clientes;
+            renderClientesOptions();
+            qs('#nuevo-cliente') && (qs('#nuevo-cliente').value = '');
+            pushLog('Cliente creado correctamente','success');
+        }catch(err){
+            pushLog(err.message || 'No se pudo crear el cliente','error');
+        }finally{
+            setBusyButtons(['#btn-crear-cliente'], false);
         }
     }
 
@@ -207,39 +279,63 @@
         }
     }
 
+    function wireAdvancedToggle(){
+        const toggle = qs('#toggle-avanzado');
+        const zona = qs('#zona-avanzada');
+        if(!toggle || !zona){ return; }
+        toggle.addEventListener('change', ()=>{
+            zona.hidden = !toggle.checked;
+        });
+    }
+
     async function init(){
         const isAdmin = await ensureAdmin();
         if(!isAdmin){ return; }
         wireNav();
-        const monthInputs = ['#input-periodo-simple'];
-        monthInputs.map(qs).filter(Boolean).forEach(inp => { if(!inp.value){ inp.value = currentPeriod(); } });
-
-        // Toggle avanzado visible solo para admins (la página ya exige admin, pero mantenemos la condición)
-        const toggle = qs('#toggle-avanzado');
-        const zonaAvanzada = qs('#zona-avanzada');
-        if(toggle && zonaAvanzada){
-            toggle.addEventListener('change', ()=>{
-                state.avanzado = toggle.checked;
-                zonaAvanzada.hidden = !toggle.checked;
-            });
-        }
+        wireAdvancedToggle();
+        renderClientesOptions();
 
         qs('#btn-check-service')?.addEventListener('click', checkService);
-        qs('#btn-procesar')?.addEventListener('click', () => procesar({}));
-        qs('#btn-metricas')?.addEventListener('click', metricas);
-        qs('#btn-descargar')?.addEventListener('click', () => descargar({}));
 
-        // Flujo simple
         qs('#btn-generar-simple')?.addEventListener('click', async ()=>{
-            await procesar({ statusTarget: qs('#simple-status-text') });
+            const period = getPeriod('#input-periodo-simple');
+            if(!period){ setSimpleStatus('Elige un periodo (YYYY-MM).', 'warn'); return; }
+            await procesar({ cliente: state.defaultCliente, period, statusTarget: qs('#simple-status-text'), buttons:['#btn-generar-simple'] });
         });
 
         qs('#btn-descargar-simple')?.addEventListener('click', async ()=>{
-            await descargar({ statusTarget: qs('#simple-status-text') });
+            const period = getPeriod('#input-periodo-simple');
+            if(!period){ setSimpleStatus('Elige un periodo (YYYY-MM) para descargar.', 'warn'); return; }
+            await descargar({ cliente: state.defaultCliente, period, statusTarget: qs('#simple-status-text'), buttons:['#btn-descargar-simple'] });
+        });
+
+        qs('#btn-procesar')?.addEventListener('click', ()=>{
+            const cliente = qs('#select-cliente-procesar')?.value || state.defaultCliente;
+            const period = getPeriod('#input-periodo-procesar');
+            procesar({ cliente, period, statusTarget: qs('#procesar-status'), buttons:['#btn-procesar'] });
+        });
+
+        qs('#btn-metricas')?.addEventListener('click', metricas);
+
+        qs('#btn-descargar')?.addEventListener('click', ()=>{
+            const cliente = qs('#select-cliente-descarga')?.value || state.defaultCliente;
+            const period = getPeriod('#input-periodo-descarga');
+            if(!period){
+                const status = qs('#descarga-status');
+                if(status){ status.textContent = 'Indica un periodo (YYYY-MM)'; }
+                return;
+            }
+            descargar({ cliente, period, statusTarget: qs('#descarga-status'), buttons:['#btn-descargar'] });
+        });
+
+        qs('#btn-crear-cliente')?.addEventListener('click', ()=>{
+            const nombre = qs('#nuevo-cliente')?.value;
+            crearCliente(nombre);
         });
 
         checkService();
-        setSimpleStatus('Actualiza la bitácora y luego descárgala. Todo listo para usar.', 'info');
+        setSimpleStatus('Selecciona periodo, procesa y descarga la bitácora.', 'info');
+        cargarClientes();
     }
 
     if(document.readyState === 'loading'){

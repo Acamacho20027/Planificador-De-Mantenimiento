@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../Styles/visual-overrides.css">
     <link rel="stylesheet" href="../Styles/mobile-nav.css">
 </head>
-<body data-default-cliente="Cliente Único" data-default-sede="Sede Única">
+<body data-default-cliente="Cliente Principal">
     <header class="padding-global">
         <div class="container-large">
             <h1 class="heading-style-h1">Bitácoras</h1>
@@ -62,7 +62,7 @@
                             <div>
                                 <p class="eyebrow">Flujo básico</p>
                                 <h3>Generar bitácora mensual</h3>
-                                <p class="muted">Solo elige el mes y presiona el botón. Cliente y sede ya están preconfigurados.</p>
+                                <p class="muted">El cliente ya está fijado. Solo elige el mes y presiona el botón.</p>
                             </div>
                             <label class="toggle-advanced">
                                 <input type="checkbox" id="toggle-avanzado" />
@@ -71,7 +71,11 @@
                         </div>
                         <div class="simple-grid">
                             <label class="form-field">
-                                <span>Mes de la bitácora</span>
+                                <span>Cliente</span>
+                                <div class="pill pill-muted" id="cliente-fijo">Cliente Principal</div>
+                            </label>
+                            <label class="form-field">
+                                <span>Bitácora del mes</span>
                                 <input type="month" id="input-periodo-simple" required />
                             </label>
                             <div class="simple-actions">
@@ -92,18 +96,28 @@
                             <div>
                                 <p class="eyebrow">Automatización</p>
                                 <h3 id="procesar-title">Procesar Bitácoras</h3>
-                                <p class="muted">Lee .txt, agrupa por cliente y periodo, y genera Excel.</p>
+                                <p class="muted">Lee .txt, procesa por cliente y periodo, y genera Excel.</p>
                             </div>
                         </div>
                         <div class="form-grid">
                             <label class="form-field">
                                 <span>Cliente</span>
-                                <input type="text" id="input-cliente-procesar" placeholder="Nombre exacto del cliente" />
+                                <select id="select-cliente-procesar"></select>
                             </label>
                             <label class="form-field">
                                 <span>Periodo (YYYY-MM)</span>
                                 <input type="month" id="input-periodo-procesar" />
                             </label>
+                        </div>
+                        <div class="form-grid">
+                            <label class="form-field">
+                                <span>Crear nuevo cliente</span>
+                                <input type="text" id="nuevo-cliente" placeholder="Ej. Cliente Norte" />
+                            </label>
+                            <div class="form-field">
+                                <span>&nbsp;</span>
+                                <button type="button" class="small" id="btn-crear-cliente">Crear nuevo cliente</button>
+                            </div>
                         </div>
                         <div class="actions-row">
                             <button type="button" class="small" id="btn-procesar">Procesar bitácoras</button>
@@ -147,7 +161,7 @@
                         <div class="form-grid">
                             <label class="form-field">
                                 <span>Cliente</span>
-                                <input type="text" id="input-cliente-descarga" placeholder="Cliente" required />
+                                <select id="select-cliente-descarga"></select>
                             </label>
                             <label class="form-field">
                                 <span>Periodo (YYYY-MM)</span>
@@ -159,9 +173,9 @@
                         </div>
                         <div class="panel-log" id="descarga-status" aria-live="polite"></div>
                     </article>
-                </div>
 
-                <div class="bitacora-log" id="bitacora-log" aria-live="polite"></div>
+                    <div class="bitacora-log" id="bitacora-log" aria-live="polite"></div>
+                </div>
             </section>
         </div>
     </main>
