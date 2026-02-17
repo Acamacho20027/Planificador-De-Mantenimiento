@@ -11,12 +11,24 @@ from typing import List, Dict, Optional, Tuple
 
 import pandas as pd
 
+# Marcadores de contenido multimedia/sistema que se ignoran como texto útil
+IMAGE_MARKERS = ["imagen omitida", "image omitted"]
+MEDIA_MARKERS = ["audio omitted", "video omitted"]
+SYSTEM_MARKERS = [
+    "messages and calls are end-to-end encrypted",
+    "mensajes y llamadas están cifrados de extremo a extremo",
+    "unknown user created this group",
+    "unknown user",
+    "this message was deleted",
+    "se eliminó este mensaje",
+]
+
 # Palabras clave para clasificar solicitudes de mantenimiento (estilo WhatsApp / lenguaje coloquial)
 REQUEST_KEYWORDS = [
     "no sirve", "no funciona", "no trabaja",
-    "dañado", "danado", "dañada", "roto", "rota", "se quebró", "se quebro",
-    "se rompió", "se rompio", "averiado", "averiada", "malo", "mala",
-    "revisar", "reparar", "arreglar", "arreglo",
+    "dañado", "danado", "dañada", "roto", "rota", "se quebró", "se quebro", "quebraron",
+    "se rompió", "se rompio", "averiado", "averiada", "malo", "mala", "favor", "pintar", "armar", "pasar",
+    "revisar", "reparar", "arreglar", "arreglo", "mover", "reemplazo",
     "mantenimiento", "mantenimiento correctivo",
     "aire", "a/c", "ac ", "aire acondicionado",
     "bomba", "bombas", "electrobomba",
@@ -26,7 +38,7 @@ REQUEST_KEYWORDS = [
     "puerta", "ventana", "techo", "lamina", "lámina",
     "inodoro", "lavamanos", "grifo", "llave",
     "enchufe", "tomacorriente", "breaker", "tablero",
-    "cerradura", "bisagra", "pasador",
+    "cerradura", "bisagra", "pasador", "corregir", "corrección", "correccion", "ajustar", "ajuste", "ajustada", "ajustado", "urgente",
 ]
 
 CONFIRMATION_KEYWORDS = [
@@ -37,20 +49,19 @@ CONFIRMATION_KEYWORDS = [
     "ya quedo", "ya quedó", "ya quedo.", "quedó listo",
     "ya sirve", "ya está", "ya esta", "listo para",
     "completado", "completada", "terminado", "terminada",
-    "atendido", "atendida", "realizado", "realizada",
+    "atendido", "atendida", "realizado", "realizada", "la medida", "medida tomada", "ok", "ok.", "okay",
 ]
 
 REPORTER_NAME = "Randall"
-CHAT_FILE = "chat_whatsapp.txt"
 OUTPUT_FILE = "bitacora_mantenimiento_2026.xlsx"
 
 # Regex original
 LINE_REGEX = re.compile(
     r"""
-    ^\[
-    (?P<date>\d{1,2}/\d{1,2}/\d{2,4}),\s+
+    ^[\u200e\u200f\u202a-\u202e\ufeff\s]*\[\s*
+    (?P<date>\d{1,2}/\d{1,2}/\d{2,4}),\s*
     (?P<time>\d{1,2}:\d{2}:\d{2})\s*
-    (?P<ampm>a\.?\s?m\.?|p\.?\s?m\.?)
+    (?P<ampm>[ap]\.?(?:\s)?m\.?|am|pm|a\s?m|p\s?m)
     \]\s+
     (?P<author>[^:]+):
     \s*(?P<message>.*)
@@ -62,7 +73,16 @@ LINE_REGEX = re.compile(
 
 def parse_line(line: str, filter_year_month: Optional[Tuple[int, int]] = None) -> Optional[Dict]:
     """Parsea una línea del chat. Si filter_year_month=(año, mes), solo devuelve mensajes de ese periodo."""
-    match = LINE_REGEX.match(line.strip())
+    def _normalize(s: str) -> str:
+        # Limpia caracteres invisibles que suelen traer los txt exportados de WhatsApp
+        cleaned = s.replace("\u202f", " ").replace("\u00a0", " ")
+        cleaned = cleaned.replace("\u200e", "").replace("\u200f", "")
+        cleaned = cleaned.replace("\ufeff", "").replace("\u2060", "")
+        cleaned = cleaned.replace("\u202a", "").replace("\u202b", "").replace("\u202c", "").replace("\u202d", "").replace("\u202e", "")
+        return cleaned.strip()
+
+    normalized_line = _normalize(line)
+    match = LINE_REGEX.match(normalized_line)
     if not match:
         return None
     date_str = match.group("date")
@@ -98,9 +118,13 @@ def parse_line(line: str, filter_year_month: Optional[Tuple[int, int]] = None) -
         if year != fy or month != fm:
             return None
 
+    author = match.group("author").strip()
+    author = author.lstrip("~•- ")
+    author = author.replace("\u202f", " ").replace("\u00a0", " ").strip()
+
     return {
         "datetime": timestamp,
-        "author": match.group("author").strip(),
+        "author": author,
         "message": match.group("message").strip(),
     }
 
@@ -113,11 +137,16 @@ def parse_chat(file_path: str, filter_year_month: Optional[Tuple[int, int]] = No
     current: Optional[Dict] = None
     malformed_lines: List[str] = []
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
         for raw_line in f:
             parsed = parse_line(raw_line, filter_year_month)
             if parsed:
-                if "imagen omitida" in parsed["message"].lower():
+                msg_lower = parsed["message"].lower()
+                if any(marker in msg_lower for marker in IMAGE_MARKERS):
+                    continue
+                if any(marker in msg_lower for marker in MEDIA_MARKERS):
+                    continue
+                if any(marker in msg_lower for marker in SYSTEM_MARKERS):
                     continue
                 if current:
                     messages.append(current)
@@ -138,13 +167,64 @@ def parse_chat(file_path: str, filter_year_month: Optional[Tuple[int, int]] = No
     return messages
 
 
+def parse_chat_folder_with_stats(source_dir: Path, filter_year_month: Optional[Tuple[int, int]] = None) -> Tuple[List[Dict], List[Dict]]:
+    """Lee y concatena todos los .txt del directorio de bitácoras, retornando mensajes y estadísticas por archivo."""
+    txt_files = sorted(p for p in Path(source_dir).glob("*.txt") if p.is_file())
+    if not txt_files:
+        raise FileNotFoundError(f"No se encontraron archivos .txt en {source_dir}")
+
+    all_messages: List[Dict] = []
+    stats: List[Dict] = []
+
+    for path in txt_files:
+        parsed_msgs: List[Dict] = []
+        line_count = 0
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                for raw in f:
+                    line_count += 1
+                    parsed = parse_line(raw, filter_year_month)
+                    if parsed:
+                        msg_lower = parsed["message"].lower()
+                        if any(marker in msg_lower for marker in IMAGE_MARKERS):
+                            continue
+                        if any(marker in msg_lower for marker in MEDIA_MARKERS):
+                            continue
+                        if any(marker in msg_lower for marker in SYSTEM_MARKERS):
+                            continue
+                        parsed_msgs.append(parsed)
+        except Exception as exc:
+            print(f"No se pudo leer {path.name}: {exc}")
+            stats.append({"file": path.name, "lines": line_count, "parsed": len(parsed_msgs), "error": str(exc)})
+            continue
+
+        if not parsed_msgs:
+            print(f"Advertencia: {path.name} no generó mensajes parseados (líneas leídas: {line_count}). Revise el formato.")
+
+        all_messages.extend(parsed_msgs)
+        stats.append({"file": path.name, "lines": line_count, "parsed": len(parsed_msgs), "error": None})
+
+    all_messages.sort(key=lambda m: m["datetime"])
+    return all_messages, stats
+
+
+def parse_chat_folder(source_dir: Path, filter_year_month: Optional[Tuple[int, int]] = None) -> List[Dict]:
+    messages, _stats = parse_chat_folder_with_stats(source_dir, filter_year_month)
+    return messages
+
+
 def contains_keyword(text: str, keywords: List[str]) -> bool:
     normalized = text.lower()
     return any(kw in normalized for kw in keywords)
 
 
 def is_request(msg: Dict) -> bool:
-    return msg["author"].strip().lower() == REPORTER_NAME.lower() or contains_keyword(msg["message"], REQUEST_KEYWORDS)
+    if not msg.get("message", "").strip():
+        return False
+    if is_confirmation(msg):
+        return False
+    # Considerar solicitud cualquier mensaje que no sea confirmación; las palabras clave priorizan mantenimiento
+    return True
 
 
 def is_confirmation(msg: Dict) -> bool:
@@ -157,7 +237,7 @@ def link_requests_and_confirmations(messages: List[Dict]) -> List[Dict]:
         if is_request(msg):
             requests.append({"request": msg, "confirmation": None})
         elif is_confirmation(msg):
-            for req in requests:
+            for req in reversed(requests):
                 if req["confirmation"] is None and req["request"]["datetime"] <= msg["datetime"]:
                     req["confirmation"] = msg
                     break
@@ -275,26 +355,25 @@ def procesar_bitacora(cliente: Optional[str], period: Optional[str], source_dir:
     Enero y febrero se acumulan en el mismo archivo; se omiten duplicados.
     """
     filter_year_month = _parse_period(period)
-    chat_path = Path(source_dir) / CHAT_FILE
-    messages = parse_chat(str(chat_path), filter_year_month)
+    messages, file_stats = parse_chat_folder_with_stats(Path(source_dir), filter_year_month)
     if not messages:
         return {
             "path": None, "rows": 0, "new_records_added": 0, "total_rows": 0,
-            "year": None, "filename": None, "lines_read": 0, "lines_valid": 0
+            "year": None, "filename": None, "lines_read": 0, "lines_valid": 0, "file_stats": file_stats
         }
 
     requests = link_requests_and_confirmations(messages)
     if not requests:
         return {
             "path": None, "rows": 0, "new_records_added": 0, "total_rows": 0,
-            "year": None, "filename": None, "lines_read": 0, "lines_valid": 0
+            "year": None, "filename": None, "lines_read": 0, "lines_valid": 0, "file_stats": file_stats
         }
 
     df = build_dataframe(requests)
     if df.empty:
         return {
             "path": None, "rows": 0, "new_records_added": 0, "total_rows": 0,
-            "year": None, "filename": None, "lines_read": len(messages), "lines_valid": len(messages)
+            "year": None, "filename": None, "lines_read": len(messages), "lines_valid": len(messages), "file_stats": file_stats
         }
 
     # Año para el nombre del archivo: del periodo o del primer registro
@@ -321,13 +400,18 @@ def procesar_bitacora(cliente: Optional[str], period: Optional[str], source_dir:
         "filename": output_file.name,
         "lines_read": len(messages),
         "lines_valid": len(messages),
+        "file_stats": file_stats,
     }
 
 
 def main() -> None:
     base_dir = Path(__file__).resolve().parent
-    chat_path = base_dir / CHAT_FILE
-    messages = parse_chat(str(chat_path))
+    source_dir = base_dir / "bitacoras"
+    try:
+        messages = parse_chat_folder(source_dir)
+    except FileNotFoundError as exc:
+        print(str(exc))
+        return
     if not messages:
         print("No se encontraron mensajes válidos en el chat.")
         return

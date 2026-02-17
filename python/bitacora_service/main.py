@@ -117,6 +117,7 @@ def procesar(req: ProcessRequest | None = Body(default=None)):
             "generated": [],
             "lines_read": result.get("lines_read", 0),
             "lines_valid": result.get("lines_valid", 0),
+            "file_stats": result.get("file_stats", []),
             "new_records": 0,
             "total_rows": total,
         }
@@ -138,6 +139,7 @@ def procesar(req: ProcessRequest | None = Body(default=None)):
         "message": f"Bitácora actualizada. {new_added} registro(s) nuevo(s) agregado(s). Total: {total}.",
         "lines_read": result.get("lines_read", 0),
         "lines_valid": result.get("lines_valid", 0),
+        "file_stats": result.get("file_stats", []),
         "new_records": new_added,
         "total_rows": total,
         "status": "ok",
